@@ -2,7 +2,7 @@
 title: RecursiveCharacterTextSplitter
 date: 2026-05-05
 tags: [chunking, langchain, text-splitting]
-sources: [How-to-Chunk-Code-for-RAG.md]
+sources: [How-to-Chunk-Code-for-RAG.md, Effective-Chunking-Strategies-for-RAG.md]
 ---
 
 # RecursiveCharacterTextSplitter
@@ -29,6 +29,13 @@ RecursiveCharacterTextSplitter(
 - `chunk_overlap` 过大会引入冗余，过小会丢失上下文
 - 过小的 `chunk_size` 可能将函数/类定义从中间截断
 
+## 局限性
+
+作为[[concepts/content-dependent-splitting|内容无关切分]]工具，它无法识别文档的语义结构。Cohere 实验（[[sources/src-effective-chunking-strategies-for-rag]]）表明，无 overlap 时可能将关键信息（如发言人名字）切到相邻 chunk，导致检索失败。需配合 [[techniques/chunk-overlap|overlap]] 或改用 [[techniques/character-text-splitter|CharacterTextSplitter]] 进行内容依赖切分。
+
 ## 相关
 
 - [[techniques/code-chunking]] — 代码分块的整体策略
+- [[techniques/character-text-splitter]] — 按指定分隔符切分的替代方案
+- [[techniques/chunk-overlap]] — overlap 补偿策略
+- [[concepts/content-dependent-splitting]] — 内容依赖切分

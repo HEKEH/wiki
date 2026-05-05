@@ -2,7 +2,7 @@
 title: Code Chunking for RAG
 date: 2026-05-05
 tags: [chunking, code-rag, langchain, text-splitting]
-sources: [How-to-Chunk-Code-for-RAG.md]
+sources: [How-to-Chunk-Code-for-RAG.md, Effective-Chunking-Strategies-for-RAG.md]
 ---
 
 # Code Chunking for RAG
@@ -52,8 +52,19 @@ tokens = len(enc.encode(chunk))
 | 异步分块 | 更高吞吐 | 同上 | 并发处理 |
 | gpt-4o-mini | ~400ms | ~$0.0005/500 token | 成本敏感的摘要 |
 
+## 分块策略框架
+
+设计分块策略时需三层决策（[[sources/src-effective-chunking-strategies-for-rag]]）：
+
+1. **文档切分方式** — [[concepts/content-dependent-splitting|内容依赖]]还是内容无关？
+2. **Chunk 大小** — 小 chunk 检索精确但缺上下文，大 chunk 反之
+3. **是否重叠** — [[techniques/chunk-overlap|Overlap]] 补偿切分丢失的上下文
+
 ## 与其他概念的关系
 
-- [[techniques/recursive-character-text-splitter]] — 本篇使用的具体工具
+- [[techniques/recursive-character-text-splitter]] — 内容无关的递归分隔工具
+- [[techniques/character-text-splitter]] — 按指定分隔符切分，适合内容依赖场景
 - [[techniques/semantic-chunking]] — 更高级的语义感知分块策略
+- [[techniques/chunk-overlap]] — 重叠策略详解
 - [[concepts/token-limits]] — 理解 chunk_size 与 token 的换算关系
+- [[concepts/content-dependent-splitting]] — 内容依赖 vs 内容无关切分

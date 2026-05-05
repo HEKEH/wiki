@@ -2,7 +2,7 @@
 title: Semantic Chunking
 date: 2026-05-05
 tags: [chunking, semantic-aware, retrieval-quality]
-sources: [How-to-Chunk-Code-for-RAG.md]
+sources: [How-to-Chunk-Code-for-RAG.md, Effective-Chunking-Strategies-for-RAG.md]
 ---
 
 # Semantic Chunking
@@ -23,11 +23,14 @@ sources: [How-to-Chunk-Code-for-RAG.md]
 
 ## 实现方式
 
-- [[techniques/recursive-character-text-splitter]] — LangChain 的递归分隔方案，低成本实现语义感知
+- [[techniques/recursive-character-text-splitter]] — LangChain 的递归分隔方案，低成本实现语义感知（内容无关）
+- [[techniques/character-text-splitter]] — 按指定分隔符切分，适合[[concepts/content-dependent-splitting|内容依赖]]场景
 - AST 解析 — 基于语法树切分，更精确但实现复杂
 - Embedding 相似度 — 在语义转折点切分，计算成本高
 
 ## 相关
 
 - [[techniques/code-chunking]] — 代码分块的实践方法
+- [[concepts/content-dependent-splitting]] — 内容依赖切分是语义分块的系统性方法
+- [[techniques/chunk-overlap]] — 内容无关切分的补偿手段
 - [[concepts/retrieval-quality]] — 分块质量直接影响检索效果
