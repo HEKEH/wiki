@@ -60,6 +60,27 @@ tokens = len(enc.encode(chunk))
 2. **Chunk 大小** — 小 chunk 检索精确但缺上下文，大 chunk 反之
 3. **是否重叠** — [[techniques/chunk-overlap|Overlap]] 补偿切分丢失的上下文
 
+## Chunk 大小与上下文窗口的关系
+
+[[sources/src-practical-code-rag-at-scale|Galimzyanov et al. (2025)]] 在 Long Code Arena 上的实验证明，最优 chunk 大小取决于模型的上下文窗口容量。论文区分了两个独立参数：
+
+- **索引分块大小 (L_i)**：源文件按 L_i 行切分为非重叠窗口进行索引，L_i=∞ 表示整文件索引
+- **查询窗口大小 (L_q)**：补全文件中，目标行前的最后 L_q 行构成查询
+
+两者可独立调节，最优值通常一致：
+
+| 上下文预算 | 最优分块大小 | 原因 |
+|-----------|-------------|------|
+| ≤4K tokens | 32–64 行 | 小上下文需精确聚焦的相关 chunk，提高相关性密度 |
+| 4K–8K tokens | 64–128 行 | 中等上下文可容纳更多结构信息 |
+| ≥16K tokens | 整文件检索 | 大上下文可理解完整代码关系，整文件避免信息碎片化 |
+
+小 chunk (8-16 行) 在所有上下文长度下均表现不佳，因包含的信息不足以建立有意义的相关性。
+
+## 切分类型：行级 vs 语法感知
+
+同一实验发现，简单的行级切分与语法感知（AST）切分性能一致。代码补全更依赖语义相似片段的匹配，而非层级结构的保留。这降低了实现复杂度 — 不需要解析器即可获得同等效果。
+
 ## 与其他概念的关系
 
 - [[techniques/recursive-character-text-splitter]] — 内容无关的递归分隔工具
@@ -68,3 +89,4 @@ tokens = len(enc.encode(chunk))
 - [[techniques/chunk-overlap]] — 重叠策略详解
 - [[concepts/token-limits]] — 理解 chunk_size 与 token 的换算关系
 - [[concepts/content-dependent-splitting]] — 内容依赖 vs 内容无关切分
+- [[concepts/pl-pl-vs-nl-pl-retrieval]] — 任务模态影响分块策略选择

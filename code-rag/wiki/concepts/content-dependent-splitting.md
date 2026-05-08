@@ -51,6 +51,14 @@ CharacterTextSplitter(
 
 代码是天然的结构化文档 — 函数、类、模块都有明确的语法边界。AST 感知分块本质上就是代码场景的内容依赖切分。
 
+### 反证：行级切分 ≈ 语法感知切分
+
+[[sources/src-practical-code-rag-at-scale|Galimzyanov et al. (2025)]] 在 Long Code Arena 代码补全任务上发现，简单的行级切分与 LangChain 语法感知递归切分性能一致甚至略优。这意味着在代码补全场景下，内容依赖切分（AST 感知）的额外预处理成本并未带来质量回报。
+
+**原因分析**：代码补全更依赖语义相似片段匹配，而非层级结构中的父子关系保留。行级切分已保留了足够的代码连贯性。
+
+**但需注意**：该实验仅覆盖单行代码补全。对于更复杂的任务（多行补全、代码修复、跨文件重构），语法结构保留的价值可能更高 — 这仍待验证。内容依赖切分在非代码场景（如转录稿）中的优势已被 [[sources/src-effective-chunking-strategies-for-rag|Cohere 实验]] 证实。
+
 ## 相关
 
 - [[techniques/semantic-chunking]] — 语义感知分块的通用策略

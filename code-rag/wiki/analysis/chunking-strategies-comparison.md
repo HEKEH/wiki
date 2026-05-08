@@ -74,3 +74,19 @@ The Neural Base 给出可直接使用的配置值；Cohere 只给出权衡框架
 2. **但内容依赖切分是更优方向** — AST 感知分块就是代码场景的内容依赖切分，可从根源保证函数/类完整性
 3. **Overlap 权重因场景而异** — 代码场景可少用（语法边界已提供足够保护），但部署前务必用实际代码测试边界情况
 4. **用 tiktoken 校验 + 引用归因验证** — 前者确保 chunk 不超 token 限制，后者确保检索结果能支撑答案
+
+## 第三视角：Galimzyanov et al. (2025) 的修正
+
+[[sources/src-practical-code-rag-at-scale|Galimzyanov et al. (2025)]] 提供了系统性实验证据，对上述两篇的观点形成重要补充和修正：
+
+### 对共识 2 的补充：行级切分已足够
+
+两篇都推荐 `RecursiveCharacterTextSplitter` 作为首选，隐含假设是递归分隔比简单行级切分更好。但 Galimzyanov 等人的实验发现 **行级切分 ≈ 语法感知递归切分**，代码补全场景下简单行级切分性能一致甚至略优。这意味着递归分隔的额外复杂度在代码补全中未必有回报。
+
+### 对分歧 2 的深化：内容依赖切分的 ROI 质疑
+
+Cohere 认为内容依赖切分是更优方向，The Neural Base 未涉及。Galimzyanov 等人的实验则对代码补全场景提出了反证 — AST 感知切分无稳定收益，与 [[concepts/content-dependent-splitting|内容依赖切分]] 的理论优势形成张力。但需注意该实验仅覆盖单行补全，更复杂任务仍待验证。
+
+### 新增维度：Chunk 大小与上下文窗口的交互
+
+前两篇均未讨论 chunk 大小与模型上下文容量的关系。Galimzyanov 等人发现这是关键因素 — ≤4K tokens 用 32-64 行，≥16K tokens 可用整文件。这补充了 Cohere "小 chunk 精确但缺上下文，大 chunk 反之" 的原则性描述，给出了可操作的量化指南。
