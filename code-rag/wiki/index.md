@@ -8,7 +8,7 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 
 ## Systems
 
-<!-- - [[systems/Name]] — one-line summary -->
+- [[systems/repoformer]] — 基于 StarCoderBase 的选择性 RAG 代码补全系统；模型自评估是否需要跨文件检索
 
 ## Techniques
 
@@ -26,12 +26,14 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[concepts/retrieval-quality]] — 检索结果的相关性和完整性；受任务模态、计算预算、延迟约束共同影响
 - [[concepts/content-dependent-splitting]] — 根据文档结构定制切分规则，与内容无关切分相对
 - [[concepts/pl-pl-vs-nl-pl-retrieval]] — PL→PL 与 NL→PL 检索模态的本质差异及策略选择
+- [[concepts/selective-rag]] — 选择性检索：系统主动判断是否需要检索，避免不必要的检索开销和噪声
 
 ## Sources
 
 - [[sources/src-how-to-chunk-code-for-rag]] — How to Chunk Code for RAG (The Neural Base)
 - [[sources/src-effective-chunking-strategies-for-rag]] — Effective Chunking Strategies for RAG (Cohere)
 - [[sources/src-practical-code-rag-at-scale]] — Practical Code RAG at Scale (JetBrains Research, arXiv 2510.20609)
+- [[sources/src-repoformer-selective-retrieval]] — Repoformer: Selective Retrieval for Repository-Level Code Completion (Wu et al., arXiv 2403.10059)
 
 ## Analysis
 

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:repoformer.github.io)",
+      "Bash(curl -s https://api.github.com/search/repositories?q=repoformer+in:name)",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(f'{r[\\\\\"full_name\\\\\"]} ★{r[\\\\\"stargazers_count\\\\\"]} {r[\\\\\"html_url\\\\\"]}'\\) for r in data.get\\('items',[]\\)]\")",
+      "Bash(curl -s \"https://api.github.com/search/repositories?q=repoformer+in:name&per_page=5\")",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(f'{r[\\\\\"full_name\\\\\"]} stars={r[\\\\\"stargazers_count\\\\\"]} url={r[\\\\\"html_url\\\\\"]}'\\) for r in data.get\\('items',[]\\)]\")",
+      "WebFetch(domain:github.com)",
+      "Bash(curl -s \"https://api.github.com/repos/amazon-science/Repoformer\")",
+      "Bash(python3 -c \"import sys,json; r=json.load\\(sys.stdin\\); print\\(f'description: {r.get\\(\\\\\"description\\\\\"\\)}\\\\nstars: {r.get\\(\\\\\"stargazers_count\\\\\"\\)}\\\\ncreated: {r.get\\(\\\\\"created_at\\\\\"\\)}\\\\nupdated: {r.get\\(\\\\\"updated_at\\\\\"\\)}'\\)\")",
+      "Bash(curl -s \"https://api.github.com/repos/amazon-science/Repoformer/readme\")",
+      "Bash(python3 -c \"import sys,json,base64; r=json.load\\(sys.stdin\\); print\\(base64.b64decode\\(r['content']\\).decode\\(\\)[:3000]\\)\")",
+      "Bash(python3 -c \"import sys,json,base64; r=json.load\\(sys.stdin\\); content=base64.b64decode\\(r['content']\\).decode\\(\\); print\\(content[3000:6000]\\)\")",
+      "Bash(python3 -c \"import sys,json,base64; r=json.load\\(sys.stdin\\); content=base64.b64decode\\(r['content']\\).decode\\(\\); print\\(content[6000:]\\)\")",
+      "Bash(curl -s \"https://huggingface.co/api/models?search=repoformer&limit=10\")",
+      "Bash(python3 -c \" import sys, json data = json.load\\(sys.stdin\\) for m in data: print\\(f'{m[\\\\\"id\\\\\"]} | downloads={m.get\\(\\\\\"downloads\\\\\",0\\)} | {m.get\\(\\\\\"tags\\\\\",[]\\)}'\\) \")"
+    ]
+  }
+}

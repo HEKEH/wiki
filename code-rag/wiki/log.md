@@ -49,3 +49,13 @@ Append-only chronological record of wiki activity.
 ## [2026-05-08] lint | 模型命名：voyage-code-3
 
 - NL→PL dense 最强基准的商用模型为 **voyage-code-3**（Voyage AI）。wiki 中误写的 Voyager-3-Code 已统改为 voyage-code-3；实验表脚注保留论文表记 `Voyager-3-code` 以便对照 PDF
+
+## [2026-05-12] ingest | Repoformer: Selective Retrieval for Repository-Level Code Completion
+
+- 来源：Wu et al., arXiv 2403.10059v2
+- 创建 source 页面：[[sources/src-repoformer-selective-retrieval]]
+- 创建 system 页面：[[systems/repoformer]]
+- 创建 concept 页面：[[concepts/selective-rag]]
+- 更新页面：[[concepts/retrieval-quality]]（检索决策维度）、[[techniques/code-chunking]]（Repoformer 索引分块配置）、[[techniques/sparse-vs-dense-retrieval]]（选择性检索与稀疏检索）、[[concepts/pl-pl-vs-nl-pl-retrieval]]（PL→PL 检索必要性低）、[[techniques/bm25-retrieval]]（Jaccard + 选择性策略）
+- 核心贡献：检索不总是有帮助（仅 20% 提升、20% 有害）、选择性 RAG 框架（self-assessment 最优）、模型自评估避免不必要检索、最高 70% 推理加速
+- 勘误：A4 消融结果初始误写为 UT 25→26，实为 ES 从 ~53 退化到 ~25，已修正

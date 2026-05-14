@@ -2,7 +2,7 @@
 title: Code Chunking for RAG
 date: 2026-05-05
 tags: [chunking, code-rag, langchain, text-splitting]
-sources: [How-to-Chunk-Code-for-RAG.md, Effective-Chunking-Strategies-for-RAG.md]
+sources: [How-to-Chunk-Code-for-RAG.md, Effective-Chunking-Strategies-for-RAG.md, Repoformer-Selective-Retrieval-for-Repository-Level-Code-Completion.md]
 ---
 
 # Code Chunking for RAG
@@ -80,6 +80,17 @@ tokens = len(enc.encode(chunk))
 ## 切分类型：行级 vs 语法感知
 
 同一实验发现，简单的行级切分与语法感知（AST）切分性能一致。代码补全更依赖语义相似片段的匹配，而非层级结构的保留。这降低了实现复杂度 — 不需要解析器即可获得同等效果。
+
+## Repoformer 的索引分块配置
+
+[[sources/src-repoformer-selective-retrieval|Wu et al. (2024)]] 在仓库级代码补全中使用了滑窗分块 + overlap：
+
+| 任务类型 | Chunk size (行) | Stride (行) | Overlap 比例 |
+|---------|----------------|------------|-------------|
+| Line / API / Chunk 补全 | 20 | 10 | 50% |
+| Function 补全 | 50 | 25 | 50% |
+
+检索器使用 Jaccard 相似度，查询由 $X_l$ 末尾与 chunk 等长的行构成。该配置与 chunk-size ≈ query-size 的对齐原则一致（参见上方 Chunk 大小与上下文窗口的关系）。
 
 ## 与其他概念的关系
 

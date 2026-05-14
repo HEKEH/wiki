@@ -2,7 +2,7 @@
 title: BM25 Retrieval
 date: 2026-05-07
 tags: [bm25, sparse-retrieval, code-search, pl-pl]
-sources: [practical-code-rag-at-scale.md]
+sources: [practical-code-rag-at-scale.md, Repoformer-Selective-Retrieval-for-Repository-Level-Code-Completion.md]
 ---
 
 # BM25 Retrieval
@@ -71,3 +71,4 @@ BPE 更慢的原因：BPE 产生更大的 posting list 增加计算开销。词�
 - [[techniques/sparse-vs-dense-retrieval]] — 稀疏 vs 密集检索的任务依赖性
 - [[concepts/pl-pl-vs-nl-pl-retrieval]] — 任务模态决定 BM25 的适用性
 - [[concepts/retrieval-quality]] — BM25 是代码检索的强基线
+- [[concepts/selective-rag]] — Jaccard 稀疏检索同样受"并非总是需要检索"的约束；Repoformer 使用 Jaccard 检索器 + 选择性策略

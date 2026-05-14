@@ -2,7 +2,7 @@
 title: PL→PL vs NL→PL Retrieval
 date: 2026-05-07
 tags: [task-modality, pl-pl, nl-pl, retrieval, code-rag]
-sources: [practical-code-rag-at-scale.md]
+sources: [practical-code-rag-at-scale.md, Repoformer-Selective-Retrieval-for-Repository-Level-Code-Completion.md]
 ---
 
 # PL→PL vs NL→PL Retrieval
@@ -38,8 +38,13 @@ PL→PL 查询中，用户代码与目标代码共享大量词汇（函数名、
 
 **推论**：代码库中的自然语言密度（注释、docstring、命名风格）影响稀疏检索在 NL→PL 场景下的有效性。
 
+## PL→PL 场景中检索的必要性
+
+[[sources/src-repoformer-selective-retrieval|Wu et al. (2024)]] 在 PL→PL 代码补全中发现，仅 ~20% 的检索实例提升模型性能，~60% 无影响，~20% 有害。这与 PL→PL 的特性一致：当补全目标可从当前文件的局部上下文推断时（如简单赋值、循环结构），跨文件检索是不必要的。[[concepts/selective-rag|选择性 RAG]] 让模型自行判断是否需要跨文件信息，避免不必要检索。
+
 ## 相关
 
 - [[techniques/sparse-vs-dense-retrieval]] — 两种检索范式的详细对比
 - [[techniques/bm25-retrieval]] — PL→PL 场景的最优选择
 - [[concepts/retrieval-quality]] — 检索质量受任务模态影响
+- [[concepts/selective-rag]] — PL→PL 场景中检索必要性较低，选择性 RAG 尤其适用

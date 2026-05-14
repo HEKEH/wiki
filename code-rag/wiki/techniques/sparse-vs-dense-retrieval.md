@@ -2,7 +2,7 @@
 title: Sparse vs Dense Retrieval
 date: 2026-05-07
 tags: [sparse-retrieval, dense-retrieval, bm25, embedding, code-search]
-sources: [practical-code-rag-at-scale.md]
+sources: [practical-code-rag-at-scale.md, Repoformer-Selective-Retrieval-for-Repository-Level-Code-Completion.md]
 ---
 
 # Sparse vs Dense Retrieval
@@ -116,6 +116,10 @@ sources: [practical-code-rag-at-scale.md]
 混合检索的优势：Dense 捕获语义对应（"登录失败" → `AuthException`），BM25 捕获精确标识符匹配（`validateToken` → `validateToken`），两者互补。
 
 Python 仓库可简化：BM25 在 Python NL→PL 场景下与 E5-large 差距极小 (NDCG 0.64 vs 0.61)，成本敏感场景下 BM25 单路可能够用。
+
+## 选择性检索与稀疏检索
+
+[[sources/src-repoformer-selective-retrieval|Wu et al. (2024)]] 发现，在使用 Jaccard 稀疏检索的仓库级代码补全中，仅 ~20% 的检索实例能提升模型性能。这为稀疏检索增加了一个效率维度——通过 [[concepts/selective-rag|选择性检索]]，可在保持稀疏检索速度优势的同时，进一步减少不必要的检索调用。Repoformer 也验证了其框架与 dense retrieval 的兼容性。
 
 ## 相关
 

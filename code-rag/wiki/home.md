@@ -25,6 +25,8 @@ This wiki is focused on **Code RAG** — how LLMs retrieve and use codebase cont
 6. **检索质量受延迟约束** — 不同配置延迟差异高达 200×，BM25+词级是 PL→PL 的最佳质量-延迟平衡点（[[concepts/retrieval-quality]]）
 7. **内容依赖切分从根源解决语义断裂** — [[concepts/content-dependent-splitting]] 利用文档结构定制切分规则，优于依赖 overlap 的内容无关切分
 8. **Chunk overlap 是双刃剑** — [[techniques/chunk-overlap]] 补偿切分边界的信息丢失，但引入冗余；内容依赖切分可减少对 overlap 的依赖
+9. **检索并非总是必要** — 代码补全中仅 ~20% 检索提升性能，~20% 反而有害；[[concepts/selective-rag|选择性 RAG]] 通过模型自评估避免不必要检索，同时提升精度和效率（[[systems/repoformer|Repoformer]]）
+10. **自评估是 Selective RAG 的最优决策机制** — 比传统 trial retrieval / trial generation 更低延迟且更准确；模型结合"自知性"和"任务依赖性"两个信号判断（[[concepts/selective-rag]]）
 
 ## Open Questions
 
@@ -34,3 +36,6 @@ This wiki is focused on **Code RAG** — how LLMs retrieve and use codebase cont
 - 内容依赖切分的预处理成本与检索质量提升之间的 ROI 如何量化？
 - 上下文压缩（去重、摘要）能否改变小上下文模型的最优 chunk 策略？
 - 多行补全和代码修复任务是否与单行补全遵循相同的检索规律？
+- Selective RAG 的自评估机制能否推广到 NL→PL 场景（如代码问答）？
+- 不同仓库的"RAG 友好度"差异如何量化？能否实现个性化选择性检索策略？
+- 自监督标签基于词法相似度 (ES)，执行验证 (UT) 是否能进一步提升选择准确性？
