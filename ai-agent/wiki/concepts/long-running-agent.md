@@ -1,9 +1,12 @@
-# Long-Running Agent
-
+---
+title: Long-Running Agent
 tags: [agent-architecture, long-running, context-window]
 date: 2026-04-24
 sources: [../../raw/Effective-harnesses-for-long.md]
 status: active
+---
+
+# Long-Running Agent
 
 ## Definition
 

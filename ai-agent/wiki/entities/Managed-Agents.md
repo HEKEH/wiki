@@ -1,9 +1,12 @@
-# Managed Agents
-
+---
+title: Managed Agents
 tags: [product, anthropic, agent-architecture, hosted-service]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: active
+---
+
+# Managed Agents
 
 ## Overview
 

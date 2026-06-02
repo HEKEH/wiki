@@ -59,3 +59,7 @@ Append-only chronological record of wiki activity.
 - 更新页面：[[concepts/retrieval-quality]]（检索决策维度）、[[techniques/code-chunking]]（Repoformer 索引分块配置）、[[techniques/sparse-vs-dense-retrieval]]（选择性检索与稀疏检索）、[[concepts/pl-pl-vs-nl-pl-retrieval]]（PL→PL 检索必要性低）、[[techniques/bm25-retrieval]]（Jaccard + 选择性策略）
 - 核心贡献：检索不总是有帮助（仅 20% 提升、20% 有害）、选择性 RAG 框架（self-assessment 最优）、模型自评估避免不必要检索、最高 70% 推理加速
 - 勘误：A4 消融结果初始误写为 UT 25→26，实为 ES 从 ~53 退化到 ~25，已修正
+
+## [2026-06-02] lint | frontmatter 修复
+
+- 为 `sources/src-repoformer-selective-retrieval.md` 的含冒号标题加引号（避免 YAML 解析失败）

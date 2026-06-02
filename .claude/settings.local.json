@@ -16,7 +16,12 @@
       "Bash(python3 -c \"import sys,json,base64; r=json.load\\(sys.stdin\\); content=base64.b64decode\\(r['content']\\).decode\\(\\); print\\(content[6000:]\\)\")",
       "Bash(curl -s \"https://huggingface.co/api/models?search=repoformer&limit=10\")",
       "Bash(python3 -c \" import sys, json data = json.load\\(sys.stdin\\) for m in data: print\\(f'{m[\\\\\"id\\\\\"]} | downloads={m.get\\(\\\\\"downloads\\\\\",0\\)} | {m.get\\(\\\\\"tags\\\\\",[]\\)}'\\) \")",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(cat)",
+      "Bash(bash /tmp/check_links.sh)",
+      "Bash(python3)",
+      "Bash(echo \"  - Total content pages: $\\(find wiki -name \"*.md\" -type f ! -name \"index.md\" ! -name \"home.md\" ! -name \"log.md\")",
+      "Bash(python3 -)"
     ]
   }
 }

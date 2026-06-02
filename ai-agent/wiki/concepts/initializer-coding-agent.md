@@ -1,9 +1,12 @@
-# Initializer/Coding Agent 模式
-
+---
+title: Initializer/Coding Agent 模式
 tags: [agent-architecture, harness-design, multi-session]
 date: 2026-04-24
 sources: [../../raw/Effective-harnesses-for-long.md]
 status: active
+---
+
+# Initializer/Coding Agent 模式
 
 ## Definition
 

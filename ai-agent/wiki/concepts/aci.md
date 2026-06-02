@@ -1,4 +1,5 @@
 ---
+title: Agent-Computer Interface (ACI)
 tags: [agent, tool, design, interface]
 date: 2026-04-25
 sources:

@@ -44,3 +44,7 @@ Append-only chronological record of wiki activity.
 - 重写 `sources/ethers-getting-started`：补全链上查询、发送交易、合约只读/写入/staticCall/事件监听/历史事件查询/消息签名的完整代码示例，补全 ABI 格式说明、EventLog 结构、VoidSigner 模拟
 - 重写 `libraries/ethers-js`：补全安装导入、连接链、查询状态、发送交易、合约交互（创建/只读/写入/staticCall/事件/历史查询）、单位转换、消息签名的完整代码
 - 更新 `concepts/wallet-types`：补充 MPC 分片恢复机制（Web3Auth 2/3 门限、新设备恢复流程、Privy/Magic Link 差异）
+
+## [2026-06-02] lint | 一致性检查
+
+- 全库校验通过；确认表格单元格内 wikilink 别名 `\|` 转义为必需写法（保留）

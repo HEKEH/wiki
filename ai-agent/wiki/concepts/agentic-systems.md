@@ -1,4 +1,5 @@
 ---
+title: Agentic Systems 分类框架
 tags: [agent, workflow, architecture, classification]
 date: 2026-04-25
 sources:

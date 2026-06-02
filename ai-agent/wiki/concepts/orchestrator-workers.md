@@ -1,4 +1,5 @@
 ---
+title: Orchestrator-Workers
 tags: [workflow, agent, pattern, orchestration]
 date: 2026-04-25
 sources:

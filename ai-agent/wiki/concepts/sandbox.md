@@ -1,9 +1,12 @@
-# Sandbox
-
+---
+title: Sandbox
 tags: [agent-architecture, execution, container, security]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: active
+---
+
+# Sandbox
 
 ## Definition
 

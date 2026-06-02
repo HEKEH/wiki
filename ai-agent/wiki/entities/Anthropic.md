@@ -1,8 +1,12 @@
-# Anthropic
-
+---
+title: Anthropic
 tags: [organization, ai-safety, llm]
 date: 2026-04-23
+sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: stub
+---
+
+# Anthropic
 
 ## Overview
 

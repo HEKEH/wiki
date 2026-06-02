@@ -1,5 +1,5 @@
 ---
-title: Repoformer: Selective Retrieval for Repository-Level Code Completion
+title: "Repoformer: Selective Retrieval for Repository-Level Code Completion"
 date: 2026-05-12
 tags: [selective-rag, code-completion, self-assessment, retrieval-policy, inference-efficiency]
 sources: [Repoformer-Selective-Retrieval-for-Repository-Level-Code-Completion.md]

@@ -1,4 +1,5 @@
 ---
+title: Evaluator-Optimizer
 tags: [workflow, agent, pattern, iteration, feedback]
 date: 2026-04-25
 sources:

@@ -1,9 +1,12 @@
-# Meta-harness
-
+---
+title: Meta-harness
 tags: [agent-architecture, abstraction, design-philosophy]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: active
+---
+
+# Meta-harness
 
 ## Definition
 

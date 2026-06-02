@@ -1,9 +1,12 @@
-# Feature List Pattern
-
+---
+title: Feature List Pattern
 tags: [agent-architecture, harness-design, testing]
 date: 2026-04-24
 sources: [../../raw/Effective-harnesses-for-long.md]
 status: active
+---
+
+# Feature List Pattern
 
 ## Definition
 

@@ -1,9 +1,12 @@
-# The Bitter Lesson
-
+---
+title: The Bitter Lesson
 tags: [philosophy, ml, scaling, richard-sutton]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: active
+---
+
+# The Bitter Lesson
 
 ## Definition
 

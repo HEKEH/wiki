@@ -12,6 +12,8 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [Managed Agents](entities/Managed-Agents.md) — Anthropic 托管式 Agent 服务，解耦架构
 - [Claude](entities/Claude.md) — Anthropic 的大语言模型系列
 - [Justin Young](entities/Justin-Young.md) — Anthropic 工程师，Effective Harnesses for Long-Running Agents 作者
+- [Erik Schluntz](entities/Erik-S.md) — Anthropic 工程师，Building Effective AI Agents 合著者
+- [Barry Zhang](entities/Barry-Zhang.md) — Anthropic 工程师，Building Effective AI Agents 合著者
 
 ## Concepts
 

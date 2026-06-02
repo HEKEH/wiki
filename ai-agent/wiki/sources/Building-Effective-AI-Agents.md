@@ -1,7 +1,8 @@
 ---
+title: Building Effective AI Agents
 tags: [anthropic, agent, workflow, engineering]
 date: 2026-04-25
-sources: raw/Building-Effective-AI-Agents.md
+sources: [../../raw/Building-Effective-AI-Agents.md]
 status: ingested
 ---
 

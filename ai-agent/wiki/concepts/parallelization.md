@@ -1,4 +1,5 @@
 ---
+title: Parallelization
 tags: [workflow, agent, pattern, parallel]
 date: 2026-04-25
 sources:

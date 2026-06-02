@@ -1,4 +1,5 @@
 ---
+title: The Augmented LLM
 tags: [agent, building-block, llm, mcp]
 date: 2026-04-25
 sources:

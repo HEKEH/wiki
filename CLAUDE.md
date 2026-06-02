@@ -38,7 +38,7 @@ These rules apply to **all** knowledge bases in this collection unless overridde
 
 - `wiki/` is owned by the LLM. Create, update, and delete pages as needed.
 - Wiki pages are organized into **category subdirectories** (e.g. `wiki/concepts/`, `wiki/sources/`). Each knowledge base defines its own categories in its `CLAUDE.md`.
-- Every page should have a YAML frontmatter block with at least `title`, `date`, `tags`, and `sources`.
+- Every **content** page should have a YAML frontmatter block (delimited by `---`) with at least `title`, `date`, `tags`, and `sources`. The navigation pages `home.md`, `index.md`, and `log.md` are exempt — they use a plain `# Heading` and no frontmatter.
 - Use `[[category/page-name]]` for cross-references between wiki pages (include the subdirectory path).
 - When a single source touches multiple topics, update all relevant pages across categories in one pass.
 

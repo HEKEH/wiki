@@ -1,9 +1,12 @@
-# Pets vs Cattle
-
+---
+title: Pets vs Cattle
 tags: [infrastructure, operations, metaphor, scalability]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: active
+---
+
+# Pets vs Cattle
 
 ## Definition
 

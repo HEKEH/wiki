@@ -1,9 +1,12 @@
-# Context Engineering
-
+---
+title: Context Engineering
 tags: [agent-architecture, context-window, prompt-engineering]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: active
+---
+
+# Context Engineering
 
 ## Definition
 

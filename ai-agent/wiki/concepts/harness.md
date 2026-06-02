@@ -1,9 +1,12 @@
-# Harness
-
+---
+title: Harness
 tags: [agent-architecture, orchestration, loop]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md, ../../raw/Effective-harnesses-for-long.md]
 status: active
+---
+
+# Harness
 
 ## Definition
 

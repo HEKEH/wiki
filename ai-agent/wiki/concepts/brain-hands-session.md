@@ -1,9 +1,12 @@
-# Brain-Hands-Session 解耦模型
-
+---
+title: Brain-Hands-Session 解耦模型
 tags: [agent-architecture, decoupling, abstraction]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: active
+---
+
+# Brain-Hands-Session 解耦模型
 
 ## Definition
 

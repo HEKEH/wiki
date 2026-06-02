@@ -1,4 +1,5 @@
 ---
+title: Prompt Chaining
 tags: [workflow, agent, pattern]
 date: 2026-04-25
 sources:

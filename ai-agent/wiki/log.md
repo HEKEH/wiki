@@ -13,6 +13,14 @@ Append-only chronological record of wiki activity.
 - 创建 concept 页面：Session, Harness, Sandbox, Brain-Hands-Session 解耦模型, Pets vs Cattle, Context Anxiety, Meta-harness, The Bitter Lesson, Context Engineering
 - 更新 index.md, home.md
 
+## [2026-04-24] ingest | Effective Harnesses for Long-Running Agents
+
+- 入库来源：Anthropic 工程博客，作者 Justin Young
+- 创建 source 页面：[sources/Effective-Harnesses-for-Long-Running-Agents.md](sources/Effective-Harnesses-for-Long-Running-Agents.md)
+- 创建 concept 页面：Long-Running Agent, Initializer/Coding Agent 模式, Feature List Pattern
+- 更新 concept 页面：Harness（添加长时运行设计段落）, Session（添加跨 Session 状态衔接段落）, Context Anxiety（添加与 Long-Running Agent 关系段落）
+- 更新 index.md, home.md
+
 ## [2026-04-25] ingest | Building Effective AI Agents
 
 - 入库来源：Anthropic 工程博客，作者 Erik S. 和 Barry Zhang
@@ -22,10 +30,11 @@ Append-only chronological record of wiki activity.
 - 更新 entity 页面：Anthropic（完善工程博客条目，添加 wiki 摘要链接）
 - 更新 index.md, home.md
 
-## [2026-04-24] ingest | Effective Harnesses for Long-Running Agents
+## [2026-06-02] lint | 全库一致性整顿
 
-- 入库来源：Anthropic 工程博客，作者 Justin Young
-- 创建 source 页面：[sources/Effective-Harnesses-for-Long-Running-Agents.md](sources/Effective-Harnesses-for-Long-Running-Agents.md)
-- 创建 concept 页面：Long-Running Agent, Initializer/Coding Agent 模式, Feature List Pattern
-- 更新 concept 页面：Harness（添加长时运行设计段落）, Session（添加跨 Session 状态衔接段落）, Context Anxiety（添加与 Long-Running Agent 关系段落）
-- 更新 index.md, home.md
+- 修复断链：创建缺失 entity 页 [entities/Erik-S.md](entities/Erik-S.md)、[entities/Barry-Zhang.md](entities/Barry-Zhang.md)、[entities/Justin-Young.md](entities/Justin-Young.md)，并补入 index.md
+- 统一 frontmatter：将 17 个 bare 格式页面转为 `---` 包裹的 YAML，补全 `title:`（含已有 9 个 YAML 页）
+- 修复 `sources/Building-Effective-AI-Agents.md` 的 sources 路径（字符串→数组、补 `../../`）
+- 为 `sources/Scaling-Managed-Agents-Decoupling.md` 的含冒号标题加引号
+- 为 entity 页 Anthropic/Claude 补 `sources` 字段
+- 修正 log.md 时间顺序（04-24 / 04-25 互换）

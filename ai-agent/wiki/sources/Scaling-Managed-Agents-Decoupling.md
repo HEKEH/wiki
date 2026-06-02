@@ -1,9 +1,12 @@
-# Scaling Managed Agents: Decoupling the Brain, Hands, and Session
-
+---
+title: "Scaling Managed Agents: Decoupling the Brain, Hands, and Session"
 tags: [agent-architecture, decoupling, harness-design, anthropic, infrastructure]
 date: 2026-04-23
 sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
 status: ingested
+---
+
+# Scaling Managed Agents: Decoupling the Brain, Hands, and Session
 
 ## Summary
 

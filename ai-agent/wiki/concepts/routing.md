@@ -1,4 +1,5 @@
 ---
+title: Routing
 tags: [workflow, agent, pattern, classification]
 date: 2026-04-25
 sources:
