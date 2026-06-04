@@ -110,10 +110,12 @@ sources: [practical-code-rag-at-scale.md, Repoformer-Selective-Retrieval-for-Rep
   ├─ 自然语言 → Dense Encoder（如 E5-large、**voyage-code-3** 或等价 code embedding）主排序
   └─ 代码片段 → BM25 + 词级切分 主排序
       ↓
-  （可选）另一路作补充召回 → Reciprocal Rank Fusion 合并 → 填入 LLM 上下文
+  （可选）另一路作补充召回 → Reciprocal Rank Fusion 合并 →（可选）[[techniques/reranking|cross-encoder 重排]] → 填入 LLM 上下文
 ```
 
 混合检索的优势：Dense 捕获语义对应（"登录失败" → `AuthException`），BM25 捕获精确标识符匹配（`validateToken` → `validateToken`），两者互补。
+
+**RRF vs 重排**：RRF 是无模型的排名融合（只看名次），适合合并异构检索源；[[techniques/reranking|重排]] 是有模型的语义精排（cross-encoder 重新联合编码 query+doc），可叠加在 RRF 之后做最终精排。NL→PL 场景下重排收益最大。
 
 Python 仓库可简化：BM25 在 Python NL→PL 场景下与 E5-large 差距极小 (NDCG 0.64 vs 0.61)，成本敏感场景下 BM25 单路可能够用。
 
@@ -124,5 +126,6 @@ Python 仓库可简化：BM25 在 Python NL→PL 场景下与 E5-large 差距极
 ## 相关
 
 - [[techniques/bm25-retrieval]] — 稀疏检索的详细分析
+- [[techniques/reranking]] — 第一阶段检索后的 cross-encoder 精排
 - [[concepts/pl-pl-vs-nl-pl-retrieval]] — 任务模态的本质差异
 - [[concepts/retrieval-quality]] — 检索质量的多维评估

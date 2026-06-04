@@ -8,6 +8,7 @@ sources:
     Effective-Chunking-Strategies-for-RAG.md,
     practical-code-rag-at-scale.md,
     Repoformer-Selective-Retrieval-for-Repository-Level-Code-Completion.md,
+    Improve-RAG-Performance-Using-Cohere-Rerank.md,
   ]
 ---
 
@@ -30,6 +31,7 @@ Cohere 的 `co.chat` 提供引用归因功能 — 生成答案时标注每个断
 - **上下文增强**：NL→PL 场景中，在检索结果的 context 里包含文件路径和 import 语句可显著提升性能 — 为模型提供定位线索（[[sources/src-practical-code-rag-at-scale]]）
 - **切分粒度**：词级切分是稀疏检索的最佳粒度，BPE 相对词级约慢 10× 且无质量提升（[[techniques/bm25-retrieval]]）
 - **检索决策**：并非所有查询都需要检索——代码补全中仅 ~20% 检索实例提升性能，~20% 反而损害性能（[[concepts/selective-rag]]）
+- **重排（两阶段检索）**：第一阶段检索常把最相关文档排在靠后位置（dense 单向量压缩导致信息损失），top-k 截断时漏掉关键信息。第二阶段用 cross-encoder [[techniques/reranking|重排]] 把真正相关的内容顶到前面——提升排序质量而非召回率，是即插即用的检索质量增强（[[sources/src-improve-rag-performance-cohere-rerank]]）
 
 ## 延迟-质量权衡
 
@@ -49,3 +51,4 @@ Cohere 的 `co.chat` 提供引用归因功能 — 生成答案时标注每个断
 - [[techniques/chunk-overlap]] — overlap 补偿切分边界的信息丢失
 - [[concepts/content-dependent-splitting]] — 内容依赖切分从根源提升检索质量
 - [[concepts/selective-rag]] — 跳过不必要的检索是提升检索质量的新维度
+- [[techniques/reranking]] — 两阶段检索的第二级精排，修复第一阶段的排序质量

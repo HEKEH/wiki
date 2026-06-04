@@ -63,3 +63,17 @@ Append-only chronological record of wiki activity.
 ## [2026-06-02] lint | frontmatter 修复
 
 - 为 `sources/src-repoformer-selective-retrieval.md` 的含冒号标题加引号（避免 YAML 解析失败）
+
+## [2026-06-04] ingest | Improve RAG Performance Using Cohere Rerank
+
+- 来源：AWS Machine Learning Blog（Shashi Raina @AWS、Pradeep Prabhakaran @Cohere），2024-09-16
+- 创建 source 页面：[[sources/src-improve-rag-performance-cohere-rerank]]
+- 创建 technique 页面：[[techniques/reranking]]（两阶段检索、cross-encoder vs bi-encoder、Cohere Rerank、RRF vs 重排）
+- 更新页面：[[techniques/sparse-vs-dense-retrieval]]（Hybrid 流程加入重排环节、RRF vs 重排说明、相关链接）、[[concepts/retrieval-quality]]（新增"重排/两阶段检索"质量维度 + frontmatter source）、[[concepts/pl-pl-vs-nl-pl-retrieval]]（重排受益于 NL→PL 的相关链接）、[[home]]（核心洞见 #11、两条开放问题）
+- 核心贡献：两阶段检索范式（粗召回 + 精排）、cross-encoder 联合编码精度高于 bi-encoder 但无法预计算、重排即插即用修复第一阶段排序质量、NL→PL 场景收益最大
+
+## [2026-06-04] lint | Cohere Rerank ingest 自查
+
+- [[sources/src-improve-rag-performance-cohere-rerank]]：标注源文笔误 `786` 应为 `768`（BERT-base 维度）；补全遗漏的 Rerank 3 Nimble 低延迟变体
+- [[techniques/reranking]]：维度改为正确的 768–1536；"其他重排路径"（开源 cross-encoder / RankGPT / FlashRank）加引用块标注为非本源补充知识，RankGPT 标为待 ingest 候选（arXiv 2304.09542, EMNLP 2023）
+- 结论：cross-encoder/bi-encoder 术语框架、候选规模 50–200 等为符合既有惯例的通用工程知识补充（参见 [2026-05-08] query 先例）；事实性无误

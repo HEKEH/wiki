@@ -27,6 +27,7 @@ This wiki is focused on **Code RAG** — how LLMs retrieve and use codebase cont
 8. **Chunk overlap 是双刃剑** — [[techniques/chunk-overlap]] 补偿切分边界的信息丢失，但引入冗余；内容依赖切分可减少对 overlap 的依赖
 9. **检索并非总是必要** — 代码补全中仅 ~20% 检索提升性能，~20% 反而有害；[[concepts/selective-rag|选择性 RAG]] 通过模型自评估避免不必要检索，同时提升精度和效率（[[systems/repoformer|Repoformer]]）
 10. **自评估是 Selective RAG 的最优决策机制** — 比传统 trial retrieval / trial generation 更低延迟且更准确；模型结合"自知性"和"任务依赖性"两个信号判断（[[concepts/selective-rag]]）
+11. **两阶段检索：召回后用重排精排** — 第一阶段检索（dense 单向量压缩）常把最相关文档排在靠后，[[techniques/reranking|cross-encoder 重排]] 把 query+doc 联合编码重新打分，把对的顶到前面；即插即用、不动检索管道，NL→PL 语义检索收益最大（[[sources/src-improve-rag-performance-cohere-rerank]]）
 
 ## Open Questions
 
@@ -39,3 +40,5 @@ This wiki is focused on **Code RAG** — how LLMs retrieve and use codebase cont
 - Selective RAG 的自评估机制能否推广到 NL→PL 场景（如代码问答）？
 - 不同仓库的"RAG 友好度"差异如何量化？能否实现个性化选择性检索策略？
 - 自监督标签基于词法相似度 (ES)，执行验证 (UT) 是否能进一步提升选择准确性？
+- 重排在纯 PL→PL（代码补全）场景下是否值得？BM25 已是最优且词汇高度重叠，cross-encoder 的延迟代价是否划算？
+- 重排（cross-encoder）与 RRF（无模型融合）在 Hybrid 检索中如何取舍或叠加？是否存在量化的 ROI 拐点？

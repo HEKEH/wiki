@@ -46,5 +46,6 @@ PL→PL 查询中，用户代码与目标代码共享大量词汇（函数名、
 
 - [[techniques/sparse-vs-dense-retrieval]] — 两种检索范式的详细对比
 - [[techniques/bm25-retrieval]] — PL→PL 场景的最优选择
+- [[techniques/reranking]] — cross-encoder 重排主要受益于 NL→PL 语义检索场景
 - [[concepts/retrieval-quality]] — 检索质量受任务模态影响
 - [[concepts/selective-rag]] — PL→PL 场景中检索必要性较低，选择性 RAG 尤其适用

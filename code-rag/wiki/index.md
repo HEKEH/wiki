@@ -19,6 +19,7 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[techniques/chunk-overlap]] — 相邻 chunk 之间保留重叠区以补偿切分丢失的上下文
 - [[techniques/bm25-retrieval]] — 基于词频的稀疏检索，PL→PL 场景的最优选择
 - [[techniques/sparse-vs-dense-retrieval]] — 稀疏 vs 密集检索的任务依赖性对比
+- [[techniques/reranking]] — 两阶段检索的第二级；cross-encoder 对候选精排，NL→PL 收益最大
 
 ## Concepts
 
@@ -34,6 +35,7 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[sources/src-effective-chunking-strategies-for-rag]] — Effective Chunking Strategies for RAG (Cohere)
 - [[sources/src-practical-code-rag-at-scale]] — Practical Code RAG at Scale (JetBrains Research, arXiv 2510.20609)
 - [[sources/src-repoformer-selective-retrieval]] — Repoformer: Selective Retrieval for Repository-Level Code Completion (Wu et al., arXiv 2403.10059)
+- [[sources/src-improve-rag-performance-cohere-rerank]] — Improve RAG Performance Using Cohere Rerank (AWS ML Blog, 2024)
 
 ## Analysis
 
