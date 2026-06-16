@@ -42,6 +42,7 @@ sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Proc
 ## 相关
 
 - [[concepts/syscall-abi]] —— 内核如何得知要执行哪个操作（调用号/传参/分发/指针校验）
+- [[concepts/interprocess-communication]] —— 两种 IPC 模型都依赖系统调用进入内核
 - [[concepts/interrupts]]
 - [[concepts/mode-bit-and-operational-modes]]
 - [[sources/single-bit-mode-bit-os-integrity]] —— 来源

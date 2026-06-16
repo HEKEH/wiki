@@ -2,6 +2,23 @@
 
 按时间顺序、仅追加的 wiki 活动记录。
 
+## [2026-06-16] query | 邮箱和端口是一个东西吗？
+
+回答后在 [[concepts/message-passing-ipc]] 增补"术语辨析：邮箱 / 端口"一节：同义层(邮箱=Mach
+端口，仅名字不同)；Mach 端口额外带端口权限(receive/send rights)能力模型；套接字"端口"是 16 位
+编号(服务复用)而非队列对象本身。标注了源材料 vs 外部工程知识。
+
+## [2026-06-16] ingest | Core Dumped —《IPC：共享内存还是消息传递》
+
+将原始 `.srt` 文字稿清洗为 [[sources/ipc-shared-memory-vs-message-passing]]：删除了时间戳、
+JetBrains / CodeCrafters 广告口播和口水话；修正了语音识别错误（Mach OS、queue、kernel、
+CodeCrafters、Rider）。原始来源保持不变。这是本知识库的第二次源 ingest。
+
+将来源拆解为 3 个概念页——[[concepts/interprocess-communication]]（总览 + 两模型对比表）、
+[[concepts/shared-memory-ipc]]（地址空间共享、生产者消费者风险、竞态条件、Chromium 多进程）、
+[[concepts/message-passing-ipc]]（内核邮箱/send-receive、Mach 端口、套接字与客户端服务器、
+系统调用开销）。从 [[concepts/system-calls]] 回链，并更新 index.md 与 home.md。
+
 ## [2026-06-16] ingest | Core Dumped —《处理器中的一个比特如何守护操作系统的完整性》
 
 将原始 `.srt` 文字稿清洗为 [[sources/single-bit-mode-bit-os-integrity]]：删除了时间戳、

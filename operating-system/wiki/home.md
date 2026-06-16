@@ -28,6 +28,12 @@
 [[concepts/memory-management-unit]]；[[concepts/preemptive-vs-cooperative-os]]；
 [[concepts/kernel-mode-drivers]]。
 
+第二条线索（来自 [[sources/ipc-shared-memory-vs-message-passing]]）：进程默认相互隔离，
+协作需要 **IPC**。[[concepts/shared-memory-ipc]] 让进程共享一块内存区域——建立后免系统调用、
+极快，但数据格式与同步要进程自负；[[concepts/message-passing-ipc]] 经内核邮箱/端口收发消息——
+地址空间保持隔离、甚至可跨机器（套接字/RPC），代价是每次收发都要系统调用。两条线索都落在
+[[concepts/system-calls]] 这个进出内核的关口上。
+
 ## 开放问题
 
 - 真实架构（x86 的 0–3 环、ARM 的异常等级）如何映射到这个简化的模式位模型？
