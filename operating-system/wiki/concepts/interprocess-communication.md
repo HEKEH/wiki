@@ -38,5 +38,6 @@ sources: ["core-dumped-operating-sytems-theory/IPC： To Share Memory Or To Send
 
 - [[concepts/shared-memory-ipc]]
 - [[concepts/message-passing-ipc]]
+- [[concepts/threads]] —— 进程内协作的轻量替代；跨进程线程共享数据仍需 IPC
 - [[concepts/system-calls]] —— 两种模型都依赖系统调用进入内核
 - [[sources/ipc-shared-memory-vs-message-passing]] —— 来源

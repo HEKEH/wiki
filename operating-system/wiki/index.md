@@ -19,6 +19,8 @@
 - [[concepts/interprocess-communication]] — 进程为何/如何协作；共享内存 vs 消息传递两种模型对比。
 - [[concepts/shared-memory-ipc]] — 进程共享一块内存区域；建立后免系统调用、极快，但数据格式与同步需自负。
 - [[concepts/message-passing-ipc]] — 经内核邮箱/端口收发消息；地址空间隔离、可跨机器（套接字/RPC），但每次收发都要系统调用。
+- [[concepts/concurrency]] — 单 CPU 快速轮换执行单位的错觉；两个目的（多任务 + 填满 IO 空隙）、阻塞效应；单核也成立。
+- [[concepts/threads]] — 进程内可独立调度的最基本执行单位；共享地址空间、独占 CPU 状态与栈；线程不是函数。
 
 ## 实体
 
@@ -29,8 +31,10 @@
 ## 分析
 
 - [[analysis/detecting-kernel-corruption]] — 操作系统为何基本无法检测内核态对合法数据的破坏，以及页保护、KASAN、PatchGuard、VBS/HVCI 等尽力而为的补救机制。
+- [[analysis/multiprocess-vs-multithreaded-server]] — 头像服务器例子：阻塞效应，以及多进程 vs 多线程两种并发方案的内存/速度/隔离权衡。
 
 ## 来源
 
 - [[sources/single-bit-mode-bit-os-integrity]] — Core Dumped 视频（已清洗）：模式位、特权指令、中断、系统调用、定时器与内核态驱动如何让操作系统保持掌控。
 - [[sources/ipc-shared-memory-vs-message-passing]] — Core Dumped 视频（已清洗）：进程间通信的两种模型——共享内存与消息传递（含 Chromium、Mach 端口、套接字、性能权衡）。
+- [[sources/why-threads-single-core]] — Core Dumped 视频（已清洗）：并发的两个目的、阻塞效应、线程如何在单进程内实现并发，以及 Linux 的 task 抽象。

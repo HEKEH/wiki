@@ -2,6 +2,16 @@
 
 按时间顺序、仅追加的 wiki 活动记录。
 
+## [2026-06-16] ingest | Core Dumped —《为什么单核处理器也需要线程》
+
+将原始 `.srt` 文字稿清洗为 [[sources/why-threads-single-core]]：删除时间戳、Brilliant 广告口播
+和口水话，修正语音识别错误（scheduler、cooperate、pointer 等）。原始来源保持不变。第三次源 ingest。
+
+拆解为 2 个概念页——[[concepts/concurrency]]（并发两个目的、阻塞效应、单核也成立、对比并行）、
+[[concepts/threads]]（线程为何存在、共享/独占、线程不是函数、PCB 与 Linux task、主线程、动态创建）——
+以及 1 个分析页 [[analysis/multiprocess-vs-multithreaded-server]]（头像服务器例子的两种并发方案
+权衡）。从 [[concepts/interprocess-communication]] 回链，并更新 index.md 与 home.md。
+
 ## [2026-06-16] query | 邮箱和端口是一个东西吗？
 
 回答后在 [[concepts/message-passing-ipc]] 增补"术语辨析：邮箱 / 端口"一节：同义层(邮箱=Mach

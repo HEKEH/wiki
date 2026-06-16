@@ -34,6 +34,13 @@
 地址空间保持隔离、甚至可跨机器（套接字/RPC），代价是每次收发都要系统调用。两条线索都落在
 [[concepts/system-calls]] 这个进出内核的关口上。
 
+第三条线索（来自 [[sources/why-threads-single-core]]）：从"进程"下探到**执行单位**本身。
+[[concepts/concurrency]] 让单 CPU 快速轮换任务，既做多任务、也**填满进程等 IO 时的空隙**
+（单核亦然）。但单进程只有一个程序计数器，无法内部并发；解法是 [[concepts/threads]]——给每个
+内部执行实体各一个 PC 与 CPU 状态，共享进程地址空间。线程比"每客户端一进程"更省内存、创建更快
+（见 [[analysis/multiprocess-vs-multithreaded-server]]），代价是共享地址空间带来的隔离/同步问题。
+Linux 用统一的 `task` 结构同时表示进程与线程。
+
 ## 开放问题
 
 - 真实架构（x86 的 0–3 环、ARM 的异常等级）如何映射到这个简化的模式位模型？
