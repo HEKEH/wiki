@@ -37,11 +37,15 @@ sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Proc
 - **性能开销**——中断需要上下文切换，且与缓存配合不佳；操作系统拿到控制权后，可能先调度
   其他工作，因此不保证立即处理该调用。系统调用可被视为**陷阱（trap）**：抽象是诱饵，引诱
   程序交出控制权。
-- **平台依赖性**——平台间的差异削弱了可移植性。
+- **平台依赖性**——**每个操作系统提供自己独有的一套系统调用**（名字与功能都可能不同，如 Unix
+  `fork`+`exec` vs Windows `CreateProcess`），加之 ABI 与可执行文件格式差异，导致应用程序不仅
+  与架构绑定、也**与操作系统绑定**（见 [[analysis/why-applications-are-os-specific]]）。
 
 ## 相关
 
 - [[concepts/syscall-abi]] —— 内核如何得知要执行哪个操作（调用号/传参/分发/指针校验）
+- [[concepts/application-binary-interface]] —— 系统调用之下更广的二进制约定层
+- [[analysis/why-applications-are-os-specific]] —— 系统调用差异如何让应用与 OS 绑定
 - [[concepts/interprocess-communication]] —— 两种 IPC 模型都依赖系统调用进入内核
 - [[concepts/interrupts]]
 - [[concepts/mode-bit-and-operational-modes]]

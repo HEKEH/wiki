@@ -2,15 +2,17 @@
 title: "系统调用 ABI：内核如何知道要做什么"
 date: 2026-06-16
 tags: [系统调用, abi, 调用约定, 系统调用号, 系统调用表, copy_from_user, 安全]
-sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Processor Shields Your Operating System's Integrity.en.srt"]
+sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Processor Shields Your Operating System's Integrity.en.srt", "core-dumped-operating-sytems-theory/Why Applications Are Operating-System Specific.en.srt"]
 ---
 
 # 系统调用 ABI：内核如何知道要做什么
 
-> **范围说明**：源视频 [[sources/single-bit-mode-bit-os-integrity]] 只讲到"函数内部有条 `int`
-> 指令触发中断"，并未说明内核如何得知用户程序想执行哪个操作。本页的具体约定（系统调用号、
-> 寄存器传参、系统调用表、`copy_from_user`）属源视频之外的工程知识，作为 [[concepts/system-calls]]
-> 的细节补充归档。以 Linux x86-64 为例。
+> **范围说明**：第一篇源视频 [[sources/single-bit-mode-bit-os-integrity]] 只讲到"函数内部有条
+> `int` 指令触发中断"。第二篇源视频 [[sources/why-apps-are-os-specific]] 补上了**总体机制**：
+> 给每个系统调用配唯一编号、把编号写进寄存器、内核查系统调用表分发、以及参数经寄存器/内存
+> 传递（Linux：≤6 个放寄存器）。本页更细的 Linux x86-64 具体约定（`rax`/`rdi…` 寄存器名、
+> `copy_from_user` 指针校验）仍属源视频之外的工程知识，作为 [[concepts/system-calls]] 与
+> [[concepts/application-binary-interface]] 的细节补充。以 Linux x86-64 为例。
 
 中断只负责"敲门"切到内核态；真正的"我想要什么"是在敲门**之前**通过约定好的寄存器放好的。
 
@@ -68,7 +70,9 @@ syscall            ; 敲门 → 进内核态
 ## 相关
 
 - [[concepts/system-calls]] —— 本页补全其"内核如何得知意图"的一环
+- [[concepts/application-binary-interface]] —— 本页是 ABI 的系统调用具体实例；调用号/传参约定因 OS 而异
+- [[analysis/why-applications-are-os-specific]] —— 这些约定不对齐如何导致应用与 OS 绑定
 - [[concepts/interrupts]] —— 切到内核态、保存寄存器的机制
 - [[concepts/memory-management-unit]] —— 内核可读用户内存、并据此校验用户指针
 - [[concepts/page-fault]] —— 非法用户指针在校验时的兜底
-- [[sources/single-bit-mode-bit-os-integrity]] —— 来源
+- [[sources/single-bit-mode-bit-os-integrity]]、[[sources/why-apps-are-os-specific]] —— 来源

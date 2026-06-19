@@ -12,6 +12,8 @@
 - [[concepts/interrupts]] — 暂停进程、跳转到处理程序、并把模式位翻转为内核态的信号。
 - [[concepts/system-calls]] — 操作系统库函数，通过软件中断安全进入内核态；含优缺点。
 - [[concepts/syscall-abi]] — 内核如何得知用户程序的意图：系统调用号 + 寄存器传参 + 系统调用表分发 + 用户指针校验。
+- [[concepts/application-binary-interface]] — 二进制层约定（寄存器用法、传参方式、指针宽度、文件格式）；API 定义源码层、ABI 定义二进制层。
+- [[concepts/executable-file-format]] — 可执行文件不只含指令还含数据/元数据；OS 据格式加载；ELF（Linux）vs PE（Windows）。
 - [[concepts/memory-management-unit]] — 限制 CPU 内存访问的硬件；只能通过特权指令操控。
 - [[concepts/page-fault]] — MMU 在地址翻译时触发的同步异常；按需调页的基础，也是 MMU 把非法访问转为异常的机制。
 - [[concepts/preemptive-vs-cooperative-os]] — 定时器中断让操作系统能强制收回 CPU；协作式为何被淘汰。
@@ -33,6 +35,7 @@
 
 - [[analysis/detecting-kernel-corruption]] — 操作系统为何基本无法检测内核态对合法数据的破坏，以及页保护、KASAN、PatchGuard、VBS/HVCI 等尽力而为的补救机制。
 - [[analysis/multiprocess-vs-multithreaded-server]] — 头像服务器例子：阻塞效应，以及多进程 vs 多线程两种并发方案的内存/速度/隔离权衡。
+- [[analysis/why-applications-are-os-specific]] — 应用为何不仅与架构、也与操作系统绑定：系统调用集合 + ABI + 可执行文件格式 + 运行时四层不兼容。
 
 ## 来源
 
@@ -40,3 +43,4 @@
 - [[sources/ipc-shared-memory-vs-message-passing]] — Core Dumped 视频（已清洗）：进程间通信的两种模型——共享内存与消息传递（含 Chromium、Mach 端口、套接字、性能权衡）。
 - [[sources/why-threads-single-core]] — Core Dumped 视频（已清洗）：并发的两个目的、阻塞效应、线程如何在单进程内实现并发，以及 Linux 的 task 抽象。
 - [[sources/threads-on-multicore]] — Core Dumped 视频（已清洗）：并发的极限与三种解法、多核术语、并发 vs 并行、最多 n 个线程并行、数据并行 vs 任务并行。
+- [[sources/why-apps-are-os-specific]] — Core Dumped 视频（已清洗）：应用为何与操作系统绑定——系统调用集合（fork/exec vs CreateProcess）、ABI、可执行文件格式（ELF/PE）、运行时。

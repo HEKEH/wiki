@@ -2,6 +2,19 @@
 
 按时间顺序、仅追加的 wiki 活动记录。
 
+## [2026-06-19] ingest | Core Dumped —《为什么应用程序与操作系统绑定》
+
+将原始 `.srt` 文字稿清洗为 [[sources/why-apps-are-os-specific]]：删除时间戳、Brilliant 广告口播
+和口水话，修正语音识别错误（`syscall`、x86-64、系统调用表、`CreateProcess`、Macs 等）。原始来源
+保持不变。第五次源 ingest。
+
+新建 1 个分析页 [[analysis/why-applications-are-os-specific]]（四层不兼容：系统调用集合 / ABI /
+可执行文件格式 / 运行时）与 2 个概念页——[[concepts/application-binary-interface]]（API vs ABI、
+寄存器/传参/指针宽度约定）、[[concepts/executable-file-format]]（指令+数据+元数据、ELF vs PE）。
+因本视频明确讲了"调用号+寄存器+系统调用表"总体机制，给 [[concepts/syscall-abi]] 补充了第二个来源
+并放宽了范围说明；在 [[concepts/system-calls]] 的"平台依赖"缺点里展开 fork/exec vs CreateProcess
+并回链。更新 index.md 与 home.md（新增第四条线索）。
+
 ## [2026-06-19] query | 多进程也能并行吗？不同进程用不同核
 
 确认：进程当然能并行——并行的单位是任何可被调度的执行实体（Linux 里进程/线程都是 `task`、同一

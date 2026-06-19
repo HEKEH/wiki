@@ -48,6 +48,14 @@ Linux 用统一的 `task` 结构同时表示进程与线程。
 其他进程竞争)；程序员只需声明并发，可移植性交给 OS。并行分**数据并行**(同操作、分数据)与
 **任务并行**(分操作、同/异数据)，且加速比通常小于核心数。
 
+第四条线索（来自 [[sources/why-apps-are-os-specific]]）：从 [[concepts/system-calls]] 这个关口
+引出一个更大的问题——**为何应用程序不仅与架构、也与操作系统绑定**（综合见
+[[analysis/why-applications-are-os-specific]]）。即便同一 CPU，四层约定任何一层不对齐都会失败：
+①每个 OS 有**自己的系统调用集合**（连语义都不同，如 `fork`+`exec` vs `CreateProcess`）；
+②[[concepts/application-binary-interface]]——调用号所在寄存器、传参方式、指针宽度等二进制约定
+（[[concepts/syscall-abi]] 是其系统调用实例）；③[[concepts/executable-file-format]]（ELF vs PE）；
+④运行时依赖。可移植性这条线把 system-calls 的"平台依赖"缺点展开成了完整图景。
+
 ## 开放问题
 
 - 真实架构（x86 的 0–3 环、ARM 的异常等级）如何映射到这个简化的模式位模型？
