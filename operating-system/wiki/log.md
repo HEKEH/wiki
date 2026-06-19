@@ -2,6 +2,25 @@
 
 按时间顺序、仅追加的 wiki 活动记录。
 
+## [2026-06-19] query | 协作式 OS 怎么解决 PC/SP 丢失问题
+
+核心区分：PC/SP 丢失是**异步中断(抢占)独有**的问题，协作式是**自愿/同步**让出——`call` 由调用约定
+同步保存返回地址(PC)、yield 例程在交出控制权前用普通指令存 SP/寄存器，故此难题自始不存在；极简
+无中断 CPU 更是没有异步中断。附带差别：协作式切点在函数边界、按 ABI 只需存 callee-saved 寄存器，
+比抢占式存整套状态更轻，代价是依赖程序诚实让出。在 [[concepts/context-switch]] 增补"为何协作式
+切换不受此难题困扰"一节。
+
+## [2026-06-19] ingest | Core Dumped —《硬件如何在多任务时协助软件》
+
+将原始 `.srt` 文字稿清洗为 [[sources/hardware-assists-context-switch]]：删除时间戳、Skillshare /
+CodeCrafters 广告口播和口水话，修正语音识别错误（MOS 6502、SIMD 寄存器；"cisr" 疑为识别误差，
+指 `iret` 类中断返回指令）。原始来源保持不变。第六次源 ingest。
+
+新建 1 个概念页 [[concepts/context-switch]]（定义、为何必须做、纯软件做不到的根因=PC 被中断覆写、
+两类硬件支持：多寄存器组 / 硬件自动压栈 / TSS 全硬件）。深化了 [[concepts/interrupts]] 的"保存/恢复
+状态"两步并互链；从 [[concepts/preemptive-vs-cooperative-os]]（定时器触发切换 / 协作式纯软件）与
+[[concepts/threads]]（状态存入 PCB/`task`）回链。更新 index.md 与 home.md（新增第五条线索）。
+
 ## [2026-06-19] ingest | Core Dumped —《为什么应用程序与操作系统绑定》
 
 将原始 `.srt` 文字稿清洗为 [[sources/why-apps-are-os-specific]]：删除时间戳、Brilliant 广告口播

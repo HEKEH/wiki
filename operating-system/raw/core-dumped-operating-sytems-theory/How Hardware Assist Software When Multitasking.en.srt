@@ -1,0 +1,1464 @@
+1
+00:00:00,359 --> 00:00:05,240
+this video was sponsored by
+
+2
+00:00:02,639 --> 00:00:07,480
+skillshare when a process is running it
+
+3
+00:00:05,240 --> 00:00:10,000
+continuously uses the CPU to execute
+
+4
+00:00:07,480 --> 00:00:12,280
+instructions one after another during
+
+5
+00:00:10,000 --> 00:00:13,880
+this process the result of executing an
+
+6
+00:00:12,280 --> 00:00:15,559
+instruction depends on the entire
+
+7
+00:00:13,880 --> 00:00:17,800
+context in which that instruction is
+
+8
+00:00:15,559 --> 00:00:19,160
+being executed especially on the state
+
+9
+00:00:17,800 --> 00:00:21,119
+of the
+
+10
+00:00:19,160 --> 00:00:22,519
+registers the same instruction can
+
+11
+00:00:21,119 --> 00:00:24,640
+produce different results depending on
+
+12
+00:00:22,519 --> 00:00:27,359
+the values held in those
+
+13
+00:00:24,640 --> 00:00:29,560
+registers when talking about concurrency
+
+14
+00:00:27,359 --> 00:00:31,119
+if a process is interrupted the CPU
+
+15
+00:00:29,560 --> 00:00:32,800
+can't s simply be given to the next
+
+16
+00:00:31,119 --> 00:00:34,600
+process because the data stored in the
+
+17
+00:00:32,800 --> 00:00:36,840
+registers at that moment belongs to the
+
+18
+00:00:34,600 --> 00:00:38,399
+interrupted process if the new process
+
+19
+00:00:36,840 --> 00:00:40,480
+were to resume execution without
+
+20
+00:00:38,399 --> 00:00:42,920
+handling this properly it would operate
+
+21
+00:00:40,480 --> 00:00:45,480
+in the wrong context with incorrect
+
+22
+00:00:42,920 --> 00:00:47,320
+data therefore every time a process is
+
+23
+00:00:45,480 --> 00:00:49,000
+interrupted to allocate the CPU to
+
+24
+00:00:47,320 --> 00:00:50,800
+another process the state of the
+
+25
+00:00:49,000 --> 00:00:52,840
+registers must be captured and stored in
+
+26
+00:00:50,800 --> 00:00:54,600
+memory and the state of the new process
+
+27
+00:00:52,840 --> 00:00:57,079
+must be loaded so it can continue
+
+28
+00:00:54,600 --> 00:00:58,960
+execution correctly this is known as a
+
+29
+00:00:57,079 --> 00:01:00,600
+context switch and it's called that
+
+30
+00:00:58,960 --> 00:01:02,920
+because we are changing the context in
+
+31
+00:01:00,600 --> 00:01:04,360
+which the CPU is operating the problem
+
+32
+00:01:02,920 --> 00:01:05,840
+is that this doesn't just magically
+
+33
+00:01:04,360 --> 00:01:08,040
+happen as I'm showing you in this
+
+34
+00:01:05,840 --> 00:01:09,799
+animation the operating system actually
+
+35
+00:01:08,040 --> 00:01:11,640
+needs to run some code to accomplish
+
+36
+00:01:09,799 --> 00:01:13,640
+this every time I've mentioned this
+
+37
+00:01:11,640 --> 00:01:15,439
+concept in one of my previous videos
+
+38
+00:01:13,640 --> 00:01:17,159
+someone in the comments asks how this
+
+39
+00:01:15,439 --> 00:01:19,439
+process is achieved without altering the
+
+40
+00:01:17,159 --> 00:01:22,400
+state of the interrupted process so
+
+41
+00:01:19,439 --> 00:01:25,320
+today we are going to answer that
+
+42
+00:01:22,400 --> 00:01:29,600
+question hi friends my name is George
+
+43
+00:01:25,320 --> 00:01:29,600
+and this is core dumped
+
+44
+00:01:30,400 --> 00:01:34,320
+it's important to note that we are going
+
+45
+00:01:31,840 --> 00:01:36,320
+to talk about interrupt based switching
+
+46
+00:01:34,320 --> 00:01:38,560
+in a very simple CPU that doesn't
+
+47
+00:01:36,320 --> 00:01:40,880
+provide an interrupt handling mechanism
+
+48
+00:01:38,560 --> 00:01:42,920
+like the one we built a few episodes ago
+
+49
+00:01:40,880 --> 00:01:45,920
+context switching depends entirely on
+
+50
+00:01:42,920 --> 00:01:47,960
+software in such systems each program is
+
+51
+00:01:45,920 --> 00:01:50,479
+responsible for storing its own State
+
+52
+00:01:47,960 --> 00:01:53,119
+before giving up the CPU to other
+
+53
+00:01:50,479 --> 00:01:55,360
+programs fortunately for us those kinds
+
+54
+00:01:53,119 --> 00:01:58,079
+of CPUs are quite rare because they are
+
+55
+00:01:55,360 --> 00:02:00,520
+neither safe nor particularly useful
+
+56
+00:01:58,079 --> 00:02:02,880
+interrupts sometimes also called traps
+
+57
+00:02:00,520 --> 00:02:05,960
+are an essential feature of computers
+
+58
+00:02:02,880 --> 00:02:08,160
+the legendary Moz 6502 one of the most
+
+59
+00:02:05,960 --> 00:02:10,680
+popular CPUs of all time and nearly 50
+
+60
+00:02:08,160 --> 00:02:12,440
+years old had interrupts even
+
+61
+00:02:10,680 --> 00:02:14,160
+microcontrollers which are designed to
+
+62
+00:02:12,440 --> 00:02:17,080
+be simple processors for controlling
+
+63
+00:02:14,160 --> 00:02:18,599
+Electronics have interrupts computers
+
+64
+00:02:17,080 --> 00:02:21,680
+with an interrupt mechanism have been
+
+65
+00:02:18,599 --> 00:02:23,519
+with us for more than 70 years so yeah
+
+66
+00:02:21,680 --> 00:02:26,440
+computers wouldn't be the same without
+
+67
+00:02:23,519 --> 00:02:28,720
+them as we already know a process can be
+
+68
+00:02:26,440 --> 00:02:30,360
+interrupted in two ways it can
+
+69
+00:02:28,720 --> 00:02:32,360
+voluntarily interrupt a Itself by
+
+70
+00:02:30,360 --> 00:02:34,239
+triggering a software interrupt or
+
+71
+00:02:32,360 --> 00:02:35,760
+executing a special instruction to ask
+
+72
+00:02:34,239 --> 00:02:38,319
+the OS for a
+
+73
+00:02:35,760 --> 00:02:40,360
+resource or it can be interrupted by a
+
+74
+00:02:38,319 --> 00:02:42,480
+signal from a hardware component such as
+
+75
+00:02:40,360 --> 00:02:45,120
+a timer if it takes too long to release
+
+76
+00:02:42,480 --> 00:02:48,000
+the CPU or an IO
+
+77
+00:02:45,120 --> 00:02:50,760
+device in both cases the effect of the
+
+78
+00:02:48,000 --> 00:02:52,400
+interrupt is the same the CPU finishes
+
+79
+00:02:50,760 --> 00:02:54,519
+executing the current instruction to
+
+80
+00:02:52,400 --> 00:02:55,879
+prevent inconsistencies and then the
+
+81
+00:02:54,519 --> 00:02:58,200
+program counter is immediately
+
+82
+00:02:55,879 --> 00:03:00,519
+overwritten making it jump to a specific
+
+83
+00:02:58,200 --> 00:03:02,360
+memory location this memory M location
+
+84
+00:03:00,519 --> 00:03:04,400
+contains the executable code needed to
+
+85
+00:03:02,360 --> 00:03:05,879
+handle the interrupt including the code
+
+86
+00:03:04,400 --> 00:03:08,440
+required to capture the state of the
+
+87
+00:03:05,879 --> 00:03:10,400
+interrupted process notice that even
+
+88
+00:03:08,440 --> 00:03:11,640
+before fetching those instructions the
+
+89
+00:03:10,400 --> 00:03:13,720
+program counter has already been
+
+90
+00:03:11,640 --> 00:03:15,840
+overwritten by the interrupt meaning we
+
+91
+00:03:13,720 --> 00:03:18,120
+no longer know where the process was
+
+92
+00:03:15,840 --> 00:03:20,239
+interrupted unfortunately we can't avoid
+
+93
+00:03:18,120 --> 00:03:21,879
+this problem as we'll see in a moment
+
+94
+00:03:20,239 --> 00:03:23,920
+but before that let's think about the
+
+95
+00:03:21,879 --> 00:03:26,120
+code needed to capture the CPU state of
+
+96
+00:03:23,920 --> 00:03:28,280
+the interrupted process to keep things
+
+97
+00:03:26,120 --> 00:03:31,000
+simple we'll write it in
+
+98
+00:03:28,280 --> 00:03:33,360
+code to start we need to capture the
+
+99
+00:03:31,000 --> 00:03:35,040
+values in the general purpose registers
+
+100
+00:03:33,360 --> 00:03:37,760
+so the interrupt Handler routine could
+
+101
+00:03:35,040 --> 00:03:39,239
+begin with some instructions like these
+
+102
+00:03:37,760 --> 00:03:40,920
+this requires dealing with specific
+
+103
+00:03:39,239 --> 00:03:43,840
+memory locations reserved for this
+
+104
+00:03:40,920 --> 00:03:46,159
+purpose which can be tedious to avoid
+
+105
+00:03:43,840 --> 00:03:48,760
+that it's easier to push the values onto
+
+106
+00:03:46,159 --> 00:03:50,319
+the stack the flags are also important
+
+107
+00:03:48,760 --> 00:03:52,480
+so let's say we push those onto the
+
+108
+00:03:50,319 --> 00:03:55,840
+stack as well and the same goes for the
+
+109
+00:03:52,480 --> 00:03:57,239
+stack pointer itself but wait the stack
+
+110
+00:03:55,840 --> 00:04:00,239
+pointer is currently pointing to the
+
+111
+00:03:57,239 --> 00:04:01,560
+user program stack that's a huge problem
+
+112
+00:04:00,239 --> 00:04:03,640
+because these instructions are meant to
+
+113
+00:04:01,560 --> 00:04:06,720
+be executed by the operating system
+
+114
+00:04:03,640 --> 00:04:09,200
+which has its own stack yes that's right
+
+115
+00:04:06,720 --> 00:04:11,599
+remember the OS is also software so it
+
+116
+00:04:09,200 --> 00:04:13,239
+has its own stack executing these
+
+117
+00:04:11,599 --> 00:04:16,040
+instructions would modify the stack of
+
+118
+00:04:13,239 --> 00:04:16,040
+the interrupted
+
+119
+00:04:16,560 --> 00:04:20,320
+process well maybe we could start
+
+120
+00:04:18,519 --> 00:04:22,040
+handling the interrupt by modifying the
+
+121
+00:04:20,320 --> 00:04:24,720
+stack pointer so that the register state
+
+122
+00:04:22,040 --> 00:04:26,160
+is pushed onto the kernel stack but now
+
+123
+00:04:24,720 --> 00:04:28,960
+we've overwritten the stack pointer
+
+124
+00:04:26,160 --> 00:04:30,639
+before saving its value to avoid that we
+
+125
+00:04:28,960 --> 00:04:32,840
+could store the stack pointer value into
+
+126
+00:04:30,639 --> 00:04:34,840
+a memory location before modifying the
+
+127
+00:04:32,840 --> 00:04:36,759
+stack pointer and then simply push the
+
+128
+00:04:34,840 --> 00:04:39,120
+value from that memory
+
+129
+00:04:36,759 --> 00:04:40,600
+region and we could spend hours fixing
+
+130
+00:04:39,120 --> 00:04:42,680
+little details like this in the most
+
+131
+00:04:40,600 --> 00:04:44,120
+convenient way in fact I'm pretty sure
+
+132
+00:04:42,680 --> 00:04:46,400
+some of you are already thinking about
+
+133
+00:04:44,120 --> 00:04:47,919
+other ways to do it but ultimately the
+
+134
+00:04:46,400 --> 00:04:50,039
+issue of the program counter being
+
+135
+00:04:47,919 --> 00:04:52,320
+overwritten by the interrupt itself
+
+136
+00:04:50,039 --> 00:04:54,880
+makes this problem impossible to solve
+
+137
+00:04:52,320 --> 00:04:56,320
+at least by software because there's no
+
+138
+00:04:54,880 --> 00:04:58,840
+instruction we could run right at the
+
+139
+00:04:56,320 --> 00:05:00,960
+beginning to save that value of course
+
+140
+00:04:58,840 --> 00:05:03,759
+not by the time the CPU runs the first
+
+141
+00:05:00,960 --> 00:05:05,240
+instruction that value is gone this is
+
+142
+00:05:03,759 --> 00:05:07,520
+one of those rare but exciting
+
+143
+00:05:05,240 --> 00:05:09,479
+situations we encounter on this channel
+
+144
+00:05:07,520 --> 00:05:11,720
+when Hardware needs to support software
+
+145
+00:05:09,479 --> 00:05:13,560
+and not the other way around we'll cover
+
+146
+00:05:11,720 --> 00:05:15,479
+that right after a quick message from
+
+147
+00:05:13,560 --> 00:05:17,919
+skillshare something not a lot of you
+
+148
+00:05:15,479 --> 00:05:19,319
+know is that I've been working on a book
+
+149
+00:05:17,919 --> 00:05:21,639
+but since I've never done self-editing
+
+150
+00:05:19,319 --> 00:05:23,880
+or publishing before I needed to learn
+
+151
+00:05:21,639 --> 00:05:26,240
+how and skillshare made it easier than I
+
+152
+00:05:23,880 --> 00:05:28,039
+ever imagined skillshare is one of the
+
+153
+00:05:26,240 --> 00:05:30,639
+largest online learning communities for
+
+154
+00:05:28,039 --> 00:05:32,840
+creatives offering thousands of expert L
+
+155
+00:05:30,639 --> 00:05:35,639
+classes across film development
+
+156
+00:05:32,840 --> 00:05:38,120
+illustration design freelancing
+
+157
+00:05:35,639 --> 00:05:40,039
+productivity and more whether you're
+
+158
+00:05:38,120 --> 00:05:42,560
+looking to level up your career develop
+
+159
+00:05:40,039 --> 00:05:45,120
+a new skill or explore a passion project
+
+160
+00:05:42,560 --> 00:05:46,759
+skillshare has you covered plus there
+
+161
+00:05:45,120 --> 00:05:48,560
+are lessons from hundreds of popular
+
+162
+00:05:46,759 --> 00:05:51,360
+content creators so you can learn
+
+163
+00:05:48,560 --> 00:05:53,280
+directly from the people who inspire you
+
+164
+00:05:51,360 --> 00:05:55,360
+just a few weeks ago I was still writing
+
+165
+00:05:53,280 --> 00:05:57,400
+my book in Word but now I'm doing it the
+
+166
+00:05:55,360 --> 00:05:59,479
+right way with professional software
+
+167
+00:05:57,400 --> 00:06:01,520
+designed for authors and it only took me
+
+168
+00:05:59,479 --> 00:06:03,520
+a a few hours to get up to speed thanks
+
+169
+00:06:01,520 --> 00:06:06,080
+to skillshare it's all about making the
+
+170
+00:06:03,520 --> 00:06:08,160
+choice to learn grow and invest in your
+
+171
+00:06:06,080 --> 00:06:09,720
+creative journey and I'm currently
+
+172
+00:06:08,160 --> 00:06:11,639
+learning from this class with Marcus
+
+173
+00:06:09,720 --> 00:06:13,599
+brownley where he shares his skills in
+
+174
+00:06:11,639 --> 00:06:16,319
+content creation including script
+
+175
+00:06:13,599 --> 00:06:18,160
+writing filming and editing so if you've
+
+176
+00:06:16,319 --> 00:06:20,599
+been wanting to pick up a new skill
+
+177
+00:06:18,160 --> 00:06:22,479
+now's the perfect time the first 500
+
+178
+00:06:20,599 --> 00:06:24,240
+people to use my link in the description
+
+179
+00:06:22,479 --> 00:06:27,479
+will get a one-month free trial of
+
+180
+00:06:24,240 --> 00:06:30,000
+skillshare don't miss out join today and
+
+181
+00:06:27,479 --> 00:06:31,520
+start learning
+
+182
+00:06:30,000 --> 00:06:33,840
+and now back to the
+
+183
+00:06:31,520 --> 00:06:35,759
+video any architecture that supports
+
+184
+00:06:33,840 --> 00:06:37,000
+interrupts should provide a mechanism to
+
+185
+00:06:35,759 --> 00:06:39,680
+prevent losing the state of the
+
+186
+00:06:37,000 --> 00:06:41,280
+interrupted process in other words it
+
+187
+00:06:39,680 --> 00:06:43,280
+should offer at least minimal Hardware
+
+188
+00:06:41,280 --> 00:06:45,919
+support to ensure the software preserves
+
+189
+00:06:43,280 --> 00:06:48,319
+the program counter of the interrupted
+
+190
+00:06:45,919 --> 00:06:50,800
+process there are two main solutions for
+
+191
+00:06:48,319 --> 00:06:52,360
+handling interrupts keep in mind that
+
+192
+00:06:50,800 --> 00:06:54,400
+each architecture has its own way of
+
+193
+00:06:52,360 --> 00:06:56,400
+doing it and these are just two general
+
+194
+00:06:54,400 --> 00:06:58,440
+approaches the first approach is the
+
+195
+00:06:56,400 --> 00:07:01,080
+easiest to understand instead of
+
+196
+00:06:58,440 --> 00:07:03,120
+depending on a single Reg set the CPU
+
+197
+00:07:01,080 --> 00:07:05,479
+can provide multiple register
+
+198
+00:07:03,120 --> 00:07:08,080
+sets multiple register sets can be
+
+199
+00:07:05,479 --> 00:07:10,120
+assigned to different processes this way
+
+200
+00:07:08,080 --> 00:07:11,680
+when a process is interrupted the next
+
+201
+00:07:10,120 --> 00:07:14,080
+process can simply switch to another
+
+202
+00:07:11,680 --> 00:07:16,240
+register set avoiding any modifications
+
+203
+00:07:14,080 --> 00:07:18,639
+to the state of the previous
+
+204
+00:07:16,240 --> 00:07:21,120
+process however there may be more
+
+205
+00:07:18,639 --> 00:07:22,520
+processes than available register sets
+
+206
+00:07:21,120 --> 00:07:24,680
+and since registers are part of the
+
+207
+00:07:22,520 --> 00:07:27,280
+hardware we can't increase them at
+
+208
+00:07:24,680 --> 00:07:29,680
+runtime but here's the thing we don't
+
+209
+00:07:27,280 --> 00:07:32,240
+need an infinite number of register sets
+
+210
+00:07:29,680 --> 00:07:34,160
+two is more than enough if the CPU
+
+211
+00:07:32,240 --> 00:07:36,039
+supports operational modes one of the
+
+212
+00:07:34,160 --> 00:07:38,199
+register sets can be shared by multiple
+
+213
+00:07:36,039 --> 00:07:39,759
+user programs while the other is only
+
+214
+00:07:38,199 --> 00:07:42,800
+accessible to the operating system in
+
+215
+00:07:39,759 --> 00:07:44,560
+kernel mode remember while the CPU is
+
+216
+00:07:42,800 --> 00:07:47,479
+running in kernel mode it can do
+
+217
+00:07:44,560 --> 00:07:49,560
+virtually anything in this situation
+
+218
+00:07:47,479 --> 00:07:52,120
+that means the OS can manipulate and
+
+219
+00:07:49,560 --> 00:07:54,039
+access the additional register set for
+
+220
+00:07:52,120 --> 00:07:56,560
+convenience let's call these the common
+
+221
+00:07:54,039 --> 00:07:59,639
+register set and the privileged register
+
+222
+00:07:56,560 --> 00:08:01,800
+set when an interrupt occurs the CP
+
+223
+00:07:59,639 --> 00:08:03,800
+switches to Kernel mode deactivates the
+
+224
+00:08:01,800 --> 00:08:05,800
+common register set and starts using the
+
+225
+00:08:03,800 --> 00:08:07,560
+privileged register set ensuring that
+
+226
+00:08:05,800 --> 00:08:08,720
+the state of the interrupted process
+
+227
+00:08:07,560 --> 00:08:11,280
+remains
+
+228
+00:08:08,720 --> 00:08:12,919
+unmodified this way the interrupt won't
+
+229
+00:08:11,280 --> 00:08:14,879
+overwrite the program counter on the
+
+230
+00:08:12,919 --> 00:08:17,280
+common register set but on the privilege
+
+231
+00:08:14,879 --> 00:08:19,280
+register set special privileged
+
+232
+00:08:17,280 --> 00:08:21,520
+instructions allow the OS to access the
+
+233
+00:08:19,280 --> 00:08:23,280
+disabled registers and copy their values
+
+234
+00:08:21,520 --> 00:08:25,199
+into the currently enabled
+
+235
+00:08:23,280 --> 00:08:27,319
+registers after each one of these
+
+236
+00:08:25,199 --> 00:08:29,039
+instructions a normal instruction moves
+
+237
+00:08:27,319 --> 00:08:31,919
+the value just fetched from the disabled
+
+238
+00:08:29,039 --> 00:08:33,640
+register into a memory location this can
+
+239
+00:08:31,919 --> 00:08:35,719
+be the stack as we attempted in the
+
+240
+00:08:33,640 --> 00:08:37,159
+first part of the video but eventually
+
+241
+00:08:35,719 --> 00:08:39,959
+it will be copied into the process
+
+242
+00:08:37,159 --> 00:08:41,279
+control block of the interrupted process
+
+243
+00:08:39,959 --> 00:08:43,560
+of course this involves extra
+
+244
+00:08:41,279 --> 00:08:46,880
+instructions not shown here to look up
+
+245
+00:08:43,560 --> 00:08:49,200
+where the PCB is stored in memory next
+
+246
+00:08:46,880 --> 00:08:51,720
+the PCB of another process is read and
+
+247
+00:08:49,200 --> 00:08:53,680
+the opposite process occurs normal
+
+248
+00:08:51,720 --> 00:08:56,000
+instructions copy values from memory
+
+249
+00:08:53,680 --> 00:08:57,800
+into the active register set followed by
+
+250
+00:08:56,000 --> 00:09:01,440
+privileged instructions that transfer
+
+251
+00:08:57,800 --> 00:09:01,440
+that data into the disabled register
+
+252
+00:09:04,680 --> 00:09:08,360
+finally a privilege instruction is used
+
+253
+00:09:06,640 --> 00:09:10,640
+to set the timer if preemptive
+
+254
+00:09:08,360 --> 00:09:13,240
+scheduling is used and then the cisr
+
+255
+00:09:10,640 --> 00:09:15,320
+privileged instruction is executed in
+
+256
+00:09:13,240 --> 00:09:18,120
+this type of architecture cisr does two
+
+257
+00:09:15,320 --> 00:09:19,959
+things swaps the active register set
+
+258
+00:09:18,120 --> 00:09:23,040
+locking the user program into using one
+
+259
+00:09:19,959 --> 00:09:24,839
+of them and switches back to user mode
+
+260
+00:09:23,040 --> 00:09:26,720
+since instructions are now executed on
+
+261
+00:09:24,839 --> 00:09:29,360
+the common register set in the next
+
+262
+00:09:26,720 --> 00:09:32,200
+cycle the CPU resumes execution of the
+
+263
+00:09:29,360 --> 00:09:34,040
+elected process pretty easy right
+
+264
+00:09:32,200 --> 00:09:35,959
+unfortunately this approach is not very
+
+265
+00:09:34,040 --> 00:09:38,320
+popular especially among modern
+
+266
+00:09:35,959 --> 00:09:40,519
+architectures I'm not a hardware expert
+
+267
+00:09:38,320 --> 00:09:42,240
+so I can't give a definitive reason but
+
+268
+00:09:40,519 --> 00:09:44,240
+my best guess is that it's not worth it
+
+269
+00:09:42,240 --> 00:09:46,920
+to duplicate the exact same circuitry on
+
+270
+00:09:44,240 --> 00:09:49,000
+the CPU die especially now that modern
+
+271
+00:09:46,920 --> 00:09:52,680
+architectures have hundreds of registers
+
+272
+00:09:49,000 --> 00:09:55,120
+and even more complex components like SD
+
+273
+00:09:52,680 --> 00:09:57,079
+registers also as some of you might have
+
+274
+00:09:55,120 --> 00:09:59,560
+noticed it isn't really necessary to
+
+275
+00:09:57,079 --> 00:10:01,040
+duplicate the entire register set it
+
+276
+00:09:59,560 --> 00:10:03,000
+should be enough to have a separate set
+
+277
+00:10:01,040 --> 00:10:05,160
+for only critical registers like the
+
+278
+00:10:03,000 --> 00:10:08,600
+stack pointer and the program counter as
+
+279
+00:10:05,160 --> 00:10:08,600
+we discussed in the first part of this
+
+280
+00:10:10,480 --> 00:10:15,279
+video Let's explore other options what
+
+281
+00:10:13,680 --> 00:10:17,240
+if we could automate part of the process
+
+282
+00:10:15,279 --> 00:10:19,640
+in Hardware minimizing the amount of
+
+283
+00:10:17,240 --> 00:10:21,279
+software needed I won't go into too much
+
+284
+00:10:19,640 --> 00:10:23,079
+detail here since each architecture
+
+285
+00:10:21,279 --> 00:10:25,200
+implements this differently but in
+
+286
+00:10:23,079 --> 00:10:27,600
+general this is done in two
+
+287
+00:10:25,200 --> 00:10:29,640
+ways instead of duplicating register
+
+288
+00:10:27,600 --> 00:10:31,560
+sets the hardware can automate certain
+
+289
+00:10:29,640 --> 00:10:33,360
+steps these steps function like
+
+290
+00:10:31,560 --> 00:10:34,440
+hardwired instructions built directly
+
+291
+00:10:33,360 --> 00:10:37,160
+into the
+
+292
+00:10:34,440 --> 00:10:39,519
+CPU just as we sometimes hardcode things
+
+293
+00:10:37,160 --> 00:10:41,040
+like a database URL or a private key and
+
+294
+00:10:39,519 --> 00:10:43,200
+source code instead of fetching them
+
+295
+00:10:41,040 --> 00:10:45,279
+from an environment file instructions
+
+296
+00:10:43,200 --> 00:10:47,839
+and data can also be hardwired into the
+
+297
+00:10:45,279 --> 00:10:50,880
+CPU circuitry this allows them to be
+
+298
+00:10:47,839 --> 00:10:53,200
+executed right before an interrupt takes
+
+299
+00:10:50,880 --> 00:10:55,160
+effect one approach is to ensure that
+
+300
+00:10:53,200 --> 00:10:57,519
+the operating systems stack pointer is
+
+301
+00:10:55,160 --> 00:10:59,440
+always accessible to the CPU either
+
+302
+00:10:57,519 --> 00:11:02,639
+through a memory location hardwired to
+
+303
+00:10:59,440 --> 00:11:05,200
+the CPU or a special
+
+304
+00:11:02,639 --> 00:11:06,839
+register when an interrupt occurs
+
+305
+00:11:05,200 --> 00:11:08,399
+critical registers like the program
+
+306
+00:11:06,839 --> 00:11:10,959
+counter and the stack pointer are
+
+307
+00:11:08,399 --> 00:11:12,440
+automatically pushed onto the OS stack
+
+308
+00:11:10,959 --> 00:11:15,160
+right before the program counter is
+
+309
+00:11:12,440 --> 00:11:17,680
+overwritten to jump to the interrupt
+
+310
+00:11:15,160 --> 00:11:19,440
+Handler from this point forward it's the
+
+311
+00:11:17,680 --> 00:11:21,639
+software's responsibility to preserve
+
+312
+00:11:19,440 --> 00:11:23,399
+the rest of the registers we must be
+
+313
+00:11:21,639 --> 00:11:25,720
+careful not to write to any registers
+
+314
+00:11:23,399 --> 00:11:27,440
+before copying their content into memory
+
+315
+00:11:25,720 --> 00:11:29,600
+which is exactly what we attempted to do
+
+316
+00:11:27,440 --> 00:11:31,480
+in the first part of this video except
+
+317
+00:11:29,600 --> 00:11:33,160
+now the program counter and stack
+
+318
+00:11:31,480 --> 00:11:35,320
+pointer of the interrupted process are
+
+319
+00:11:33,160 --> 00:11:37,279
+safe thanks to Hardware
+
+320
+00:11:35,320 --> 00:11:38,800
+support and then we have crazy
+
+321
+00:11:37,279 --> 00:11:40,920
+architectures that take things even
+
+322
+00:11:38,800 --> 00:11:42,760
+further performing most of the context
+
+323
+00:11:40,920 --> 00:11:44,800
+switch entirely in
+
+324
+00:11:42,760 --> 00:11:46,480
+Hardware this is usually achieved
+
+325
+00:11:44,800 --> 00:11:48,040
+through a segment register that points
+
+326
+00:11:46,480 --> 00:11:50,079
+to a memory region managed by the
+
+327
+00:11:48,040 --> 00:11:51,399
+operating system where a special data
+
+328
+00:11:50,079 --> 00:11:53,880
+structure
+
+329
+00:11:51,399 --> 00:11:55,600
+resides in some architectures this data
+
+330
+00:11:53,880 --> 00:11:58,399
+structure is known as the task State
+
+331
+00:11:55,600 --> 00:12:00,959
+segment or TSS and the corresponding
+
+332
+00:11:58,399 --> 00:12:03,079
+register is called the task register in
+
+333
+00:12:00,959 --> 00:12:05,600
+very simple terms whenever an interrupt
+
+334
+00:12:03,079 --> 00:12:07,720
+occurs the CPU automatically copies the
+
+335
+00:12:05,600 --> 00:12:11,240
+entire content of all registers and
+
+336
+00:12:07,720 --> 00:12:12,720
+pastes it into the task State segment so
+
+337
+00:12:11,240 --> 00:12:14,959
+let me quote myself from the beginning
+
+338
+00:12:12,720 --> 00:12:16,839
+of this video when I said the problem is
+
+339
+00:12:14,959 --> 00:12:19,199
+that this doesn't just magically happen
+
+340
+00:12:16,839 --> 00:12:21,560
+as I'm showing you in this animation
+
+341
+00:12:19,199 --> 00:12:23,199
+Well turns out it can magically happen
+
+342
+00:12:21,560 --> 00:12:25,639
+at least from the software's point of
+
+343
+00:12:23,199 --> 00:12:27,920
+view this is huge because it makes this
+
+344
+00:12:25,639 --> 00:12:29,800
+whole video kind of pointless except for
+
+345
+00:12:27,920 --> 00:12:31,839
+the fact that for some reason major
+
+346
+00:12:29,800 --> 00:12:34,079
+operating systems avoid using this
+
+347
+00:12:31,839 --> 00:12:36,480
+feature of course this is actually more
+
+348
+00:12:34,079 --> 00:12:37,880
+complicated than I'm making it seem so
+
+349
+00:12:36,480 --> 00:12:41,320
+if you'd like me to cover specific
+
+350
+00:12:37,880 --> 00:12:43,920
+architectures like X 8664 or arm let me
+
+351
+00:12:41,320 --> 00:12:45,600
+know in the comments before ending this
+
+352
+00:12:43,920 --> 00:12:47,480
+video just wanted to let you know that
+
+353
+00:12:45,600 --> 00:12:49,519
+my friends over at COD Crafters have
+
+354
+00:12:47,480 --> 00:12:51,199
+added new challenge-based courses
+
+355
+00:12:49,519 --> 00:12:52,959
+including this one on how to create an
+
+356
+00:12:51,199 --> 00:12:55,399
+interpreter from scratch so you can
+
+357
+00:12:52,959 --> 00:12:57,320
+start creating your own programming
+
+358
+00:12:55,399 --> 00:12:59,560
+language I'll leave you a link in the
+
+359
+00:12:57,320 --> 00:13:01,880
+description if you want to support me by
+
+360
+00:12:59,560 --> 00:13:04,160
+subscribing and that's it for now there
+
+361
+00:13:01,880 --> 00:13:06,040
+are more exciting topics coming soon so
+
+362
+00:13:04,160 --> 00:13:08,399
+make sure to subscribe you won't want to
+
+363
+00:13:06,040 --> 00:13:10,120
+miss it if you enjoyed this video or
+
+364
+00:13:08,399 --> 00:13:12,160
+learned something new please hit the
+
+365
+00:13:10,120 --> 00:13:16,320
+like button it's free and it helps me
+
+366
+00:13:12,160 --> 00:13:16,320
+out a lot see you in the next one
+

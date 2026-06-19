@@ -69,6 +69,7 @@ sources: ["core-dumped-operating-sytems-theory/Why Are Threads Needed On Single 
 
 - [[concepts/concurrency]] —— 线程要实现的目标
 - [[concepts/parallelism]] —— 多核上线程的额外用途：真正同时运行
+- [[concepts/context-switch]] —— 线程被中断时，其独占的 CPU 状态正是存入/取出 PCB(`task`)的内容
 - [[concepts/interprocess-communication]] —— 跨进程线程共享数据的途径
 - [[analysis/multiprocess-vs-multithreaded-server]] —— 多进程 vs 多线程服务器对比
 - [[sources/why-threads-single-core]] —— 来源

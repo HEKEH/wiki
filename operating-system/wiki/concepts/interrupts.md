@@ -24,6 +24,11 @@ sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Proc
 3. **恢复**被中断进程的状态。
 4. **中断返回**——跳回并恢复被中断的进程。
 
+> 第 1、3 步用的是同一套保存/恢复机制。当第 3 步恢复的是**另一个**进程的状态(即调度到别的进程)
+> 时，这次保存+载入就构成一次 [[concepts/context-switch]]；若恢复的仍是**同一个**进程，则只是普通的
+> 中断返回。无论哪种，保存被中断进程的状态都**无法仅靠软件完成**——因为中断会在任何处理指令执行前
+> 就覆写 PC(见下"两个效果")，必须有硬件支持。
+
 ## 中断的两个效果
 
 1. 程序计数器跳到处理程序所在的内存位置。
@@ -38,6 +43,7 @@ sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Proc
 
 ## 相关
 
+- [[concepts/context-switch]] —— 保存/恢复状态两步的实现，及为何需要硬件支持
 - [[concepts/mode-bit-and-operational-modes]]
 - [[concepts/system-calls]]
 - [[concepts/preemptive-vs-cooperative-os]]

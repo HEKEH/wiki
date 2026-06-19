@@ -10,6 +10,7 @@
 
 - [[concepts/mode-bit-and-operational-modes]] — 区分内核态与用户态的单比特寄存器；为特权指令把关。
 - [[concepts/interrupts]] — 暂停进程、跳转到处理程序、并把模式位翻转为内核态的信号。
+- [[concepts/context-switch]] — 保存被中断进程、载入下一个进程的寄存器状态；PC 被中断覆写使纯软件无法保存，需多寄存器组/TSS 等硬件支持。
 - [[concepts/system-calls]] — 操作系统库函数，通过软件中断安全进入内核态；含优缺点。
 - [[concepts/syscall-abi]] — 内核如何得知用户程序的意图：系统调用号 + 寄存器传参 + 系统调用表分发 + 用户指针校验。
 - [[concepts/application-binary-interface]] — 二进制层约定（寄存器用法、传参方式、指针宽度、文件格式）；API 定义源码层、ABI 定义二进制层。
@@ -44,3 +45,4 @@
 - [[sources/why-threads-single-core]] — Core Dumped 视频（已清洗）：并发的两个目的、阻塞效应、线程如何在单进程内实现并发，以及 Linux 的 task 抽象。
 - [[sources/threads-on-multicore]] — Core Dumped 视频（已清洗）：并发的极限与三种解法、多核术语、并发 vs 并行、最多 n 个线程并行、数据并行 vs 任务并行。
 - [[sources/why-apps-are-os-specific]] — Core Dumped 视频（已清洗）：应用为何与操作系统绑定——系统调用集合（fork/exec vs CreateProcess）、ABI、可执行文件格式（ELF/PE）、运行时。
+- [[sources/hardware-assists-context-switch]] — Core Dumped 视频（已清洗）：上下文切换为何纯软件做不到（PC 被中断覆写），以及多寄存器组、硬件自动压栈、TSS 三种硬件支持。

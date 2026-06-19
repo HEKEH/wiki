@@ -29,6 +29,7 @@ sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Proc
 
 ## 相关
 
+- [[concepts/context-switch]] —— 定时器中断到期后真正切换进程的机制；协作式则退化为纯软件、各程序自保状态
 - [[concepts/interrupts]]
 - [[concepts/mode-bit-and-operational-modes]]
 - [[sources/single-bit-mode-bit-os-integrity]] —— 来源

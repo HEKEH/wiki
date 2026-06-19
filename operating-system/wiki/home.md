@@ -56,6 +56,13 @@ Linux 用统一的 `task` 结构同时表示进程与线程。
 （[[concepts/syscall-abi]] 是其系统调用实例）；③[[concepts/executable-file-format]]（ELF vs PE）；
 ④运行时依赖。可移植性这条线把 system-calls 的"平台依赖"缺点展开成了完整图景。
 
+第五条线索（来自 [[sources/hardware-assists-context-switch]]）：回到 [[concepts/interrupts]] 的
+"保存/恢复状态"两步，把它落实为 [[concepts/context-switch]]——保存被中断进程的寄存器、载入下一个
+进程的寄存器。核心洞见是这一步**无法仅靠软件完成**：中断会在任何处理指令执行前就**覆写 PC**，没有
+指令能抢先保住它。于是这是个罕见的"**硬件支持软件**"情形——架构用**多寄存器组**(普通组/特权组随模式
+切换)、**硬件自动压入 PC/SP**、或 **TSS 全硬件切换**来兜底。被保存的状态最终落进进程/线程的
+`task`(PCB)，与 [[concepts/threads]]、[[concepts/preemptive-vs-cooperative-os]] 的定时器中断闭环。
+
 ## 开放问题
 
 - 真实架构（x86 的 0–3 环、ARM 的异常等级）如何映射到这个简化的模式位模型？
