@@ -62,11 +62,13 @@ sources: ["core-dumped-operating-sytems-theory/Why Are Threads Needed On Single 
 - 亦称**轻量级进程**——更易、更快创建。
 
 > 本页内容在**单核**处理器上同样成立(线程在单核上用于填补 IO 空隙)。多核上的额外用途是
-> **并行(parallelism)**，属另一主题。
+> **并行**——线程可被分派到独立核心上**真正同时运行**(见 [[concepts/parallelism]])。这正是
+> 现代操作系统几乎都以线程而非进程作为最基本执行单位的根本原因。
 
 ## 相关
 
 - [[concepts/concurrency]] —— 线程要实现的目标
+- [[concepts/parallelism]] —— 多核上线程的额外用途：真正同时运行
 - [[concepts/interprocess-communication]] —— 跨进程线程共享数据的途径
 - [[analysis/multiprocess-vs-multithreaded-server]] —— 多进程 vs 多线程服务器对比
 - [[sources/why-threads-single-core]] —— 来源

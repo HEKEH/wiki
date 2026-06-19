@@ -21,6 +21,7 @@
 - [[concepts/message-passing-ipc]] — 经内核邮箱/端口收发消息；地址空间隔离、可跨机器（套接字/RPC），但每次收发都要系统调用。
 - [[concepts/concurrency]] — 单 CPU 快速轮换执行单位的错觉；两个目的（多任务 + 填满 IO 空隙）、阻塞效应；单核也成立。
 - [[concepts/threads]] — 进程内可独立调度的最基本执行单位；共享地址空间、独占 CPU 状态与栈；线程不是函数。
+- [[concepts/parallelism]] — 多核上真正同时执行；并发 vs 并行、最多 n 个线程并行、声明并发即可移植、数据并行 vs 任务并行。
 
 ## 实体
 
@@ -38,3 +39,4 @@
 - [[sources/single-bit-mode-bit-os-integrity]] — Core Dumped 视频（已清洗）：模式位、特权指令、中断、系统调用、定时器与内核态驱动如何让操作系统保持掌控。
 - [[sources/ipc-shared-memory-vs-message-passing]] — Core Dumped 视频（已清洗）：进程间通信的两种模型——共享内存与消息传递（含 Chromium、Mach 端口、套接字、性能权衡）。
 - [[sources/why-threads-single-core]] — Core Dumped 视频（已清洗）：并发的两个目的、阻塞效应、线程如何在单进程内实现并发，以及 Linux 的 task 抽象。
+- [[sources/threads-on-multicore]] — Core Dumped 视频（已清洗）：并发的极限与三种解法、多核术语、并发 vs 并行、最多 n 个线程并行、数据并行 vs 任务并行。

@@ -2,6 +2,25 @@
 
 按时间顺序、仅追加的 wiki 活动记录。
 
+## [2026-06-19] query | 多进程也能并行吗？不同进程用不同核
+
+确认：进程当然能并行——并行的单位是任何可被调度的执行实体（Linux 里进程/线程都是 `task`、同一
+调度器派发），进程间并行早于多线程普及。真正的区别是**进程间并行 vs 进程内并行**：线程的独到之
+处不是"能并行"，而是"让同一进程内部也能并行"且代价更低（共享地址空间，省内存/创建快，代价是同步）。
+在 [[concepts/parallelism]] 增补"并行的单位：进程也能并行吗？"一节，回链
+[[analysis/multiprocess-vs-multithreaded-server]] 与 [[concepts/interprocess-communication]]。
+
+## [2026-06-19] ingest | Core Dumped —《多核系统中的线程》
+
+将原始 `.srt` 文字稿清洗为 [[sources/threads-on-multicore]]：删除时间戳、Brilliant / CodeCrafters
+广告口播和口水话，修正语音识别错误（CodeCrafters、git/SQLite、the illusion 等）。原始来源
+保持不变。第四次源 ingest，是《为什么单核处理器也需要线程》的续集。
+
+新建 1 个概念页 [[concepts/parallelism]]（并发 vs 并行对比表、为何需要更多核心与三种解法、
+最多 n 个线程并行、声明并发即可移植、数据并行 vs 任务并行、加速比 < 核心数）。从
+[[concepts/threads]]（多核额外用途）与 [[concepts/concurrency]]（真正同时需多核）回链，并更新
+index.md 与 home.md。
+
 ## [2026-06-16] ingest | Core Dumped —《为什么单核处理器也需要线程》
 
 将原始 `.srt` 文字稿清洗为 [[sources/why-threads-single-core]]：删除时间戳、Brilliant 广告口播

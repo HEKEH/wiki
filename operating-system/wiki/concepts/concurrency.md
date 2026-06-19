@@ -18,7 +18,7 @@ sources: ["core-dumped-operating-sytems-theory/Why Are Threads Needed On Single 
    执行单位。并发就是用"能用 CPU 的任务"去填满"用不上 CPU 的任务"留下的空隙。
 
 > 关键:本概念**即使在单核处理器上也成立**——单核并发不是"真正同时跑"，而是**消除空闲、填满
-> 缝隙**。真正"同时跑"需要多核，那叫**并行(parallelism)**，是另一回事。
+> 缝隙**。真正"同时跑"需要多核，那叫**并行**——见 [[concepts/parallelism]]。可以有并发而没有并行。
 
 ## 阻塞效应（Blocking Effect）
 
@@ -44,6 +44,7 @@ sources: ["core-dumped-operating-sytems-theory/Why Are Threads Needed On Single 
 ## 相关
 
 - [[concepts/threads]] —— 实现进程内并发的执行单位
+- [[concepts/parallelism]] —— 多核上把并发升级为真正同时执行
 - [[concepts/interprocess-communication]] —— 进程间协作的另一条路径
 - [[concepts/preemptive-vs-cooperative-os]] —— 操作系统靠定时器中断强制轮换，使并发可被抢占
 - [[analysis/multiprocess-vs-multithreaded-server]] —— 阻塞与两种并发方案的实例
