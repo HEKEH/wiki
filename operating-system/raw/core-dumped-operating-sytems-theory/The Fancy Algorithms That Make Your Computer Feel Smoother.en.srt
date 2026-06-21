@@ -1,0 +1,4740 @@
+1
+00:00:00,160 --> 00:00:04,799
+This video was sponsored by
+
+2
+00:00:02,760 --> 00:00:06,879
+Brilliant. There's something oddly
+
+3
+00:00:04,799 --> 00:00:10,240
+satisfying about watching CPU usage
+
+4
+00:00:06,879 --> 00:00:11,679
+spike to 100% during a benchmark test.
+
+5
+00:00:10,240 --> 00:00:13,440
+But one thing that always caught my
+
+6
+00:00:11,679 --> 00:00:15,679
+attention when I was younger was that
+
+7
+00:00:13,440 --> 00:00:18,119
+even though the CPU is completely maxed
+
+8
+00:00:15,679 --> 00:00:20,480
+out, the system doesn't become
+
+9
+00:00:18,119 --> 00:00:22,400
+unusable. This is mainly because general
+
+10
+00:00:20,480 --> 00:00:24,880
+purpose operating systems prioritize
+
+11
+00:00:22,400 --> 00:00:27,039
+response time, ensuring that interactive
+
+12
+00:00:24,880 --> 00:00:29,199
+applications stay smooth even under
+
+13
+00:00:27,039 --> 00:00:31,000
+heavy load.
+
+14
+00:00:29,199 --> 00:00:32,960
+Today we're going to talk about the
+
+15
+00:00:31,000 --> 00:00:36,320
+CPUuler, one of the most important
+
+16
+00:00:32,960 --> 00:00:36,320
+components of any operating
+
+17
+00:00:37,559 --> 00:00:43,920
+system. Hi friends, my name is George
+
+18
+00:00:40,480 --> 00:00:43,920
+and this is core
+
+19
+00:00:43,960 --> 00:00:48,239
+dumped. Before starting, please consider
+
+20
+00:00:46,640 --> 00:00:50,559
+giving a like to this video if you
+
+21
+00:00:48,239 --> 00:00:52,320
+enjoyed it or learned something. This
+
+22
+00:00:50,559 --> 00:00:53,840
+episode is longer than usual and it was
+
+23
+00:00:52,320 --> 00:00:55,840
+hard to edit, but it is full of
+
+24
+00:00:53,840 --> 00:00:59,520
+information. So here's the content table
+
+25
+00:00:55,840 --> 00:00:59,520
+in case you need to jump to a specific
+
+26
+00:00:59,960 --> 00:01:04,640
+topic. CPU scheduling is a technique
+
+27
+00:01:02,719 --> 00:01:06,880
+used by operating systems to determine
+
+28
+00:01:04,640 --> 00:01:09,400
+which task or process gets to use the
+
+29
+00:01:06,880 --> 00:01:11,840
+CPU at a given time based on specific
+
+30
+00:01:09,400 --> 00:01:13,640
+criteria. One important criterion is
+
+31
+00:01:11,840 --> 00:01:15,680
+response time as mentioned in the
+
+32
+00:01:13,640 --> 00:01:17,680
+introduction. However, depending on the
+
+33
+00:01:15,680 --> 00:01:20,240
+system, other criteria might also be
+
+34
+00:01:17,680 --> 00:01:22,720
+important such as CPU utilization,
+
+35
+00:01:20,240 --> 00:01:25,040
+throughput, turnaround time, and waiting
+
+36
+00:01:22,720 --> 00:01:27,280
+time. We will explore these concepts
+
+37
+00:01:25,040 --> 00:01:29,400
+throughout the video. We are going to
+
+38
+00:01:27,280 --> 00:01:31,840
+start by building a very simple
+
+39
+00:01:29,400 --> 00:01:33,680
+scheduler. By far the simplest CPU
+
+40
+00:01:31,840 --> 00:01:35,920
+scheduling algorithm is the first come
+
+41
+00:01:33,680 --> 00:01:38,000
+first serve scheduling algorithm. With
+
+42
+00:01:35,920 --> 00:01:40,880
+this scheme, the CPU is allocated to the
+
+43
+00:01:38,000 --> 00:01:42,479
+first process that requested it. To
+
+44
+00:01:40,880 --> 00:01:44,759
+begin with, we must be clear about what
+
+45
+00:01:42,479 --> 00:01:47,600
+it means to allocate the CPU to a
+
+46
+00:01:44,759 --> 00:01:49,600
+process. When a program is executed, it
+
+47
+00:01:47,600 --> 00:01:52,320
+becomes a process and the operating
+
+48
+00:01:49,600 --> 00:01:54,000
+system reserves a memory block for it.
+
+49
+00:01:52,320 --> 00:01:56,240
+Within this block, there's a memory
+
+50
+00:01:54,000 --> 00:01:58,200
+segment called the text section which
+
+51
+00:01:56,240 --> 00:02:00,560
+contains the executable code for the
+
+52
+00:01:58,200 --> 00:02:02,840
+program. Each process has its own
+
+53
+00:02:00,560 --> 00:02:05,360
+dedicated text
+
+54
+00:02:02,840 --> 00:02:07,119
+section. From our computer architecture
+
+55
+00:02:05,360 --> 00:02:09,200
+from scratch course, we know that the
+
+56
+00:02:07,119 --> 00:02:11,599
+CPU contains a special register called
+
+57
+00:02:09,200 --> 00:02:14,000
+the address register, also known as the
+
+58
+00:02:11,599 --> 00:02:16,160
+program counter. This register points to
+
+59
+00:02:14,000 --> 00:02:18,560
+the next instruction to be executed.
+
+60
+00:02:16,160 --> 00:02:20,720
+When we say the CPU is allocated to a
+
+61
+00:02:18,560 --> 00:02:22,400
+process, it means that this register is
+
+62
+00:02:20,720 --> 00:02:25,120
+pointing to the text section of that
+
+63
+00:02:22,400 --> 00:02:27,920
+process enabling the CPU to execute
+
+64
+00:02:25,120 --> 00:02:30,000
+instructions from it. When the CPU is
+
+65
+00:02:27,920 --> 00:02:31,920
+reallocated to another process, the
+
+66
+00:02:30,000 --> 00:02:34,160
+operating system modifies the address
+
+67
+00:02:31,920 --> 00:02:37,200
+register so it points to the executable
+
+68
+00:02:34,160 --> 00:02:39,519
+code of the new process. This involves a
+
+69
+00:02:37,200 --> 00:02:41,280
+more complex operation called a context
+
+70
+00:02:39,519 --> 00:02:45,239
+switch, which we've covered with more
+
+71
+00:02:41,280 --> 00:02:45,239
+details in previous episodes.
+
+72
+00:02:46,640 --> 00:02:50,640
+Another important concept to understand
+
+73
+00:02:48,640 --> 00:02:53,040
+is that processes aren't concrete
+
+74
+00:02:50,640 --> 00:02:54,879
+entities like objects or instances of
+
+75
+00:02:53,040 --> 00:02:57,760
+structures in the traditional computer
+
+76
+00:02:54,879 --> 00:03:00,000
+science sense. Instead, processes are
+
+77
+00:02:57,760 --> 00:03:02,239
+contexts in which the computer operates.
+
+78
+00:03:00,000 --> 00:03:04,080
+To manage these processes, the operating
+
+79
+00:03:02,239 --> 00:03:07,920
+system uses a special structure called
+
+80
+00:03:04,080 --> 00:03:10,000
+the process control block or PCB.
+
+81
+00:03:07,920 --> 00:03:12,159
+This strct is not the process itself,
+
+82
+00:03:10,000 --> 00:03:14,000
+but rather a representation of it
+
+83
+00:03:12,159 --> 00:03:16,400
+containing all the necessary information
+
+84
+00:03:14,000 --> 00:03:18,800
+about the process such as its state,
+
+85
+00:03:16,400 --> 00:03:19,800
+program counter, registers, and other
+
+86
+00:03:18,800 --> 00:03:22,400
+management
+
+87
+00:03:19,800 --> 00:03:24,400
+data. Every time a process is created,
+
+88
+00:03:22,400 --> 00:03:26,239
+the operating system generates a process
+
+89
+00:03:24,400 --> 00:03:28,800
+control block to keep track of that new
+
+90
+00:03:26,239 --> 00:03:30,799
+process. The implementation of the first
+
+91
+00:03:28,800 --> 00:03:33,599
+come first serve policy is easily
+
+92
+00:03:30,799 --> 00:03:35,040
+managed with a FIFO Q which makes sense
+
+93
+00:03:33,599 --> 00:03:36,640
+here because it operates on the
+
+94
+00:03:35,040 --> 00:03:38,760
+principle that the first element added
+
+95
+00:03:36,640 --> 00:03:41,280
+to the queue is the first one to be
+
+96
+00:03:38,760 --> 00:03:42,799
+removed. But we cannot directly push
+
+97
+00:03:41,280 --> 00:03:45,200
+processes into this queue because
+
+98
+00:03:42,799 --> 00:03:47,040
+processes are abstract contexts and
+
+99
+00:03:45,200 --> 00:03:49,599
+cannot be treated as discrete elements
+
+100
+00:03:47,040 --> 00:03:51,440
+of any data structure. Instead, what the
+
+101
+00:03:49,599 --> 00:03:53,360
+operating system does is push the
+
+102
+00:03:51,440 --> 00:03:55,680
+process control block of each process
+
+103
+00:03:53,360 --> 00:03:58,640
+into the queue. Throughout this video,
+
+104
+00:03:55,680 --> 00:04:00,879
+I'll represent PCBs as boxes. And you'll
+
+105
+00:03:58,640 --> 00:04:03,120
+often, if not almost always, hear me
+
+106
+00:04:00,879 --> 00:04:04,720
+refer to them as processes. But remember
+
+107
+00:04:03,120 --> 00:04:06,720
+that what enters the queue isn't
+
+108
+00:04:04,720 --> 00:04:09,439
+actually a process, but its process
+
+109
+00:04:06,720 --> 00:04:11,680
+control block. In first come, first
+
+110
+00:04:09,439 --> 00:04:13,519
+serve. When a process is created, its
+
+111
+00:04:11,680 --> 00:04:16,079
+process control block is pushed onto the
+
+112
+00:04:13,519 --> 00:04:18,000
+tail of the que. When the CPU is free,
+
+113
+00:04:16,079 --> 00:04:21,519
+it is allocated to the process at the
+
+114
+00:04:18,000 --> 00:04:23,360
+head of the queue. Sounds simple, right?
+
+115
+00:04:21,519 --> 00:04:25,759
+Well, not quite. There's a lot we're
+
+116
+00:04:23,360 --> 00:04:27,600
+overlooking. For starters, we are
+
+117
+00:04:25,759 --> 00:04:29,680
+assuming that a process can only get the
+
+118
+00:04:27,600 --> 00:04:31,000
+CPU once the previous process has
+
+119
+00:04:29,680 --> 00:04:33,639
+completed its
+
+120
+00:04:31,000 --> 00:04:36,320
+execution. This causes a lot of
+
+121
+00:04:33,639 --> 00:04:38,720
+problems. First, not all processes
+
+122
+00:04:36,320 --> 00:04:40,800
+terminate. Many applications such as
+
+123
+00:04:38,720 --> 00:04:43,120
+servers or background services are
+
+124
+00:04:40,800 --> 00:04:45,280
+designed to run indefinitely. If we
+
+125
+00:04:43,120 --> 00:04:47,759
+allocate the CPU to a process that never
+
+126
+00:04:45,280 --> 00:04:50,479
+ends, all subsequent processes would be
+
+127
+00:04:47,759 --> 00:04:52,720
+indefinitely waiting in the queue.
+
+128
+00:04:50,479 --> 00:04:54,880
+And second, if we assume that a process
+
+129
+00:04:52,720 --> 00:04:57,360
+can only get the CPU once the previous
+
+130
+00:04:54,880 --> 00:04:59,840
+process finishes its execution, we
+
+131
+00:04:57,360 --> 00:05:02,280
+ignore an important fact. Programs in
+
+132
+00:04:59,840 --> 00:05:04,639
+execution don't use the CPU
+
+133
+00:05:02,280 --> 00:05:06,560
+continuously. If a task takes 2 minutes
+
+134
+00:05:04,639 --> 00:05:09,120
+to execute, it doesn't mean it kept the
+
+135
+00:05:06,560 --> 00:05:11,039
+CPU busy for the entire 2 minutes.
+
+136
+00:05:09,120 --> 00:05:12,800
+During execution, there are often
+
+137
+00:05:11,039 --> 00:05:13,560
+periods where the program is waiting for
+
+138
+00:05:12,800 --> 00:05:16,320
+something
+
+139
+00:05:13,560 --> 00:05:19,039
+else. To illustrate this, let's break it
+
+140
+00:05:16,320 --> 00:05:20,520
+down with an example program. after a
+
+141
+00:05:19,039 --> 00:05:22,960
+quick message from
+
+142
+00:05:20,520 --> 00:05:24,560
+Brilliant. As developers, one of our
+
+143
+00:05:22,960 --> 00:05:26,720
+main goals should be to improve our
+
+144
+00:05:24,560 --> 00:05:28,720
+problemsolving abilities. With
+
+145
+00:05:26,720 --> 00:05:30,960
+Brilliant, you gain access to dozens of
+
+146
+00:05:28,720 --> 00:05:32,800
+interactive courses designed by experts,
+
+147
+00:05:30,960 --> 00:05:34,479
+enabling you to learn by doing rather
+
+148
+00:05:32,800 --> 00:05:36,080
+than just reading. Their first
+
+149
+00:05:34,479 --> 00:05:38,240
+principles approach helps you build a
+
+150
+00:05:36,080 --> 00:05:40,080
+deep understanding from the ground up.
+
+151
+00:05:38,240 --> 00:05:41,680
+Each lesson is packed with hands-on
+
+152
+00:05:40,080 --> 00:05:44,000
+problem-solving activities that allow
+
+153
+00:05:41,680 --> 00:05:45,759
+you to engage with concepts, a method
+
+154
+00:05:44,000 --> 00:05:47,919
+proven to be six times more effective
+
+155
+00:05:45,759 --> 00:05:49,680
+than simply watching lecture videos.
+
+156
+00:05:47,919 --> 00:05:51,520
+Brilliant is also available on your
+
+157
+00:05:49,680 --> 00:05:53,360
+phone, making it easy to build real
+
+158
+00:05:51,520 --> 00:05:55,240
+knowledge in just a few minutes a day,
+
+159
+00:05:53,360 --> 00:05:57,840
+unlike mindlessly scrolling through
+
+160
+00:05:55,240 --> 00:06:00,240
+PDFs. Their latest courses, including
+
+161
+00:05:57,840 --> 00:06:02,320
+applied Python, creative coding, and
+
+162
+00:06:00,240 --> 00:06:04,160
+thinking in code, are perfect for
+
+163
+00:06:02,320 --> 00:06:05,639
+building foundational skills and
+
+164
+00:06:04,160 --> 00:06:07,759
+learning real world
+
+165
+00:06:05,639 --> 00:06:10,000
+applications, helping you to develop the
+
+166
+00:06:07,759 --> 00:06:12,080
+mindset to think like a programmer and
+
+167
+00:06:10,000 --> 00:06:14,800
+begin creating complex programs to build
+
+168
+00:06:12,080 --> 00:06:17,039
+games and apps. You can try for free 30
+
+169
+00:06:14,800 --> 00:06:18,880
+days of Brilliant Premium and get a 20%
+
+170
+00:06:17,039 --> 00:06:20,960
+discount on your annual subscription by
+
+171
+00:06:18,880 --> 00:06:22,759
+scanning the code on the screen or by
+
+172
+00:06:20,960 --> 00:06:24,479
+visiting
+
+173
+00:06:22,759 --> 00:06:27,120
+brilliant.org/coredumpted also linked in
+
+174
+00:06:24,479 --> 00:06:28,680
+the description below. And now back to
+
+175
+00:06:27,120 --> 00:06:31,199
+the
+
+176
+00:06:28,680 --> 00:06:34,039
+video. This program opens two text
+
+177
+00:06:31,199 --> 00:06:36,479
+files, one containing text and the other
+
+178
+00:06:34,039 --> 00:06:38,560
+empty. Its purpose is to copy the
+
+179
+00:06:36,479 --> 00:06:40,479
+content from one file to the other. But
+
+180
+00:06:38,560 --> 00:06:43,120
+to avoid using a lot of memory, it
+
+181
+00:06:40,479 --> 00:06:45,840
+copies data in chunks. let's say eight
+
+182
+00:06:43,120 --> 00:06:45,840
+bytes at a
+
+183
+00:06:47,960 --> 00:06:51,520
+time. We're particularly interested in
+
+184
+00:06:50,319 --> 00:06:53,680
+the part of the program where the
+
+185
+00:06:51,520 --> 00:06:55,440
+copying happens. If we were to observe
+
+186
+00:06:53,680 --> 00:06:57,400
+the instructions being executed by the
+
+187
+00:06:55,440 --> 00:06:59,840
+computer, it would look like
+
+188
+00:06:57,400 --> 00:07:03,520
+this. Now, it might initially seem like
+
+189
+00:06:59,840 --> 00:07:03,520
+these instructions are executed like
+
+190
+00:07:03,880 --> 00:07:07,919
+this. But if we were to represent it
+
+191
+00:07:06,240 --> 00:07:12,280
+more accurately, it would look quite
+
+192
+00:07:07,919 --> 00:07:12,280
+different. Something more like this.
+
+193
+00:07:19,680 --> 00:07:22,800
+Reading from and writing to files
+
+194
+00:07:21,199 --> 00:07:24,960
+requires the program to invoke the
+
+195
+00:07:22,800 --> 00:07:27,120
+operating system as file manipulation
+
+196
+00:07:24,960 --> 00:07:29,919
+involves interacting with hardware, in
+
+197
+00:07:27,120 --> 00:07:32,120
+this case the disk. In other words,
+
+198
+00:07:29,919 --> 00:07:34,160
+reading and writing involve IO
+
+199
+00:07:32,120 --> 00:07:36,639
+operations. The real problem here is
+
+200
+00:07:34,160 --> 00:07:38,479
+that IO operations are usually costly in
+
+201
+00:07:36,639 --> 00:07:40,800
+terms of performance. They can take a
+
+202
+00:07:38,479 --> 00:07:42,400
+lot to complete.
+
+203
+00:07:40,800 --> 00:07:44,400
+These instructions right here simply
+
+204
+00:07:42,400 --> 00:07:46,800
+cannot be executed immediately after the
+
+205
+00:07:44,400 --> 00:07:48,720
+previous one. Not until the IO operation
+
+206
+00:07:46,800 --> 00:07:50,479
+managed by the system call is completed,
+
+207
+00:07:48,720 --> 00:07:54,080
+which entirely depends on the IO
+
+208
+00:07:50,479 --> 00:07:56,440
+hardware capabilities, not the CPU. As a
+
+209
+00:07:54,080 --> 00:07:58,879
+result, the program doesn't use the CPU
+
+210
+00:07:56,440 --> 00:08:01,039
+continuously. If we were to map CPU
+
+211
+00:07:58,879 --> 00:08:03,360
+usage of a program over time, we would
+
+212
+00:08:01,039 --> 00:08:05,280
+see gaps where the CPU remains idle,
+
+213
+00:08:03,360 --> 00:08:07,919
+waiting for IO operations to finish
+
+214
+00:08:05,280 --> 00:08:10,080
+before continuing execution.
+
+215
+00:08:07,919 --> 00:08:12,479
+These gaps are not the exception but the
+
+216
+00:08:10,080 --> 00:08:14,720
+norm at least in systems based on the
+
+217
+00:08:12,479 --> 00:08:17,840
+vonoman architecture which represents
+
+218
+00:08:14,720 --> 00:08:19,680
+over 99% of modern computers. In fact,
+
+219
+00:08:17,840 --> 00:08:22,280
+this behavior is so common that it has
+
+220
+00:08:19,680 --> 00:08:24,800
+been continuously studied for
+
+221
+00:08:22,280 --> 00:08:27,360
+decades. Those lapses when a program is
+
+222
+00:08:24,800 --> 00:08:29,120
+using the CPU are called CPU bursts
+
+223
+00:08:27,360 --> 00:08:31,039
+while those time-lapses when the program
+
+224
+00:08:29,120 --> 00:08:34,080
+is waiting for an IO operation to
+
+225
+00:08:31,039 --> 00:08:36,320
+complete are called IO bursts. Every
+
+226
+00:08:34,080 --> 00:08:39,279
+process execution begins with a CPU
+
+227
+00:08:36,320 --> 00:08:41,599
+burst. that is followed by an IO burst
+
+228
+00:08:39,279 --> 00:08:44,720
+which is followed by another CPU burst
+
+229
+00:08:41,599 --> 00:08:47,040
+then another IO burst and so on.
+
+230
+00:08:44,720 --> 00:08:50,000
+Eventually the final CPU burst ends with
+
+231
+00:08:47,040 --> 00:08:52,080
+a system request to terminate execution.
+
+232
+00:08:50,000 --> 00:08:54,160
+As I mentioned earlier, this behavior
+
+233
+00:08:52,080 --> 00:08:56,240
+has been studied for decades as the
+
+234
+00:08:54,160 --> 00:08:58,880
+success of CPU scheduling largely
+
+235
+00:08:56,240 --> 00:09:00,880
+depends on it. The durations of CPU
+
+236
+00:08:58,880 --> 00:09:02,640
+bursts have been extensively measured.
+
+237
+00:09:00,880 --> 00:09:04,720
+And while they vary between processes
+
+238
+00:09:02,640 --> 00:09:08,279
+and systems, they tend to follow a
+
+239
+00:09:04,720 --> 00:09:11,440
+predictable distribution that looks like
+
+240
+00:09:08,279 --> 00:09:13,360
+this. This next part is very important.
+
+241
+00:09:11,440 --> 00:09:15,120
+Before continuing, take a moment to
+
+242
+00:09:13,360 --> 00:09:17,440
+pause the video and analyze what this
+
+243
+00:09:15,120 --> 00:09:17,440
+chart
+
+244
+00:09:18,839 --> 00:09:22,800
+represents. The chart shows that most
+
+245
+00:09:21,040 --> 00:09:25,200
+processes have a large number of short
+
+246
+00:09:22,800 --> 00:09:28,000
+CPU bursts and only a small number of
+
+247
+00:09:25,200 --> 00:09:30,160
+long CPU bursts. This is a critical
+
+248
+00:09:28,000 --> 00:09:32,160
+observation for designing CPU scheduling
+
+249
+00:09:30,160 --> 00:09:34,160
+algorithms because it highlights that
+
+250
+00:09:32,160 --> 00:09:37,040
+processes often spend significant time
+
+251
+00:09:34,160 --> 00:09:38,720
+waiting for IO operations. If a
+
+252
+00:09:37,040 --> 00:09:41,560
+scheduling algorithm doesn't account for
+
+253
+00:09:38,720 --> 00:09:44,320
+this behavior, a lot of CPU time will be
+
+254
+00:09:41,560 --> 00:09:46,560
+wasted. So when a process enters an IO
+
+255
+00:09:44,320 --> 00:09:48,480
+burst, ideally the CPU should be
+
+256
+00:09:46,560 --> 00:09:50,160
+allocated to a different process, one
+
+257
+00:09:48,480 --> 00:09:52,399
+that isn't also waiting for IO
+
+258
+00:09:50,160 --> 00:09:54,320
+operations.
+
+259
+00:09:52,399 --> 00:09:56,800
+One of the main goals of CPU scheduling
+
+260
+00:09:54,320 --> 00:09:58,640
+is to keep the CPU as busy as possible,
+
+261
+00:09:56,800 --> 00:10:00,680
+allowing processes to run as fast as
+
+262
+00:09:58,640 --> 00:10:03,920
+they can while sharing the
+
+263
+00:10:00,680 --> 00:10:05,519
+CPU. Notice that a process's CPU burst
+
+264
+00:10:03,920 --> 00:10:07,680
+never starts immediately after the
+
+265
+00:10:05,519 --> 00:10:09,680
+previous one ends. There is always a
+
+266
+00:10:07,680 --> 00:10:11,839
+small additional process in between
+
+267
+00:10:09,680 --> 00:10:13,760
+which I've represented in gray. I'll
+
+268
+00:10:11,839 --> 00:10:15,279
+come back to this in a moment. What's
+
+269
+00:10:13,760 --> 00:10:17,120
+important to understand right now is
+
+270
+00:10:15,279 --> 00:10:19,360
+that a scheduling algorithm must take
+
+271
+00:10:17,120 --> 00:10:21,440
+this into account. Instead of allocating
+
+272
+00:10:19,360 --> 00:10:23,680
+the CPU to a process until it fully
+
+273
+00:10:21,440 --> 00:10:25,760
+terminates, theuler should allocate it
+
+274
+00:10:23,680 --> 00:10:28,720
+only until the process's current CPU
+
+275
+00:10:25,760 --> 00:10:30,079
+burst ends. Achieving this behavior, of
+
+276
+00:10:28,720 --> 00:10:32,399
+course, makes the implementation of
+
+277
+00:10:30,079 --> 00:10:34,160
+ouruler a little more complex because
+
+278
+00:10:32,399 --> 00:10:36,720
+now we need to consider that processes
+
+279
+00:10:34,160 --> 00:10:39,040
+can be in different states. Every
+
+280
+00:10:36,720 --> 00:10:40,720
+process begins in the new state. A new
+
+281
+00:10:39,040 --> 00:10:42,720
+process is a program that has just been
+
+282
+00:10:40,720 --> 00:10:45,279
+launched, but its executable file is
+
+283
+00:10:42,720 --> 00:10:46,640
+still being loaded into memory. Once the
+
+284
+00:10:45,279 --> 00:10:48,560
+program is fully loaded and all
+
+285
+00:10:46,640 --> 00:10:50,560
+necessary resources are allocated, the
+
+286
+00:10:48,560 --> 00:10:52,160
+process enters the ready state, meaning
+
+287
+00:10:50,560 --> 00:10:55,600
+it is prepared to execute, but is
+
+288
+00:10:52,160 --> 00:10:57,839
+waiting for CPU time. When the CPU is
+
+289
+00:10:55,600 --> 00:10:58,680
+assigned to a process, it enters the
+
+290
+00:10:57,839 --> 00:11:01,440
+running
+
+291
+00:10:58,680 --> 00:11:04,000
+state. At some point, the process will
+
+292
+00:11:01,440 --> 00:11:06,160
+likely make a system call, such as an IO
+
+293
+00:11:04,000 --> 00:11:08,440
+request, which voluntarily returns
+
+294
+00:11:06,160 --> 00:11:11,040
+control of the CPU to the operating
+
+295
+00:11:08,440 --> 00:11:12,880
+system. Keep in mind that an IO call is
+
+296
+00:11:11,040 --> 00:11:14,880
+not only made to request some resource,
+
+297
+00:11:12,880 --> 00:11:16,800
+like manipulating a file or allocating
+
+298
+00:11:14,880 --> 00:11:18,560
+memory, but to simply wait for some
+
+299
+00:11:16,800 --> 00:11:20,440
+event to happen, such as an user
+
+300
+00:11:18,560 --> 00:11:22,800
+keystroke or an incoming network
+
+301
+00:11:20,440 --> 00:11:24,399
+request. In both cases, the process
+
+302
+00:11:22,800 --> 00:11:26,640
+moves to the waiting state until the
+
+303
+00:11:24,399 --> 00:11:28,480
+event happens or the IO operation is
+
+304
+00:11:26,640 --> 00:11:30,240
+completed. Once the request is
+
+305
+00:11:28,480 --> 00:11:32,480
+fulfilled, the process becomes ready
+
+306
+00:11:30,240 --> 00:11:33,640
+again, waiting for theuler to allocate
+
+307
+00:11:32,480 --> 00:11:36,240
+CPU
+
+308
+00:11:33,640 --> 00:11:38,399
+time. Notice that even when the IO
+
+309
+00:11:36,240 --> 00:11:41,040
+operation is completed, the process does
+
+310
+00:11:38,399 --> 00:11:42,720
+not immediately resume execution. This
+
+311
+00:11:41,040 --> 00:11:44,880
+happens because while the process was
+
+312
+00:11:42,720 --> 00:11:47,680
+waiting, the CPU has most likely been
+
+313
+00:11:44,880 --> 00:11:49,200
+allocated to another process. So even
+
+314
+00:11:47,680 --> 00:11:52,000
+though it is now ready to continue
+
+315
+00:11:49,200 --> 00:11:54,240
+running, it must wait for its turn. For
+
+316
+00:11:52,000 --> 00:11:56,480
+most of their lifetime, processes cycle
+
+317
+00:11:54,240 --> 00:11:59,680
+between these three states: ready,
+
+318
+00:11:56,480 --> 00:12:01,920
+running, and waiting. Some processes,
+
+319
+00:11:59,680 --> 00:12:03,959
+such as web servers, are designed never
+
+320
+00:12:01,920 --> 00:12:05,920
+to terminate and remain in this cycle
+
+321
+00:12:03,959 --> 00:12:08,000
+indefinitely. But for most user
+
+322
+00:12:05,920 --> 00:12:09,560
+programs, the process eventually enters
+
+323
+00:12:08,000 --> 00:12:12,079
+the terminated
+
+324
+00:12:09,560 --> 00:12:14,399
+state. These names are arbitrary and
+
+325
+00:12:12,079 --> 00:12:16,000
+they vary across operating systems. The
+
+326
+00:12:14,399 --> 00:12:18,880
+states that they represent are found on
+
+327
+00:12:16,000 --> 00:12:21,040
+all systems. However, certain operating
+
+328
+00:12:18,880 --> 00:12:23,839
+systems also more finely delineate
+
+329
+00:12:21,040 --> 00:12:25,720
+process states. For example, a
+
+330
+00:12:23,839 --> 00:12:28,000
+terminated process may not be really
+
+331
+00:12:25,720 --> 00:12:30,320
+terminated. After making a system call
+
+332
+00:12:28,000 --> 00:12:33,680
+to exit, the operating system must free
+
+333
+00:12:30,320 --> 00:12:35,440
+allocated resources, including memory.
+
+334
+00:12:33,680 --> 00:12:37,040
+Some operating systems make a clear
+
+335
+00:12:35,440 --> 00:12:38,720
+distinction between a process that has
+
+336
+00:12:37,040 --> 00:12:41,920
+been fully terminated and one that is
+
+337
+00:12:38,720 --> 00:12:44,079
+still in the process of termination.
+
+338
+00:12:41,920 --> 00:12:45,920
+This state model explains why cues are
+
+339
+00:12:44,079 --> 00:12:48,560
+the fundamental data structure used in
+
+340
+00:12:45,920 --> 00:12:50,720
+CPU scheduling. Even though there is a
+
+341
+00:12:48,560 --> 00:12:52,639
+specific waiting state, processes in
+
+342
+00:12:50,720 --> 00:12:55,200
+other states except the running state
+
+343
+00:12:52,639 --> 00:12:57,360
+are also waiting. Given that hundreds of
+
+344
+00:12:55,200 --> 00:12:59,279
+processes may be waiting at any moment,
+
+345
+00:12:57,360 --> 00:13:01,639
+using cues to manage their execution
+
+346
+00:12:59,279 --> 00:13:03,839
+order is both logical and
+
+347
+00:13:01,639 --> 00:13:05,680
+efficient. It is important to realize
+
+348
+00:13:03,839 --> 00:13:08,320
+that only one process can be running on
+
+349
+00:13:05,680 --> 00:13:09,920
+a processor core at any given time. This
+
+350
+00:13:08,320 --> 00:13:12,160
+means that while a Q makes sense for
+
+351
+00:13:09,920 --> 00:13:14,959
+waiting processes, it does not apply to
+
+352
+00:13:12,160 --> 00:13:16,720
+the running process. When studying CPU
+
+353
+00:13:14,959 --> 00:13:18,480
+scheduling algorithms, it is necessary
+
+354
+00:13:16,720 --> 00:13:21,480
+to be aware of another component of the
+
+355
+00:13:18,480 --> 00:13:23,519
+operating system, the
+
+356
+00:13:21,480 --> 00:13:25,680
+dispatcher. When a running process
+
+357
+00:13:23,519 --> 00:13:27,839
+enters an IO waiting state and the CPU
+
+358
+00:13:25,680 --> 00:13:30,480
+becomes available, the dispatcher steps
+
+359
+00:13:27,839 --> 00:13:32,320
+in with one single purpose. Allocate the
+
+360
+00:13:30,480 --> 00:13:35,279
+CPU to the process at the head of the
+
+361
+00:13:32,320 --> 00:13:37,839
+ready Q. In other words, perform the
+
+362
+00:13:35,279 --> 00:13:40,079
+context switch. Although the running
+
+363
+00:13:37,839 --> 00:13:41,920
+process is not stored in any queue, a
+
+364
+00:13:40,079 --> 00:13:44,399
+reference to its process control block
+
+365
+00:13:41,920 --> 00:13:46,560
+is always maintained. This allows the
+
+366
+00:13:44,399 --> 00:13:49,279
+dispatcher to save the CPU state into
+
+367
+00:13:46,560 --> 00:13:51,200
+the PCB when an interruption occurs.
+
+368
+00:13:49,279 --> 00:13:53,440
+This saved state enables the process to
+
+369
+00:13:51,200 --> 00:13:55,560
+resume execution later. The dispatcher
+
+370
+00:13:53,440 --> 00:13:57,920
+then places the PCB into the waiting
+
+371
+00:13:55,560 --> 00:14:00,160
+queue. Next, after handling the
+
+372
+00:13:57,920 --> 00:14:02,320
+interrupted process, the dispatcher
+
+373
+00:14:00,160 --> 00:14:04,880
+retrieves the PCB of the next process
+
+374
+00:14:02,320 --> 00:14:07,440
+from the head of the ready Q, identifies
+
+375
+00:14:04,880 --> 00:14:09,839
+it as the new running process, restores
+
+376
+00:14:07,440 --> 00:14:12,320
+its previous CPU state, including
+
+377
+00:14:09,839 --> 00:14:14,560
+registers and the program counter, and
+
+378
+00:14:12,320 --> 00:14:16,320
+reallocates the CPU, allowing the
+
+379
+00:14:14,560 --> 00:14:18,800
+process to resume execution from where
+
+380
+00:14:16,320 --> 00:14:20,639
+it was interrupted. If the processor
+
+381
+00:14:18,800 --> 00:14:22,320
+supports it, the dispatcher is also
+
+382
+00:14:20,639 --> 00:14:25,040
+responsible for switching to user mode
+
+383
+00:14:22,320 --> 00:14:27,040
+before handing control to the process.
+
+384
+00:14:25,040 --> 00:14:29,839
+In other words, the scheduler determines
+
+385
+00:14:27,040 --> 00:14:31,519
+which process should use the CPU next by
+
+386
+00:14:29,839 --> 00:14:33,519
+managing the ready Q according to a
+
+387
+00:14:31,519 --> 00:14:35,120
+specific scheduling policy while the
+
+388
+00:14:33,519 --> 00:14:37,399
+dispatcher is responsible for the
+
+389
+00:14:35,120 --> 00:14:40,160
+execution of the decision made by
+
+390
+00:14:37,399 --> 00:14:42,160
+theuler. These additional CPU bursts
+
+391
+00:14:40,160 --> 00:14:44,320
+caused by the dispatcher are inevitable
+
+392
+00:14:42,160 --> 00:14:46,959
+since the CPU itself is required to
+
+393
+00:14:44,320 --> 00:14:49,279
+execute the context switch. This delay
+
+394
+00:14:46,959 --> 00:14:50,959
+is known as dispatch latency, the time
+
+395
+00:14:49,279 --> 00:14:53,440
+it takes for the dispatcher to stop one
+
+396
+00:14:50,959 --> 00:14:55,199
+process and start another. Because the
+
+397
+00:14:53,440 --> 00:14:57,639
+dispatcher is invoked during every
+
+398
+00:14:55,199 --> 00:14:59,839
+context switch, it must be as fast as
+
+399
+00:14:57,639 --> 00:15:01,519
+possible. For this reason, the
+
+400
+00:14:59,839 --> 00:15:03,279
+dispatcher is one of the most highly
+
+401
+00:15:01,519 --> 00:15:05,680
+optimized components of an operating
+
+402
+00:15:03,279 --> 00:15:07,519
+system. Since it is implicit, the
+
+403
+00:15:05,680 --> 00:15:09,079
+dispatch latency is usually not
+
+404
+00:15:07,519 --> 00:15:11,920
+illustrated between
+
+405
+00:15:09,079 --> 00:15:14,320
+processes. By the way, this is a variant
+
+406
+00:15:11,920 --> 00:15:16,079
+of something known as a Gant chart, a
+
+407
+00:15:14,320 --> 00:15:18,320
+bar chart that illustrates a specific
+
+408
+00:15:16,079 --> 00:15:20,360
+schedule showing the start and finish
+
+409
+00:15:18,320 --> 00:15:22,959
+times of each participating
+
+410
+00:15:20,360 --> 00:15:25,040
+process. In first come firsts served
+
+411
+00:15:22,959 --> 00:15:28,399
+scheduling. This policy is implemented
+
+412
+00:15:25,040 --> 00:15:30,800
+using a FIFO Q as the ready Q. As soon
+
+413
+00:15:28,399 --> 00:15:32,800
+as a process makes an IO request, the
+
+414
+00:15:30,800 --> 00:15:35,160
+CPU is immediately allocated to the
+
+415
+00:15:32,800 --> 00:15:38,000
+process at the head of the
+
+416
+00:15:35,160 --> 00:15:39,839
+queue. Notice that the name first come
+
+417
+00:15:38,000 --> 00:15:41,519
+first served can be somewhat ambiguous
+
+418
+00:15:39,839 --> 00:15:44,000
+because the scheduler is not actually
+
+419
+00:15:41,519 --> 00:15:46,959
+managing entire processes but rather
+
+420
+00:15:44,000 --> 00:15:49,600
+their next CPU burst. A more precise
+
+421
+00:15:46,959 --> 00:15:51,279
+name would be first CPU burst come first
+
+422
+00:15:49,600 --> 00:15:53,199
+served.
+
+423
+00:15:51,279 --> 00:15:54,959
+That said, since many books and
+
+424
+00:15:53,199 --> 00:15:57,040
+resources continue to refer to it as
+
+425
+00:15:54,959 --> 00:15:59,839
+first come, first served, we'll stick
+
+426
+00:15:57,040 --> 00:16:02,120
+with that convention. And with that, we
+
+427
+00:15:59,839 --> 00:16:04,720
+have the simplest CPU scheduling
+
+428
+00:16:02,120 --> 00:16:06,639
+algorithm. But while it does take CPU
+
+429
+00:16:04,720 --> 00:16:09,360
+utilization into account, that doesn't
+
+430
+00:16:06,639 --> 00:16:11,600
+mean it's effective at optimizing it. To
+
+431
+00:16:09,360 --> 00:16:14,320
+understand why, let's go back to our CPU
+
+432
+00:16:11,600 --> 00:16:16,800
+burst frequency graph. Notice that while
+
+433
+00:16:14,320 --> 00:16:19,360
+very large CPU bursts are rare, their
+
+434
+00:16:16,800 --> 00:16:21,600
+probability is never zero.
+
+435
+00:16:19,360 --> 00:16:23,920
+The most common processes, those with a
+
+436
+00:16:21,600 --> 00:16:26,800
+high number of short CPU bursts, are
+
+437
+00:16:23,920 --> 00:16:28,639
+known as IObound processes. These
+
+438
+00:16:26,800 --> 00:16:30,560
+processes depend heavily on IO
+
+439
+00:16:28,639 --> 00:16:34,279
+operations, meaning their performance
+
+440
+00:16:30,560 --> 00:16:36,720
+would improve if the IO subsystem were
+
+441
+00:16:34,279 --> 00:16:38,560
+faster. But it is also possible to have
+
+442
+00:16:36,720 --> 00:16:41,839
+processes that exhibit a high number of
+
+443
+00:16:38,560 --> 00:16:43,920
+long CPU bursts. Unlike IObound
+
+444
+00:16:41,839 --> 00:16:46,160
+processes, these processes do not
+
+445
+00:16:43,920 --> 00:16:48,720
+benefit significantly from a faster IO
+
+446
+00:16:46,160 --> 00:16:51,839
+subsystem, but instead they depend on
+
+447
+00:16:48,720 --> 00:16:54,959
+faster CPU speeds and for that reason
+
+448
+00:16:51,839 --> 00:16:56,880
+these are called CPUbound processes. The
+
+449
+00:16:54,959 --> 00:16:58,560
+problem with CPUbounded processes and
+
+450
+00:16:56,880 --> 00:17:00,639
+the first come first serve scheduling
+
+451
+00:16:58,560 --> 00:17:03,480
+algorithm is that they can generate a
+
+452
+00:17:00,639 --> 00:17:05,360
+negative effect on CPU
+
+453
+00:17:03,480 --> 00:17:07,720
+utilization. Imagine we have one
+
+454
+00:17:05,360 --> 00:17:09,919
+CPUbound process and some IObound
+
+455
+00:17:07,720 --> 00:17:12,600
+processes. For convenience, I'm going to
+
+456
+00:17:09,919 --> 00:17:15,439
+use the same color for the IO bound
+
+457
+00:17:12,600 --> 00:17:17,520
+processes. The CPUbound process will get
+
+458
+00:17:15,439 --> 00:17:20,079
+and hold the CPU for a relatively long
+
+459
+00:17:17,520 --> 00:17:22,240
+time. During this time, all the other
+
+460
+00:17:20,079 --> 00:17:24,439
+processes will finish their IO and will
+
+461
+00:17:22,240 --> 00:17:26,799
+move into the ready Q, waiting for the
+
+462
+00:17:24,439 --> 00:17:29,760
+CPU. While the processes wait in the
+
+463
+00:17:26,799 --> 00:17:31,840
+ready Q, the IO devices are idle.
+
+464
+00:17:29,760 --> 00:17:34,000
+Eventually, the CPUbound process
+
+465
+00:17:31,840 --> 00:17:36,960
+finishes its CPU burst and moves to an
+
+466
+00:17:34,000 --> 00:17:39,360
+IO device. All the IObound processes
+
+467
+00:17:36,960 --> 00:17:42,160
+which have short CPU bursts execute
+
+468
+00:17:39,360 --> 00:17:44,000
+quickly and move back to the IOQ cues.
+
+469
+00:17:42,160 --> 00:17:46,400
+At this point, there's no process to
+
+470
+00:17:44,000 --> 00:17:48,480
+dispatch and the CPU sits idle. The
+
+471
+00:17:46,400 --> 00:17:51,440
+CPUbound process will then move back to
+
+472
+00:17:48,480 --> 00:17:53,760
+the ready Q and be allocated the CPU
+
+473
+00:17:51,440 --> 00:17:55,280
+again. All the IO processes end up
+
+474
+00:17:53,760 --> 00:17:58,720
+waiting in the ready Q until the
+
+475
+00:17:55,280 --> 00:17:58,720
+CPUbound process is
+
+476
+00:17:59,080 --> 00:18:04,960
+done. See the problem here? There is a
+
+477
+00:18:02,640 --> 00:18:06,720
+convoy effect as all the other processes
+
+478
+00:18:04,960 --> 00:18:09,360
+wait for the one big process to get off
+
+479
+00:18:06,720 --> 00:18:11,919
+the CPU. This effect results in lower
+
+480
+00:18:09,360 --> 00:18:13,679
+CPU and device utilization than might be
+
+481
+00:18:11,919 --> 00:18:15,080
+possible if the shorter processes were
+
+482
+00:18:13,679 --> 00:18:17,760
+allowed to go
+
+483
+00:18:15,080 --> 00:18:19,840
+first. Yes, the shorted job first
+
+484
+00:18:17,760 --> 00:18:22,799
+scheduling algorithm exists and is the
+
+485
+00:18:19,840 --> 00:18:22,799
+next one we are going to
+
+486
+00:18:24,679 --> 00:18:29,360
+learn. Shortest job first assigns the
+
+487
+00:18:27,440 --> 00:18:32,240
+CPU to the process with the shortest
+
+488
+00:18:29,360 --> 00:18:34,400
+next CPU burst. If two processes have
+
+489
+00:18:32,240 --> 00:18:36,520
+the same burst length, first come first
+
+490
+00:18:34,400 --> 00:18:38,880
+served is used as a
+
+491
+00:18:36,520 --> 00:18:41,200
+tiebreaker. Again, note that a more
+
+492
+00:18:38,880 --> 00:18:43,280
+precise name would be shortest next CPU
+
+493
+00:18:41,200 --> 00:18:45,600
+burst first scheduling since it
+
+494
+00:18:43,280 --> 00:18:48,240
+prioritizes the next CPU burst rather
+
+495
+00:18:45,600 --> 00:18:50,160
+than the total process length. Most
+
+496
+00:18:48,240 --> 00:18:52,320
+people in books refer to it as shortest
+
+497
+00:18:50,160 --> 00:18:54,080
+job first. So once again, let's stick to
+
+498
+00:18:52,320 --> 00:18:55,840
+that convention.
+
+499
+00:18:54,080 --> 00:18:58,000
+This algorithm can be implemented using
+
+500
+00:18:55,840 --> 00:19:00,160
+a priority queue where priority is
+
+501
+00:18:58,000 --> 00:19:02,559
+determined by the length of the next CPU
+
+502
+00:19:00,160 --> 00:19:04,720
+burst of the waiting processes. This
+
+503
+00:19:02,559 --> 00:19:07,200
+allows those short CPU burst processes
+
+504
+00:19:04,720 --> 00:19:09,600
+to overtake those CPU hungry processes
+
+505
+00:19:07,200 --> 00:19:11,840
+reducing the convoy effect. This
+
+506
+00:19:09,600 --> 00:19:13,120
+algorithm is also provably optimal in
+
+507
+00:19:11,840 --> 00:19:15,320
+that it gives the minimum average
+
+508
+00:19:13,120 --> 00:19:17,280
+waiting time for a given set of
+
+509
+00:19:15,320 --> 00:19:18,720
+processes. Imagine we have four
+
+510
+00:19:17,280 --> 00:19:21,280
+processes that arrive almost
+
+511
+00:19:18,720 --> 00:19:23,760
+simultaneously. The first process next
+
+512
+00:19:21,280 --> 00:19:25,120
+CPU burst takes 2 minutes to complete
+
+513
+00:19:23,760 --> 00:19:28,080
+while the others only take a few
+
+514
+00:19:25,120 --> 00:19:30,160
+milliseconds each. In first come first
+
+515
+00:19:28,080 --> 00:19:32,320
+serve. If those shorter CPU bursts
+
+516
+00:19:30,160 --> 00:19:34,000
+arrive just after the long CPU burst,
+
+517
+00:19:32,320 --> 00:19:35,280
+they would experience significant delays
+
+518
+00:19:34,000 --> 00:19:36,600
+because they'd have to wait for the
+
+519
+00:19:35,280 --> 00:19:39,360
+longer to
+
+520
+00:19:36,600 --> 00:19:41,520
+finish. On the other hand, if processes
+
+521
+00:19:39,360 --> 00:19:43,280
+with short CPU burst are allowed to go
+
+522
+00:19:41,520 --> 00:19:45,280
+first, their waiting times would be
+
+523
+00:19:43,280 --> 00:19:47,919
+minimal and the process with the longer
+
+524
+00:19:45,280 --> 00:19:49,440
+CPU burst would barely be affected. it
+
+525
+00:19:47,919 --> 00:19:50,960
+would simply start a few milliseconds
+
+526
+00:19:49,440 --> 00:19:53,760
+later, which would make little
+
+527
+00:19:50,960 --> 00:19:55,760
+difference to it. Moving a short process
+
+528
+00:19:53,760 --> 00:19:57,919
+before a long one decreases the waiting
+
+529
+00:19:55,760 --> 00:19:59,880
+time of the short process more than it
+
+530
+00:19:57,919 --> 00:20:02,400
+increases the waiting time of the long
+
+531
+00:19:59,880 --> 00:20:03,880
+process. Consequently, the average
+
+532
+00:20:02,400 --> 00:20:06,080
+waiting time
+
+533
+00:20:03,880 --> 00:20:08,160
+decreases. Minimizing the average
+
+534
+00:20:06,080 --> 00:20:09,840
+waiting time in a system is crucial
+
+535
+00:20:08,160 --> 00:20:12,080
+because it represents the time that
+
+536
+00:20:09,840 --> 00:20:13,919
+processes are ready to run but cannot
+
+537
+00:20:12,080 --> 00:20:17,120
+execute as they wait for their turn to
+
+538
+00:20:13,919 --> 00:20:18,799
+use the CPU.
+
+539
+00:20:17,120 --> 00:20:20,799
+There are important considerations to
+
+540
+00:20:18,799 --> 00:20:23,679
+keep in mind whenever auler relies on
+
+541
+00:20:20,799 --> 00:20:25,760
+priority cues as we'll explore later.
+
+542
+00:20:23,679 --> 00:20:28,159
+But there's one major issue specifically
+
+543
+00:20:25,760 --> 00:20:29,880
+tied to shortest jobs first. It is
+
+544
+00:20:28,159 --> 00:20:32,000
+impossible to implement
+
+545
+00:20:29,880 --> 00:20:33,840
+perfectly because unless we could see
+
+546
+00:20:32,000 --> 00:20:36,159
+the future, there is no way to know the
+
+547
+00:20:33,840 --> 00:20:38,480
+exact length of a process's next CPU
+
+548
+00:20:36,159 --> 00:20:39,919
+burst.
+
+549
+00:20:38,480 --> 00:20:41,520
+You might think that we could use the
+
+550
+00:20:39,919 --> 00:20:43,760
+program counter to determine where the
+
+551
+00:20:41,520 --> 00:20:45,840
+next system call occurs and how long the
+
+552
+00:20:43,760 --> 00:20:48,559
+process will use the CPU before its next
+
+553
+00:20:45,840 --> 00:20:50,559
+IO burst. However, this approach is
+
+554
+00:20:48,559 --> 00:20:52,559
+unreliable because between the current
+
+555
+00:20:50,559 --> 00:20:54,159
+instruction and the next system call,
+
+556
+00:20:52,559 --> 00:20:57,039
+there can be loops or function calls
+
+557
+00:20:54,159 --> 00:20:59,120
+that alter execution time. The program's
+
+558
+00:20:57,039 --> 00:21:01,679
+execution path may depend on external
+
+559
+00:20:59,120 --> 00:21:04,240
+inputs like the user input, making
+
+560
+00:21:01,679 --> 00:21:06,240
+prediction even harder. For example,
+
+561
+00:21:04,240 --> 00:21:08,159
+this function takes an user input,
+
+562
+00:21:06,240 --> 00:21:10,480
+convert it to uppercase, and then print
+
+563
+00:21:08,159 --> 00:21:12,360
+it. The amount of iterations depends on
+
+564
+00:21:10,480 --> 00:21:14,880
+the length of the user
+
+565
+00:21:12,360 --> 00:21:17,440
+input. Since we cannot know the exact
+
+566
+00:21:14,880 --> 00:21:20,080
+next CPU burst, the best we can do is
+
+567
+00:21:17,440 --> 00:21:21,840
+estimate it based on past CPU bursts
+
+568
+00:21:20,080 --> 00:21:23,600
+with the assumption that the next CPU
+
+569
+00:21:21,840 --> 00:21:26,159
+burst will likely be similar in length
+
+570
+00:21:23,600 --> 00:21:28,240
+to previous ones. To approximate this
+
+571
+00:21:26,159 --> 00:21:29,840
+value, we compute an estimate using an
+
+572
+00:21:28,240 --> 00:21:32,240
+exponential average of previously
+
+573
+00:21:29,840 --> 00:21:34,159
+measured CPU bursts.
+
+574
+00:21:32,240 --> 00:21:36,679
+I know this isn't rocket science, but if
+
+575
+00:21:34,159 --> 00:21:38,880
+you're not into math, I'll break it
+
+576
+00:21:36,679 --> 00:21:41,120
+down. First, it's important to
+
+577
+00:21:38,880 --> 00:21:42,880
+understand that each process's CPU burst
+
+578
+00:21:41,120 --> 00:21:45,280
+prediction depends only on its own
+
+579
+00:21:42,880 --> 00:21:47,919
+history. Other processes do not affect
+
+580
+00:21:45,280 --> 00:21:49,760
+its prediction. Each process's CPU
+
+581
+00:21:47,919 --> 00:21:51,240
+bursts form a sequence of observed
+
+582
+00:21:49,760 --> 00:21:54,880
+durations over
+
+583
+00:21:51,240 --> 00:21:57,679
+time. N is the most recent CPU burst. N
+
+584
+00:21:54,880 --> 00:21:59,840
+minus one is the previous CPU burst. N
+
+585
+00:21:57,679 --> 00:22:03,440
+minus2 is the one before that, and so
+
+586
+00:21:59,840 --> 00:22:06,159
+on. n +1 is the next CPU burst, the one
+
+587
+00:22:03,440 --> 00:22:08,320
+we want to predict in the formula. That
+
+588
+00:22:06,159 --> 00:22:10,120
+means toao subn is the predicted burst
+
+589
+00:22:08,320 --> 00:22:12,799
+time for the process in the most recent
+
+590
+00:22:10,120 --> 00:22:16,080
+iteration while t subn is the actual
+
+591
+00:22:12,799 --> 00:22:18,400
+burst time that was observed. So to subn
+
+592
+00:22:16,080 --> 00:22:20,880
++ 1 is the estimated CPU burst duration
+
+593
+00:22:18,400 --> 00:22:20,880
+for the next
+
+594
+00:22:21,960 --> 00:22:26,640
+iteration. Since to subn represents the
+
+595
+00:22:24,799 --> 00:22:27,799
+previous prediction, we can expand the
+
+596
+00:22:26,640 --> 00:22:30,640
+formula
+
+597
+00:22:27,799 --> 00:22:32,559
+recursively. Since to subn minus one is
+
+598
+00:22:30,640 --> 00:22:34,760
+the prediction before that we can expand
+
+599
+00:22:32,559 --> 00:22:40,559
+it
+
+600
+00:22:34,760 --> 00:22:40,559
+again and then with subn minus2 and so
+
+601
+00:22:42,520 --> 00:22:47,919
+on. What this shows is that this term
+
+602
+00:22:45,120 --> 00:22:49,679
+retains the process's past history. As a
+
+603
+00:22:47,919 --> 00:22:51,840
+result, we don't need to store an entire
+
+604
+00:22:49,679 --> 00:22:54,080
+list of possibly thousands of CPU burst
+
+605
+00:22:51,840 --> 00:22:56,320
+durations. We only need to keep the most
+
+606
+00:22:54,080 --> 00:22:56,320
+recent
+
+607
+00:22:57,480 --> 00:23:01,679
+prediction. And what about this
+
+608
+00:22:59,200 --> 00:23:01,679
+parameter
+
+609
+00:23:01,880 --> 00:23:07,280
+alpha? Well, if alpha equals zero, the
+
+610
+00:23:05,440 --> 00:23:09,200
+most recent CPU burst is completely
+
+611
+00:23:07,280 --> 00:23:12,760
+ignored and the prediction relies only
+
+612
+00:23:09,200 --> 00:23:12,760
+on past history.
+
+613
+00:23:15,919 --> 00:23:20,880
+If alpha equals 1, the prediction is
+
+614
+00:23:18,240 --> 00:23:23,000
+based only on the most recent CPU burst,
+
+615
+00:23:20,880 --> 00:23:25,520
+ignoring all past
+
+616
+00:23:23,000 --> 00:23:27,039
+history. Thus, alpha controls the
+
+617
+00:23:25,520 --> 00:23:29,840
+relative weight of the recent and the
+
+618
+00:23:27,039 --> 00:23:32,400
+past history in our prediction. A common
+
+619
+00:23:29,840 --> 00:23:35,000
+choice is alpha equals 1/2 which gives
+
+620
+00:23:32,400 --> 00:23:37,120
+equal weight to recent and past
+
+621
+00:23:35,000 --> 00:23:39,120
+history. And notice that this doesn't
+
+622
+00:23:37,120 --> 00:23:41,679
+mean all observed CPU burst in the
+
+623
+00:23:39,120 --> 00:23:43,600
+history are equally weighted. By
+
+624
+00:23:41,679 --> 00:23:46,000
+expanding the formula, we can see that
+
+625
+00:23:43,600 --> 00:23:49,200
+each CPU burst duration is multiplied by
+
+626
+00:23:46,000 --> 00:23:51,919
+alpha * 1 - alpha raised to a power.
+
+627
+00:23:49,200 --> 00:23:54,480
+Since alpha is between 0 and 1, the term
+
+628
+00:23:51,919 --> 00:23:56,400
+1 - alpha decreases exponentially,
+
+629
+00:23:54,480 --> 00:23:58,039
+meaning older CPU bursts have less
+
+630
+00:23:56,400 --> 00:24:00,080
+influence on the
+
+631
+00:23:58,039 --> 00:24:01,760
+prediction. This makes sense because
+
+632
+00:24:00,080 --> 00:24:03,720
+older execution patterns are less
+
+633
+00:24:01,760 --> 00:24:06,480
+relevant when predicting future CPU
+
+634
+00:24:03,720 --> 00:24:08,640
+bursts. Additionally, when a process is
+
+635
+00:24:06,480 --> 00:24:11,360
+first created, there is no historical
+
+636
+00:24:08,640 --> 00:24:12,880
+data. In this case, the initial
+
+637
+00:24:11,360 --> 00:24:14,799
+prediction is typically set to a
+
+638
+00:24:12,880 --> 00:24:16,799
+constant value defined by the operating
+
+639
+00:24:14,799 --> 00:24:19,279
+system or based on the systemwide
+
+640
+00:24:16,799 --> 00:24:21,520
+average. For example, using a starting
+
+641
+00:24:19,279 --> 00:24:24,279
+value of 100 milliseconds results in a
+
+642
+00:24:21,520 --> 00:24:26,880
+predicted next CPU burst of around 72
+
+643
+00:24:24,279 --> 00:24:28,960
+milliseconds, which as you can see is
+
+644
+00:24:26,880 --> 00:24:30,279
+closer to recent CPU bursts than the
+
+645
+00:24:28,960 --> 00:24:32,559
+oldest
+
+646
+00:24:30,279 --> 00:24:34,720
+ones. Here's a chart comparing the
+
+647
+00:24:32,559 --> 00:24:37,440
+predicted versus observed CPU bursts
+
+648
+00:24:34,720 --> 00:24:40,279
+over a longer period of time. While not
+
+649
+00:24:37,440 --> 00:24:42,159
+perfect, this approach provides a decent
+
+650
+00:24:40,279 --> 00:24:43,840
+approximation. But there's an important
+
+651
+00:24:42,159 --> 00:24:46,080
+decision the dispatcher must make that
+
+652
+00:24:43,840 --> 00:24:48,080
+we haven't discussed yet. Imagine
+
+653
+00:24:46,080 --> 00:24:50,000
+process A enters the ready Q with a
+
+654
+00:24:48,080 --> 00:24:52,320
+specific next CPU burst and is
+
+655
+00:24:50,000 --> 00:24:54,400
+eventually allowed to run. Then an
+
+656
+00:24:52,320 --> 00:24:57,600
+instant later, process B enters the
+
+657
+00:24:54,400 --> 00:24:59,760
+ready Q, but process A is still running.
+
+658
+00:24:57,600 --> 00:25:01,679
+The question is if the remaining CPU
+
+659
+00:24:59,760 --> 00:25:04,240
+burst of process A is longer than the
+
+660
+00:25:01,679 --> 00:25:05,840
+next CPU burst of process B, should
+
+661
+00:25:04,240 --> 00:25:08,880
+process A be interrupted to give
+
+662
+00:25:05,840 --> 00:25:11,520
+priority to process B? This decision
+
+663
+00:25:08,880 --> 00:25:13,520
+depends on theuler. If auler allows
+
+664
+00:25:11,520 --> 00:25:15,200
+running processes to be interrupted, we
+
+665
+00:25:13,520 --> 00:25:17,120
+are dealing with a preemptive scheduling
+
+666
+00:25:15,200 --> 00:25:20,240
+algorithm where the operating system can
+
+667
+00:25:17,120 --> 00:25:23,039
+preempt currently executing processes.
+
+668
+00:25:20,240 --> 00:25:25,279
+In contrast, a non-premptive will never
+
+669
+00:25:23,039 --> 00:25:27,520
+preempt a running process. Even if a
+
+670
+00:25:25,279 --> 00:25:29,440
+process with a shorter CPU burst arrives
+
+671
+00:25:27,520 --> 00:25:31,120
+in the ready queue, it will have to wait
+
+672
+00:25:29,440 --> 00:25:33,480
+until the running process completes its
+
+673
+00:25:31,120 --> 00:25:36,320
+CPU burst and releases the
+
+674
+00:25:33,480 --> 00:25:38,159
+CPU. This is not a trivial decision as
+
+675
+00:25:36,320 --> 00:25:39,760
+the execution order of processes can
+
+676
+00:25:38,159 --> 00:25:43,000
+change depending on whether the shortest
+
+677
+00:25:39,760 --> 00:25:44,799
+job first algorithm is preemptive or
+
+678
+00:25:43,000 --> 00:25:46,720
+non-premptive. And now that we
+
+679
+00:25:44,799 --> 00:25:48,640
+understand preeemption, let's discuss
+
+680
+00:25:46,720 --> 00:25:50,200
+why it is the default choice in modern
+
+681
+00:25:48,640 --> 00:25:52,960
+systems.
+
+682
+00:25:50,200 --> 00:25:55,120
+Consider a non-premptive system where a
+
+683
+00:25:52,960 --> 00:25:57,039
+process with an extremely long next CPU
+
+684
+00:25:55,120 --> 00:25:59,600
+burst reaches the head of the ready Q
+
+685
+00:25:57,039 --> 00:26:01,360
+and is selected. Since the system is
+
+686
+00:25:59,600 --> 00:26:02,799
+non-premptive, there is no way to
+
+687
+00:26:01,360 --> 00:26:05,960
+interrupt this process until it
+
+688
+00:26:02,799 --> 00:26:09,559
+voluntarily releases the
+
+689
+00:26:05,960 --> 00:26:12,240
+CPU. But what if it never
+
+690
+00:26:09,559 --> 00:26:14,559
+does? Infinite loops are not uncommon in
+
+691
+00:26:12,240 --> 00:26:16,559
+computer science. If no system call is
+
+692
+00:26:14,559 --> 00:26:18,400
+used inside the loop, the process will
+
+693
+00:26:16,559 --> 00:26:19,520
+never return control of the CPU to the
+
+694
+00:26:18,400 --> 00:26:21,360
+OS.
+
+695
+00:26:19,520 --> 00:26:24,360
+This is problematic in general purpose
+
+696
+00:26:21,360 --> 00:26:27,039
+systems where concurrency is a key
+
+697
+00:26:24,360 --> 00:26:28,640
+feature. Remember, concurrency is a
+
+698
+00:26:27,039 --> 00:26:30,640
+technique that allows the CPU to
+
+699
+00:26:28,640 --> 00:26:32,720
+alternate execution between processes
+
+700
+00:26:30,640 --> 00:26:34,200
+very quickly, creating the illusion that
+
+701
+00:26:32,720 --> 00:26:36,000
+all processes are running
+
+702
+00:26:34,200 --> 00:26:38,640
+simultaneously. However, in
+
+703
+00:26:36,000 --> 00:26:41,039
+non-premptive systems, if a CPUbound
+
+704
+00:26:38,640 --> 00:26:43,120
+process holds the CPU indefinitely or
+
+705
+00:26:41,039 --> 00:26:44,880
+even for long periods, all other
+
+706
+00:26:43,120 --> 00:26:46,720
+processes freeze from the user's
+
+707
+00:26:44,880 --> 00:26:48,720
+perspective. This is a major issue
+
+708
+00:26:46,720 --> 00:26:50,960
+because non-premptive systems rely on
+
+709
+00:26:48,720 --> 00:26:53,440
+processes to behave correctly and return
+
+710
+00:26:50,960 --> 00:26:54,799
+control in a reasonable amount of time.
+
+711
+00:26:53,440 --> 00:26:56,559
+Malware could exploit this by
+
+712
+00:26:54,799 --> 00:26:59,279
+intentionally avoiding system calls to
+
+713
+00:26:56,559 --> 00:27:01,039
+monopolize CPU time. Whenever a
+
+714
+00:26:59,279 --> 00:27:03,120
+scheduling policy causes a process to
+
+715
+00:27:01,039 --> 00:27:05,200
+wait indefinitely in the ready queue,
+
+716
+00:27:03,120 --> 00:27:07,640
+this is called starvation because the
+
+717
+00:27:05,200 --> 00:27:10,799
+process is starving for CPU
+
+718
+00:27:07,640 --> 00:27:12,960
+time. Even CPUbound processes can suffer
+
+719
+00:27:10,799 --> 00:27:15,200
+from starvation. For example, in
+
+720
+00:27:12,960 --> 00:27:17,600
+shortest job first, a process with a
+
+721
+00:27:15,200 --> 00:27:19,440
+long estimated CPU burst may be forced
+
+722
+00:27:17,600 --> 00:27:21,400
+to stay in the queue indefinitely if
+
+723
+00:27:19,440 --> 00:27:23,600
+many shorter CPU bursts continue
+
+724
+00:27:21,400 --> 00:27:26,320
+arriving. The only way for this process
+
+725
+00:27:23,600 --> 00:27:28,880
+to get CPU time is if no other process
+
+726
+00:27:26,320 --> 00:27:31,279
+is in the ready queue. In real world
+
+727
+00:27:28,880 --> 00:27:35,039
+systems, this is unlikely since hundreds
+
+728
+00:27:31,279 --> 00:27:35,039
+of processes compete for CPU
+
+729
+00:27:35,240 --> 00:27:40,159
+time. In terms of concurrency, that
+
+730
+00:27:37,679 --> 00:27:41,919
+would look something like this. Thus,
+
+731
+00:27:40,159 --> 00:27:43,919
+starvation is not just about process
+
+732
+00:27:41,919 --> 00:27:46,720
+burst length, but rather a consequence
+
+733
+00:27:43,919 --> 00:27:48,559
+of the scheduling policy itself. While
+
+734
+00:27:46,720 --> 00:27:51,120
+shortest job first is efficient in terms
+
+735
+00:27:48,559 --> 00:27:52,559
+of CPU utilization and waiting time, a
+
+736
+00:27:51,120 --> 00:27:56,559
+general purpose operating system
+
+737
+00:27:52,559 --> 00:27:56,559
+requires other scheduling criteria as
+
+738
+00:27:58,039 --> 00:28:02,679
+well. A great example of preemptive
+
+739
+00:28:00,640 --> 00:28:05,039
+scheduling is the roundroin
+
+740
+00:28:02,679 --> 00:28:06,559
+algorithm. The roundrobin scheduling
+
+741
+00:28:05,039 --> 00:28:09,039
+algorithm is similar to first come
+
+742
+00:28:06,559 --> 00:28:10,720
+first-s serve scheduling. A FIFO Q is
+
+743
+00:28:09,039 --> 00:28:12,320
+used as a ready Q, but preeemption is
+
+744
+00:28:10,720 --> 00:28:15,279
+added to enable the system to switch
+
+745
+00:28:12,320 --> 00:28:17,440
+between processes. A small unit of time
+
+746
+00:28:15,279 --> 00:28:19,440
+called a time quantum or time slice is
+
+747
+00:28:17,440 --> 00:28:22,279
+defined. Here in this animation, I'm
+
+748
+00:28:19,440 --> 00:28:24,720
+using a time quantum of 100
+
+749
+00:28:22,279 --> 00:28:27,679
+milliseconds. New processes are added to
+
+750
+00:28:24,720 --> 00:28:29,360
+the tail of the ready Q. The CPUuler
+
+751
+00:28:27,679 --> 00:28:31,440
+picks the first process from the ready
+
+752
+00:28:29,360 --> 00:28:33,440
+Q, sets a timer to interrupt after
+
+753
+00:28:31,440 --> 00:28:35,360
+one-time quantum, and dispatches the
+
+754
+00:28:33,440 --> 00:28:38,159
+process. One of two things will then
+
+755
+00:28:35,360 --> 00:28:40,640
+happen. The process may have a CPU burst
+
+756
+00:28:38,159 --> 00:28:42,480
+of less than one time quantum. In this
+
+757
+00:28:40,640 --> 00:28:45,440
+case, the process itself will release
+
+758
+00:28:42,480 --> 00:28:47,200
+the CPU voluntarily. Theuler will then
+
+759
+00:28:45,440 --> 00:28:49,600
+proceed to the next process in the ready
+
+760
+00:28:47,200 --> 00:28:51,440
+Q. If the CPU burst of the currently
+
+761
+00:28:49,600 --> 00:28:53,520
+running process is longer than one-time
+
+762
+00:28:51,440 --> 00:28:55,159
+quantum, the timer will go off and will
+
+763
+00:28:53,520 --> 00:28:57,679
+cause an interrupt to the operating
+
+764
+00:28:55,159 --> 00:28:59,760
+system, forcing a context switch to be
+
+765
+00:28:57,679 --> 00:29:02,720
+executed and the process will be put at
+
+766
+00:28:59,760 --> 00:29:04,399
+the tail of the ready Q.
+
+767
+00:29:02,720 --> 00:29:07,039
+The dispatcher then selects the next
+
+768
+00:29:04,399 --> 00:29:08,559
+process in the ready queue. This routine
+
+769
+00:29:07,039 --> 00:29:10,880
+is applied consistently to every
+
+770
+00:29:08,559 --> 00:29:13,200
+dispatched process, ensuring that no
+
+771
+00:29:10,880 --> 00:29:15,360
+single process can hold onto the CPU for
+
+772
+00:29:13,200 --> 00:29:17,039
+long periods or indefinitely, which
+
+773
+00:29:15,360 --> 00:29:19,919
+prevents other processes from being
+
+774
+00:29:17,039 --> 00:29:21,440
+starved of CPU time. Something very
+
+775
+00:29:19,919 --> 00:29:23,679
+important to mention is that the timer
+
+776
+00:29:21,440 --> 00:29:26,080
+is a physical device, usually embedded
+
+777
+00:29:23,679 --> 00:29:27,679
+in the CPU circuitry, meaning preemptive
+
+778
+00:29:26,080 --> 00:29:29,840
+scheduling can only be implemented if
+
+779
+00:29:27,679 --> 00:29:31,520
+the hardware provides support for it.
+
+780
+00:29:29,840 --> 00:29:32,960
+There's a very cool video about this on
+
+781
+00:29:31,520 --> 00:29:35,640
+the channel. So, if you want to learn
+
+782
+00:29:32,960 --> 00:29:38,080
+more about the topic, go check it
+
+783
+00:29:35,640 --> 00:29:40,159
+out. Notice that when a process is
+
+784
+00:29:38,080 --> 00:29:42,960
+preempted, it does not enter the waiting
+
+785
+00:29:40,159 --> 00:29:45,279
+state since it did not request I/IO.
+
+786
+00:29:42,960 --> 00:29:48,360
+Instead, it goes directly into the ready
+
+787
+00:29:45,279 --> 00:29:50,720
+state waiting for its next time
+
+788
+00:29:48,360 --> 00:29:52,799
+quantum. If we need a scheduling policy
+
+789
+00:29:50,720 --> 00:29:55,279
+that fairly distributes CPU time,
+
+790
+00:29:52,799 --> 00:29:56,880
+roundroin is ideal. If there are n
+
+791
+00:29:55,279 --> 00:29:59,600
+processes in the queue and the time
+
+792
+00:29:56,880 --> 00:30:01,760
+quantum is q, each process receive one n
+
+793
+00:29:59,600 --> 00:30:02,520
+of the CPU time in chunks of at most q
+
+794
+00:30:01,760 --> 00:30:05,039
+time
+
+795
+00:30:02,520 --> 00:30:06,880
+units. This ensures that once a process
+
+796
+00:30:05,039 --> 00:30:09,360
+enters the ready queue, it will wait at
+
+797
+00:30:06,880 --> 00:30:12,399
+most n minus one q time units before its
+
+798
+00:30:09,360 --> 00:30:14,880
+next turn. But while roundroin ensures
+
+799
+00:30:12,399 --> 00:30:17,440
+fair distribution, waiting time is not
+
+800
+00:30:14,880 --> 00:30:19,520
+always optimal. If the time quantum is
+
+801
+00:30:17,440 --> 00:30:22,000
+too large, most processes will enter an
+
+802
+00:30:19,520 --> 00:30:23,840
+IO burst before being preempted, causing
+
+803
+00:30:22,000 --> 00:30:26,080
+roundroin to behave like first come
+
+804
+00:30:23,840 --> 00:30:26,080
+first
+
+805
+00:30:32,279 --> 00:30:36,640
+served. At first, it might seem like the
+
+806
+00:30:34,720 --> 00:30:38,799
+obvious solution is to simply reduce the
+
+807
+00:30:36,640 --> 00:30:40,960
+time quantum, but if the time quantum is
+
+808
+00:30:38,799 --> 00:30:43,039
+too small, processes will be interrupted
+
+809
+00:30:40,960 --> 00:30:46,520
+too frequently, causing a high number of
+
+810
+00:30:43,039 --> 00:30:46,520
+context switches.
+
+811
+00:30:46,799 --> 00:30:51,600
+And remember context switch time is pure
+
+812
+00:30:49,520 --> 00:30:54,159
+overhead because the system does no
+
+813
+00:30:51,600 --> 00:30:56,159
+useful work while switching. As a
+
+814
+00:30:54,159 --> 00:30:58,640
+result, processes will take longer to
+
+815
+00:30:56,159 --> 00:31:00,559
+complete due to excessive interruptions.
+
+816
+00:30:58,640 --> 00:31:02,159
+The CPU will spend more time switching
+
+817
+00:31:00,559 --> 00:31:03,640
+between processes than actually
+
+818
+00:31:02,159 --> 00:31:06,000
+executing
+
+819
+00:31:03,640 --> 00:31:08,240
+them. And here we need to start talking
+
+820
+00:31:06,000 --> 00:31:10,399
+about another scheduling criteria. The
+
+821
+00:31:08,240 --> 00:31:12,799
+turnaround time defined as the total
+
+822
+00:31:10,399 --> 00:31:14,679
+time taken from a process's creation to
+
+823
+00:31:12,799 --> 00:31:16,640
+its completion.
+
+824
+00:31:14,679 --> 00:31:18,640
+Mathematically, it is the sum of the
+
+825
+00:31:16,640 --> 00:31:20,880
+time spent waiting in the ready queue,
+
+826
+00:31:18,640 --> 00:31:23,080
+the time spent executing on the CPU, and
+
+827
+00:31:20,880 --> 00:31:25,440
+the time spent doing IO
+
+828
+00:31:23,080 --> 00:31:28,000
+operations. Another useful metric used
+
+829
+00:31:25,440 --> 00:31:29,760
+as scheduling criteria is the throughput
+
+830
+00:31:28,000 --> 00:31:31,399
+defined as the number of processes that
+
+831
+00:31:29,760 --> 00:31:34,559
+are completed per time
+
+832
+00:31:31,399 --> 00:31:36,480
+unit. Again, if the time quantum is
+
+833
+00:31:34,559 --> 00:31:38,880
+smaller than the average context switch
+
+834
+00:31:36,480 --> 00:31:40,799
+time, the CPU will be busy but
+
+835
+00:31:38,880 --> 00:31:43,519
+constantly switching between processes
+
+836
+00:31:40,799 --> 00:31:45,679
+rather than executing them. Maximizing
+
+837
+00:31:43,519 --> 00:31:48,399
+CPU utilization is meaningless if the
+
+838
+00:31:45,679 --> 00:31:50,320
+CPU is not doing useful work. A
+
+839
+00:31:48,399 --> 00:31:53,039
+well-designed scheduling algorithm must
+
+840
+00:31:50,320 --> 00:31:55,880
+balance CPU allocation and overhead to
+
+841
+00:31:53,039 --> 00:31:58,080
+optimize both turnaround time and
+
+842
+00:31:55,880 --> 00:31:59,600
+throughput. The average turnaround time
+
+843
+00:31:58,080 --> 00:32:01,679
+of a set of processes does not
+
+844
+00:31:59,600 --> 00:32:04,399
+necessarily improve as the time quantum
+
+845
+00:32:01,679 --> 00:32:06,320
+increases. Though as you can see here,
+
+846
+00:32:04,399 --> 00:32:08,399
+in general, the average turnaround time
+
+847
+00:32:06,320 --> 00:32:10,559
+can be improved if most processes finish
+
+848
+00:32:08,399 --> 00:32:12,559
+their next CPU burst in a single time
+
+849
+00:32:10,559 --> 00:32:15,080
+quantum to ensure context switches
+
+850
+00:32:12,559 --> 00:32:17,600
+happen only when
+
+851
+00:32:15,080 --> 00:32:19,120
+necessary. However, turnaround time is
+
+852
+00:32:17,600 --> 00:32:21,840
+not always the best criterion for
+
+853
+00:32:19,120 --> 00:32:23,519
+measuring scheduling efficacy. Often, a
+
+854
+00:32:21,840 --> 00:32:25,919
+process can start producing output
+
+855
+00:32:23,519 --> 00:32:28,240
+before completing execution. And as we
+
+856
+00:32:25,919 --> 00:32:30,240
+stated earlier, some processes may even
+
+857
+00:32:28,240 --> 00:32:32,480
+never terminate.
+
+858
+00:32:30,240 --> 00:32:34,880
+Thus, another important metric is the
+
+859
+00:32:32,480 --> 00:32:36,880
+response time defined as the time from
+
+860
+00:32:34,880 --> 00:32:39,440
+submission of a request to the first
+
+861
+00:32:36,880 --> 00:32:41,360
+response produced. This is not the total
+
+862
+00:32:39,440 --> 00:32:43,360
+time needed to complete execution of a
+
+863
+00:32:41,360 --> 00:32:45,840
+process, but rather how quickly it
+
+864
+00:32:43,360 --> 00:32:47,279
+starts responding. Response time is
+
+865
+00:32:45,840 --> 00:32:49,039
+critical because it directly affects
+
+866
+00:32:47,279 --> 00:32:50,880
+that smooth feeling that users expect
+
+867
+00:32:49,039 --> 00:32:53,120
+from interactive systems, especially
+
+868
+00:32:50,880 --> 00:32:53,120
+when
+
+869
+00:32:53,240 --> 00:32:57,679
+multitasking. Roundroin is one of the
+
+870
+00:32:55,440 --> 00:32:59,600
+simplest ways to achieve concurrency.
+
+871
+00:32:57,679 --> 00:33:02,159
+Each process gets a fixed time quantum
+
+872
+00:32:59,600 --> 00:33:04,000
+in a rotating fashion. Once a process
+
+873
+00:33:02,159 --> 00:33:06,159
+finishes its time quantum, the next
+
+874
+00:33:04,000 --> 00:33:08,240
+process is allowed to run. If this
+
+875
+00:33:06,159 --> 00:33:10,919
+rotation happens fast enough, the system
+
+876
+00:33:08,240 --> 00:33:12,960
+appears to be executing all processes
+
+877
+00:33:10,919 --> 00:33:14,640
+simultaneously. The only problem is that
+
+878
+00:33:12,960 --> 00:33:16,559
+all computer processors have a speed
+
+879
+00:33:14,640 --> 00:33:18,559
+limit. As the number of concurrent
+
+880
+00:33:16,559 --> 00:33:20,880
+processes increases, round robin
+
+881
+00:33:18,559 --> 00:33:22,880
+struggles to maintain responsiveness. At
+
+882
+00:33:20,880 --> 00:33:24,880
+some point, the number of processes will
+
+883
+00:33:22,880 --> 00:33:27,600
+be so high that each process will wait
+
+884
+00:33:24,880 --> 00:33:29,760
+much longer before getting CPU time. and
+
+885
+00:33:27,600 --> 00:33:33,000
+the illusion of simultaneous execution
+
+886
+00:33:29,760 --> 00:33:35,360
+breaks down as the average response time
+
+887
+00:33:33,000 --> 00:33:37,760
+increases. Decreasing the time quantum
+
+888
+00:33:35,360 --> 00:33:39,440
+might seem like a solution. After all,
+
+889
+00:33:37,760 --> 00:33:42,320
+it could make it look like processes
+
+890
+00:33:39,440 --> 00:33:44,159
+regain CPU time more frequently. But as
+
+891
+00:33:42,320 --> 00:33:46,240
+we've already discussed, reducing the
+
+892
+00:33:44,159 --> 00:33:48,760
+time quantum too much leads to excessive
+
+893
+00:33:46,240 --> 00:33:50,960
+context switches, which is just as
+
+894
+00:33:48,760 --> 00:33:53,679
+problematic. To deal with this issue,
+
+895
+00:33:50,960 --> 00:33:55,760
+there are three possible solutions.
+
+896
+00:33:53,679 --> 00:33:58,080
+increase the processor speed allowing
+
+897
+00:33:55,760 --> 00:33:59,760
+context switches to happen faster. So we
+
+898
+00:33:58,080 --> 00:34:02,960
+can use smaller time quantums without
+
+899
+00:33:59,760 --> 00:34:04,880
+negatively affecting turnaround time or
+
+900
+00:34:02,960 --> 00:34:06,799
+use multiple processors allowing
+
+901
+00:34:04,880 --> 00:34:09,679
+processes to run in parallel and share
+
+902
+00:34:06,799 --> 00:34:11,839
+the workload. However, both of these
+
+903
+00:34:09,679 --> 00:34:14,240
+require hardware upgrades which are not
+
+904
+00:34:11,839 --> 00:34:15,919
+always feasible. But the third solution
+
+905
+00:34:14,240 --> 00:34:17,720
+can be achieved through software alone
+
+906
+00:34:15,919 --> 00:34:19,839
+with a smarter
+
+907
+00:34:17,720 --> 00:34:21,919
+CPUuler. Think about the processes
+
+908
+00:34:19,839 --> 00:34:23,520
+running on your computer. You might be
+
+909
+00:34:21,919 --> 00:34:26,079
+playing a video game while streaming
+
+910
+00:34:23,520 --> 00:34:28,240
+with Outlook, a Gmail client, a file
+
+911
+00:34:26,079 --> 00:34:30,480
+explorer, and other background apps all
+
+912
+00:34:28,240 --> 00:34:34,359
+running simultaneously. So much stuff
+
+913
+00:34:30,480 --> 00:34:37,280
+that roundroin causes your game to lag a
+
+914
+00:34:34,359 --> 00:34:38,960
+bit. The question here is, do all these
+
+915
+00:34:37,280 --> 00:34:42,560
+processes really need the same amount of
+
+916
+00:34:38,960 --> 00:34:44,560
+CPU time? Probably not. If we assign
+
+917
+00:34:42,560 --> 00:34:46,480
+higher priority to the right processes,
+
+918
+00:34:44,560 --> 00:34:48,159
+we can increase their response time,
+
+919
+00:34:46,480 --> 00:34:50,720
+making them feel smooth and responsive
+
+920
+00:34:48,159 --> 00:34:52,560
+again from the user's perspective. Yes,
+
+921
+00:34:50,720 --> 00:34:54,879
+it's true that background processes will
+
+922
+00:34:52,560 --> 00:34:57,200
+get the CPU less often, but think about
+
+923
+00:34:54,879 --> 00:34:59,480
+it. Does it really matter if your email
+
+924
+00:34:57,200 --> 00:35:02,240
+notification is delayed by half a
+
+925
+00:34:59,480 --> 00:35:04,320
+second? That said, not all background
+
+926
+00:35:02,240 --> 00:35:06,960
+processes are trivial. Some, like
+
+927
+00:35:04,320 --> 00:35:09,200
+operating system services, are critical.
+
+928
+00:35:06,960 --> 00:35:11,200
+The key point is this. If we can
+
+929
+00:35:09,200 --> 00:35:13,280
+correctly identify which processes need
+
+930
+00:35:11,200 --> 00:35:15,760
+higher priority, we can significantly
+
+931
+00:35:13,280 --> 00:35:18,079
+improve overall system responsiveness
+
+932
+00:35:15,760 --> 00:35:21,040
+without upgrading the CPU or adding more
+
+933
+00:35:18,079 --> 00:35:21,040
+cores.
+
+934
+00:35:21,280 --> 00:35:25,359
+Priority scheduling is implemented using
+
+935
+00:35:23,119 --> 00:35:27,200
+a priority Q where each process is
+
+936
+00:35:25,359 --> 00:35:28,520
+assigned an integer value representing
+
+937
+00:35:27,200 --> 00:35:31,440
+its
+
+938
+00:35:28,520 --> 00:35:33,520
+priority. In this example, I'm using one
+
+939
+00:35:31,440 --> 00:35:35,839
+and zero to distinguish between high and
+
+940
+00:35:33,520 --> 00:35:37,760
+low priority, but the actual range of
+
+941
+00:35:35,839 --> 00:35:40,800
+priority values varies depending on the
+
+942
+00:35:37,760 --> 00:35:44,000
+operating system. Some systems may use a
+
+943
+00:35:40,800 --> 00:35:46,880
+range from 0 to 255. Others might go
+
+944
+00:35:44,000 --> 00:35:48,960
+from 0 to 32,000, especially when a
+
+945
+00:35:46,880 --> 00:35:51,359
+finer granularity of priority levels is
+
+946
+00:35:48,960 --> 00:35:53,760
+needed. Whether lower numbers represent
+
+947
+00:35:51,359 --> 00:35:56,079
+higher or lower priority also depends on
+
+948
+00:35:53,760 --> 00:35:58,119
+the system. In this animation, lower
+
+949
+00:35:56,079 --> 00:36:00,480
+values indicate higher
+
+950
+00:35:58,119 --> 00:36:02,560
+priority. It's also common to combine
+
+951
+00:36:00,480 --> 00:36:04,640
+multiple scheduling strategies. For
+
+952
+00:36:02,560 --> 00:36:06,400
+example, priority scheduling can be
+
+953
+00:36:04,640 --> 00:36:08,240
+combined with roundroin to ensure
+
+954
+00:36:06,400 --> 00:36:11,240
+fairness among processes with the same
+
+955
+00:36:08,240 --> 00:36:11,240
+priority.
+
+956
+00:36:15,599 --> 00:36:19,680
+One inherent issue with priority
+
+957
+00:36:17,280 --> 00:36:21,760
+scheduling is starvation. In a heavily
+
+958
+00:36:19,680 --> 00:36:23,920
+loaded system, a steady stream of higher
+
+959
+00:36:21,760 --> 00:36:26,520
+priority processes can prevent a low
+
+960
+00:36:23,920 --> 00:36:29,200
+priority process from ever getting the
+
+961
+00:36:26,520 --> 00:36:31,040
+CPU. If this sounds familiar, that's
+
+962
+00:36:29,200 --> 00:36:32,720
+because the shortest job first algorithm
+
+963
+00:36:31,040 --> 00:36:34,640
+is essentially a type of priority
+
+964
+00:36:32,720 --> 00:36:37,640
+scheduling where priority is based on
+
+965
+00:36:34,640 --> 00:36:41,599
+the inverse of the predicted next CPU
+
+966
+00:36:37,640 --> 00:36:45,200
+burst. Here's an interesting story. The
+
+967
+00:36:41,599 --> 00:36:47,440
+IBM 7094, a powerful mainframe computer
+
+968
+00:36:45,200 --> 00:36:49,599
+used by NASA and the US Air Force for
+
+969
+00:36:47,440 --> 00:36:50,920
+scientific and military applications,
+
+970
+00:36:49,599 --> 00:36:53,280
+was introduced in
+
+971
+00:36:50,920 --> 00:36:56,000
+1962. Rumor has it that when they shut
+
+972
+00:36:53,280 --> 00:36:57,920
+it down in 1973, they found a low
+
+973
+00:36:56,000 --> 00:37:01,480
+priority process that had been submitted
+
+974
+00:36:57,920 --> 00:37:03,839
+back in 1967 and had not yet been
+
+975
+00:37:01,480 --> 00:37:05,680
+run. A solution to the problem of
+
+976
+00:37:03,839 --> 00:37:08,400
+indefinite blockage of low priority
+
+977
+00:37:05,680 --> 00:37:10,160
+processes is aging. Aging involves
+
+978
+00:37:08,400 --> 00:37:12,079
+gradually increasing the priority of
+
+979
+00:37:10,160 --> 00:37:15,359
+processes that wait in the system for a
+
+980
+00:37:12,079 --> 00:37:20,000
+long time. For example, if priorities
+
+981
+00:37:15,359 --> 00:37:22,720
+range from 127 low to zero high, we
+
+982
+00:37:20,000 --> 00:37:24,320
+could periodically say every second
+
+983
+00:37:22,720 --> 00:37:27,440
+increase the priority of a waiting
+
+984
+00:37:24,320 --> 00:37:30,160
+process by one. Eventually, even a
+
+985
+00:37:27,440 --> 00:37:31,760
+process with an initial priority of 127
+
+986
+00:37:30,160 --> 00:37:34,520
+would have the highest priority in the
+
+987
+00:37:31,760 --> 00:37:36,800
+system and would be
+
+988
+00:37:34,520 --> 00:37:39,280
+executed with both priority and
+
+989
+00:37:36,800 --> 00:37:41,520
+roundroin scheduling. All processes may
+
+990
+00:37:39,280 --> 00:37:43,280
+be placed in a single queue, but
+
+991
+00:37:41,520 --> 00:37:45,200
+depending on how the cues are managed,
+
+992
+00:37:43,280 --> 00:37:47,640
+an O search may be necessary to
+
+993
+00:37:45,200 --> 00:37:50,320
+determine the highest priority
+
+994
+00:37:47,640 --> 00:37:52,160
+process. In practice, it is often easier
+
+995
+00:37:50,320 --> 00:37:53,680
+to have separate cues for each distinct
+
+996
+00:37:52,160 --> 00:37:55,720
+priority.
+
+997
+00:37:53,680 --> 00:37:57,839
+This is known as multi-level Q
+
+998
+00:37:55,720 --> 00:38:00,240
+scheduling. And here there must be
+
+999
+00:37:57,839 --> 00:38:01,760
+scheduling among the cues. One way is
+
+1000
+00:38:00,240 --> 00:38:04,400
+the one being shown on the screen right
+
+1001
+00:38:01,760 --> 00:38:07,040
+now. Each Q has absolute priority over
+
+1002
+00:38:04,400 --> 00:38:08,720
+lower priority cues. Scheduling simply
+
+1003
+00:38:07,040 --> 00:38:11,839
+dispatches the process in the highest
+
+1004
+00:38:08,720 --> 00:38:11,839
+priority non-mpt
+
+1005
+00:38:13,880 --> 00:38:18,800
+Q. But to avoid starving lower priority
+
+1006
+00:38:16,800 --> 00:38:21,200
+cues, we could schedule cues in another
+
+1007
+00:38:18,800 --> 00:38:23,440
+way. We can rotate the ready Q in a
+
+1008
+00:38:21,200 --> 00:38:25,119
+roundroin fashion but dispatching a
+
+1009
+00:38:23,440 --> 00:38:27,599
+different amount of processes in a row
+
+1010
+00:38:25,119 --> 00:38:30,880
+depending on the priority of the queue
+
+1011
+00:38:27,599 --> 00:38:30,880
+to time slice among the
+
+1012
+00:38:32,760 --> 00:38:37,119
+cues. Multi-level Q scheduling is
+
+1013
+00:38:35,359 --> 00:38:39,200
+commonly used to partition processes
+
+1014
+00:38:37,119 --> 00:38:41,119
+into several separate cues based on the
+
+1015
+00:38:39,200 --> 00:38:42,720
+process type making it better to
+
+1016
+00:38:41,119 --> 00:38:45,280
+schedule processes with multiple
+
+1017
+00:38:42,720 --> 00:38:46,640
+response time requirement. It even allow
+
+1018
+00:38:45,280 --> 00:38:49,760
+us to use a different scheduling
+
+1019
+00:38:46,640 --> 00:38:51,440
+algorithm for each Q. The foreground Q
+
+1020
+00:38:49,760 --> 00:38:53,280
+might be scheduled by a roundroin
+
+1021
+00:38:51,440 --> 00:38:55,040
+algorithm for example while the
+
+1022
+00:38:53,280 --> 00:38:57,800
+background Q is scheduled by a first
+
+1023
+00:38:55,040 --> 00:39:00,000
+come first serve
+
+1024
+00:38:57,800 --> 00:39:02,800
+algorithm and that's basically what we
+
+1025
+00:39:00,000 --> 00:39:05,040
+expect from a generalpurpose CPUuler to
+
+1026
+00:39:02,800 --> 00:39:06,880
+give priority to interactive processes
+
+1027
+00:39:05,040 --> 00:39:08,119
+but not to the point of starving lower
+
+1028
+00:39:06,880 --> 00:39:10,400
+priority
+
+1029
+00:39:08,119 --> 00:39:12,880
+ones. There's just one more issue to
+
+1030
+00:39:10,400 --> 00:39:14,720
+address. In a typical multi-level Q
+
+1031
+00:39:12,880 --> 00:39:16,240
+scheduling algorithm, processes are
+
+1032
+00:39:14,720 --> 00:39:18,560
+permanently assigned to a queue when
+
+1033
+00:39:16,240 --> 00:39:20,720
+they enter the system. This has the
+
+1034
+00:39:18,560 --> 00:39:22,800
+advantage of low overhead, but it's also
+
+1035
+00:39:20,720 --> 00:39:25,079
+inflexible because processes don't
+
+1036
+00:39:22,800 --> 00:39:27,480
+behave the same way throughout their
+
+1037
+00:39:25,079 --> 00:39:29,599
+lifetime. Take your email client for
+
+1038
+00:39:27,480 --> 00:39:31,599
+example. Most of the time it runs
+
+1039
+00:39:29,599 --> 00:39:33,760
+quietly in the background, occasionally
+
+1040
+00:39:31,599 --> 00:39:35,359
+checking for new messages, but the
+
+1041
+00:39:33,760 --> 00:39:38,000
+moment you bring it to the foreground,
+
+1042
+00:39:35,359 --> 00:39:41,280
+you expect it to be fast and responsive.
+
+1043
+00:39:38,000 --> 00:39:44,320
+Menus, buttons, forms, all need to react
+
+1044
+00:39:41,280 --> 00:39:46,320
+instantly. A process's CPU usage pattern
+
+1045
+00:39:44,320 --> 00:39:48,359
+and by extension its response time
+
+1046
+00:39:46,320 --> 00:39:50,880
+requirements can change
+
+1047
+00:39:48,359 --> 00:39:52,640
+dynamically. The multi-level feedback Q
+
+1048
+00:39:50,880 --> 00:39:54,119
+algorithm was designed to adapt to these
+
+1049
+00:39:52,640 --> 00:39:56,800
+dynamic changes in
+
+1050
+00:39:54,119 --> 00:39:58,720
+behavior. Here's how it works. Every
+
+1051
+00:39:56,800 --> 00:40:01,119
+process starts in the highest priority
+
+1052
+00:39:58,720 --> 00:40:03,200
+queue. If a process completes its CPU
+
+1053
+00:40:01,119 --> 00:40:04,880
+burst within a single time quantum, it
+
+1054
+00:40:03,200 --> 00:40:07,599
+can return to that queue after finishing
+
+1055
+00:40:04,880 --> 00:40:09,599
+its I/IO. If a process needs more CPU
+
+1056
+00:40:07,599 --> 00:40:12,200
+time than allowed by the time quantum,
+
+1057
+00:40:09,599 --> 00:40:15,280
+it's moved down to a lower priority
+
+1058
+00:40:12,200 --> 00:40:17,599
+Q. Lower priority QES have larger time
+
+1059
+00:40:15,280 --> 00:40:20,320
+quantums, and processes that behave more
+
+1060
+00:40:17,599 --> 00:40:22,480
+like IO bound tasks can be moved back up
+
+1061
+00:40:20,320 --> 00:40:24,079
+if they complete their CPU burst in less
+
+1062
+00:40:22,480 --> 00:40:26,800
+time than the quantum assigned to the
+
+1063
+00:40:24,079 --> 00:40:26,800
+higher priority
+
+1064
+00:40:28,040 --> 00:40:33,359
+Q. Over time, processes that have short
+
+1065
+00:40:31,119 --> 00:40:36,640
+CPU bursts will tend to stay in higher
+
+1066
+00:40:33,359 --> 00:40:38,480
+priority cues. In contrast, CPUbound
+
+1067
+00:40:36,640 --> 00:40:41,040
+processes will gradually sync to lower
+
+1068
+00:40:38,480 --> 00:40:42,880
+priority cues. This is how the system
+
+1069
+00:40:41,040 --> 00:40:44,200
+adjusts process priority based on
+
+1070
+00:40:42,880 --> 00:40:46,240
+behavior
+
+1071
+00:40:44,200 --> 00:40:48,240
+automatically. Keep in mind that this is
+
+1072
+00:40:46,240 --> 00:40:50,320
+just one example of multi-level feedback
+
+1073
+00:40:48,240 --> 00:40:52,720
+Q scheduling. It comes in many
+
+1074
+00:40:50,320 --> 00:40:55,119
+variations or as I like to say all
+
+1075
+00:40:52,720 --> 00:40:57,119
+colors and flavors. Not only can the
+
+1076
+00:40:55,119 --> 00:40:59,440
+scheduling algorithm applied to each Q
+
+1077
+00:40:57,119 --> 00:41:01,280
+differ, but also the criteria used to
+
+1078
+00:40:59,440 --> 00:41:04,000
+decide when a process should be promoted
+
+1079
+00:41:01,280 --> 00:41:06,079
+or demoted between cues.
+
+1080
+00:41:04,000 --> 00:41:08,319
+For instance, instead of relying solely
+
+1081
+00:41:06,079 --> 00:41:10,560
+on the most recently observed CPU burst
+
+1082
+00:41:08,319 --> 00:41:12,240
+to adjust a process's priority, the
+
+1083
+00:41:10,560 --> 00:41:14,240
+system could use a prediction based on
+
+1084
+00:41:12,240 --> 00:41:16,160
+historical data, which might help
+
+1085
+00:41:14,240 --> 00:41:18,720
+avoiding unnecessary Q switches in
+
+1086
+00:41:16,160 --> 00:41:21,000
+response to isolated or unusual bursts,
+
+1087
+00:41:18,720 --> 00:41:23,280
+whether extremely short or unexpectedly
+
+1088
+00:41:21,000 --> 00:41:25,280
+long. If you've been paying attention,
+
+1089
+00:41:23,280 --> 00:41:27,599
+you might be thinking, wait, aren't we
+
+1090
+00:41:25,280 --> 00:41:30,079
+penalizing CPUbound processes just for
+
+1091
+00:41:27,599 --> 00:41:31,839
+needing more CPU? It seems we are now
+
+1092
+00:41:30,079 --> 00:41:34,319
+going against the original idea of
+
+1093
+00:41:31,839 --> 00:41:36,800
+prioritizing more important processes.
+
+1094
+00:41:34,319 --> 00:41:38,960
+Aging indeed can prevent starvation. But
+
+1095
+00:41:36,800 --> 00:41:42,079
+still, once a process is recognized as
+
+1096
+00:41:38,960 --> 00:41:44,800
+CPUbound, it will eventually be demoted.
+
+1097
+00:41:42,079 --> 00:41:46,560
+What's the deal here? Well, this is very
+
+1098
+00:41:44,800 --> 00:41:48,960
+hard to explain without a 40 minutes
+
+1099
+00:41:46,560 --> 00:41:50,640
+master class on processes analysis. The
+
+1100
+00:41:48,960 --> 00:41:52,319
+best I can do now is to highlight two
+
+1101
+00:41:50,640 --> 00:41:54,560
+important facts.
+
+1102
+00:41:52,319 --> 00:41:56,720
+IObound and interactive processes are
+
+1103
+00:41:54,560 --> 00:41:58,920
+not necessarily the same thing, but both
+
+1104
+00:41:56,720 --> 00:42:02,000
+are characterized by very short CPU
+
+1105
+00:41:58,920 --> 00:42:04,640
+bursts. And second, modern processors
+
+1106
+00:42:02,000 --> 00:42:06,720
+are extremely fast. If you open a task
+
+1107
+00:42:04,640 --> 00:42:09,520
+manager right now, you'll see hundreds
+
+1108
+00:42:06,720 --> 00:42:11,200
+of processes running. Yet, if you open a
+
+1109
+00:42:09,520 --> 00:42:13,599
+resource monitor, you'll notice that
+
+1110
+00:42:11,200 --> 00:42:15,319
+combined, they use less than 10% of
+
+1111
+00:42:13,599 --> 00:42:18,000
+total CPU
+
+1112
+00:42:15,319 --> 00:42:20,160
+time. These two facts reveal that most
+
+1113
+00:42:18,000 --> 00:42:22,720
+of the time, higher priority cues are
+
+1114
+00:42:20,160 --> 00:42:24,560
+actually empty. So when a process sinks
+
+1115
+00:42:22,720 --> 00:42:27,119
+to the lowest priority queue, it's not
+
+1116
+00:42:24,560 --> 00:42:29,040
+as doomed as it sounds. Being dispatched
+
+1117
+00:42:27,119 --> 00:42:31,599
+without aging is actually more probable
+
+1118
+00:42:29,040 --> 00:42:31,599
+than we might
+
+1119
+00:42:33,880 --> 00:42:38,240
+think. Think about when your system is
+
+1120
+00:42:36,079 --> 00:42:39,720
+under heavy load. For example, when
+
+1121
+00:42:38,240 --> 00:42:43,280
+rendering a video or running a
+
+1122
+00:42:39,720 --> 00:42:45,520
+benchmark, CPU usage hits 100%, but your
+
+1123
+00:42:43,280 --> 00:42:47,119
+desktop stays smooth, your music keeps
+
+1124
+00:42:45,520 --> 00:42:49,599
+playing, and your browser remains
+
+1125
+00:42:47,119 --> 00:42:51,920
+responsive. That's because theuler
+
+1126
+00:42:49,599 --> 00:42:54,240
+prioritizes everyday interactive tasks
+
+1127
+00:42:51,920 --> 00:42:56,480
+while less frequent CPUheavy processes
+
+1128
+00:42:54,240 --> 00:42:59,000
+get served with any CPU cycles left over
+
+1129
+00:42:56,480 --> 00:43:01,440
+from higher priority
+
+1130
+00:42:59,000 --> 00:43:03,680
+processes. If we put multi-level Q and
+
+1131
+00:43:01,440 --> 00:43:05,800
+multi-level feedback Q side by side,
+
+1132
+00:43:03,680 --> 00:43:08,480
+which one sounds more general purpose to
+
+1133
+00:43:05,800 --> 00:43:10,640
+you? Many operating systems used some
+
+1134
+00:43:08,480 --> 00:43:13,119
+variation of multi-level feedback Q in
+
+1135
+00:43:10,640 --> 00:43:15,359
+the past, but modern systems face new
+
+1136
+00:43:13,119 --> 00:43:17,599
+challenges. These factors introduced
+
+1137
+00:43:15,359 --> 00:43:19,280
+additional complexity and more advanced
+
+1138
+00:43:17,599 --> 00:43:20,200
+scheduling strategies were developed to
+
+1139
+00:43:19,280 --> 00:43:22,880
+handle
+
+1140
+00:43:20,200 --> 00:43:24,560
+them. In a future episode, we'll take a
+
+1141
+00:43:22,880 --> 00:43:27,040
+closer look at how modern operating
+
+1142
+00:43:24,560 --> 00:43:28,560
+systems handle CPU scheduling. We'll
+
+1143
+00:43:27,040 --> 00:43:31,200
+explore the scheduling policies of
+
+1144
+00:43:28,560 --> 00:43:34,000
+Linux, Windows, and BSD and how they
+
+1145
+00:43:31,200 --> 00:43:35,920
+manage all these modern variables. And
+
+1146
+00:43:34,000 --> 00:43:38,640
+that's it for now. An intuitive
+
+1147
+00:43:35,920 --> 00:43:42,400
+introduction to CPU scheduling. Before
+
+1148
+00:43:38,640 --> 00:43:44,839
+we wrap up, a few final clarifications.
+
+1149
+00:43:42,400 --> 00:43:46,960
+Modern systems schedule threads, not
+
+1150
+00:43:44,839 --> 00:43:49,040
+processes. This allows concurrency
+
+1151
+00:43:46,960 --> 00:43:51,359
+within a single application. For
+
+1152
+00:43:49,040 --> 00:43:53,280
+example, one thread handles the user
+
+1153
+00:43:51,359 --> 00:43:55,400
+interface while another performs
+
+1154
+00:43:53,280 --> 00:43:57,760
+background
+
+1155
+00:43:55,400 --> 00:44:00,319
+computations. With multi-level feedback
+
+1156
+00:43:57,760 --> 00:44:02,560
+Q, the user interface of a CPU hungry
+
+1157
+00:44:00,319 --> 00:44:04,560
+process can remain smooth since the
+
+1158
+00:44:02,560 --> 00:44:06,319
+thread that manages the UI can maintain
+
+1159
+00:44:04,560 --> 00:44:07,599
+high priority independently of the
+
+1160
+00:44:06,319 --> 00:44:10,599
+thread that performs the heavy
+
+1161
+00:44:07,599 --> 00:44:10,599
+computations.
+
+1162
+00:44:10,720 --> 00:44:15,119
+The IOQ shown in this video is
+
+1163
+00:44:12,640 --> 00:44:17,680
+simplified. We've shown it as a FIFO Q
+
+1164
+00:44:15,119 --> 00:44:20,079
+for clarity. In reality, the IO
+
+1165
+00:44:17,680 --> 00:44:22,079
+subsystem is more complex. Processes
+
+1166
+00:44:20,079 --> 00:44:24,160
+that enter the IOQ may finish in a
+
+1167
+00:44:22,079 --> 00:44:25,520
+different order than they arrived. Just
+
+1168
+00:44:24,160 --> 00:44:27,680
+like first come, first served is
+
+1169
+00:44:25,520 --> 00:44:30,079
+inefficient for CPU scheduling. It's
+
+1170
+00:44:27,680 --> 00:44:32,000
+also not ideal for IO devices. For
+
+1171
+00:44:30,079 --> 00:44:33,599
+instance, a process needing to use a
+
+1172
+00:44:32,000 --> 00:44:35,280
+graphics card shouldn't have to wait
+
+1173
+00:44:33,599 --> 00:44:37,520
+behind another process that's currently
+
+1174
+00:44:35,280 --> 00:44:39,440
+using the disc. All of these details,
+
+1175
+00:44:37,520 --> 00:44:43,359
+however, concern to another component of
+
+1176
+00:44:39,440 --> 00:44:43,359
+the operating system, the
+
+1177
+00:44:43,640 --> 00:44:47,920
+IOER. Let's wrap things up for now.
+
+1178
+00:44:46,240 --> 00:44:50,359
+There are more exciting topics coming
+
+1179
+00:44:47,920 --> 00:44:52,079
+soon, like race conditions and thread
+
+1180
+00:44:50,359 --> 00:44:54,640
+synchronization, so make sure to
+
+1181
+00:44:52,079 --> 00:44:56,160
+subscribe. You won't want to miss it. If
+
+1182
+00:44:54,640 --> 00:44:57,680
+you enjoyed this video or learned
+
+1183
+00:44:56,160 --> 00:44:59,920
+something new, please hit the like
+
+1184
+00:44:57,680 --> 00:45:03,520
+button. It's free and it helps me out a
+
+1185
+00:44:59,920 --> 00:45:03,520
+lot. See you in the next one.
+

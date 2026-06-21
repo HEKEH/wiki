@@ -63,8 +63,21 @@ Linux 用统一的 `task` 结构同时表示进程与线程。
 切换)、**硬件自动压入 PC/SP**、或 **TSS 全硬件切换**来兜底。被保存的状态最终落进进程/线程的
 `task`(PCB)，与 [[concepts/threads]]、[[concepts/preemptive-vs-cooperative-os]] 的定时器中断闭环。
 
+第六条线索（来自 [[sources/cpu-scheduling-algorithms]]）：定时器中断让 OS 能抢占之后，真正的问题是
+**该把 CPU 给谁**——即 [[concepts/cpu-scheduling]]。根本依据是 [[concepts/cpu-io-bursts]]：进程的
+执行是 CPU 突发与 IO 突发交替，且**短突发占绝大多数**，故调度的对象是"下一个 CPU 突发"而非整个
+进程，目标是趁某进程等 IO 时把 CPU 让给别人、并优先保证**响应时间**。进程在
+[[concepts/process-states]]（就绪/运行/等待…）间循环，除运行态外都在队列里等，决策由调度器做、
+执行（上下文切换）由 [[concepts/dispatcher]] 做。[[concepts/scheduling-algorithms]] 是一条"每个修复
+前一个缺陷"的演进：FCFS(护航效应) → SJF(最优但需指数平均预测、且会饥饿) → 轮转(抢占+时间片，回到
+[[concepts/preemptive-vs-cooperative-os]] 的定时器) → 优先级(+老化防饥饿) → 多级队列 → 多级反馈
+队列(据行为自动升降级)。这正解释了引言的悖论：CPU 满载时桌面仍流畅——交互/IO 密集型进程突发短、
+长留高优先级队列，CPU 重活用剩余周期。最后回扣 [[concepts/threads]]：现代系统调度的是线程而非进程。
+
 ## 开放问题
 
 - 真实架构（x86 的 0–3 环、ARM 的异常等级）如何映射到这个简化的模式位模型？
 - 有哪些现代缓解措施能缩小有 bug 的内核态代码的"爆炸半径"（例如 eBPF 沙箱、用户态驱动、
   Windows 在 CrowdStrike 事件后的改动）？
+- 现代真实调度器如何超越多级反馈队列？（Linux 的 CFS/EEVDF、Windows 的优先级+提升、BSD 的 ULE；
+  源材料预告了后续会讲。）以及简化为 FIFO 的 IO 队列背后真正的 **IO 调度器**如何工作？

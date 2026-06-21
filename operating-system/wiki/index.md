@@ -25,6 +25,11 @@
 - [[concepts/concurrency]] — 单 CPU 快速轮换执行单位的错觉；两个目的（多任务 + 填满 IO 空隙）、阻塞效应；单核也成立。
 - [[concepts/threads]] — 进程内可独立调度的最基本执行单位；共享地址空间、独占 CPU 状态与栈；线程不是函数。
 - [[concepts/parallelism]] — 多核上真正同时执行；并发 vs 并行、最多 n 个线程并行、声明并发即可移植、数据并行 vs 任务并行。
+- [[concepts/cpu-scheduling]] — CPU 调度总览：五大标准（利用率/吞吐量/周转/等待/响应）、抢占 vs 非抢占、饥饿与老化。
+- [[concepts/cpu-io-bursts]] — CPU 突发/IO 突发交替模型；突发时长分布、CPU 密集型 vs IO 密集型、护航效应。
+- [[concepts/process-states]] — 新建/就绪/运行/等待/终止五态与 PCB；队列为何是调度的核心数据结构。
+- [[concepts/dispatcher]] — 调度器（决策）vs 分派器（执行上下文切换）；分派延迟、甘特图。
+- [[concepts/scheduling-algorithms]] — 六大算法演进：FCFS → SJF（指数平均预测）→ 轮转 → 优先级（老化）→ 多级队列 → 多级反馈队列。
 
 ## 实体
 
@@ -46,3 +51,4 @@
 - [[sources/threads-on-multicore]] — Core Dumped 视频（已清洗）：并发的极限与三种解法、多核术语、并发 vs 并行、最多 n 个线程并行、数据并行 vs 任务并行。
 - [[sources/why-apps-are-os-specific]] — Core Dumped 视频（已清洗）：应用为何与操作系统绑定——系统调用集合（fork/exec vs CreateProcess）、ABI、可执行文件格式（ELF/PE）、运行时。
 - [[sources/hardware-assists-context-switch]] — Core Dumped 视频（已清洗）：上下文切换为何纯软件做不到（PC 被中断覆写），以及多寄存器组、硬件自动压栈、TSS 三种硬件支持。
+- [[sources/cpu-scheduling-algorithms]] — Core Dumped 视频（已清洗）：CPU 调度从 FCFS 到多级反馈队列的完整演进，含 CPU/IO 突发、进程状态、调度器/分派器、各项调度标准与饥饿/老化。

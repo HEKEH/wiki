@@ -119,3 +119,13 @@ KASAN/Driver Verifier 红区、PatchGuard、VBS/HVCI 等补救机制。页面标
 查 `sys_call_table` 函数指针表分发 + `copy_from_user` 对用户指针做边界校验。补全了
 [[concepts/system-calls]] 缺失的"内核如何得知意图"一环；从 system-calls 回链，并更新 index.md。
 页面标注了源材料 vs 外部工程知识。
+
+## [2026-06-20] ingest | CPU 调度（让电脑更流畅的精妙算法）
+
+来源 [[sources/cpu-scheduling-algorithms]]（Core Dumped 视频，已清洗）。新建 1 个来源页 + 5 个
+概念页：[[concepts/cpu-scheduling]]（标准/抢占/饥饿总览）、[[concepts/cpu-io-bursts]]（CPU/IO 突发、
+CPU 密集型 vs IO 密集型、护航效应）、[[concepts/process-states]]（五态 + PCB + 队列）、
+[[concepts/dispatcher]]（调度器 vs 分派器、分派延迟）、[[concepts/scheduling-algorithms]]
+（FCFS → SJF + 指数平均 → 轮转 → 优先级 + 老化 → 多级队列 → 多级反馈队列）。从
+[[concepts/threads]]、[[concepts/context-switch]]、[[concepts/preemptive-vs-cooperative-os]]
+回链，并更新 index.md 与 home.md（新增第六条线索 + 一条开放问题：现代真实调度器 CFS/EEVDF 与 IO 调度器）。
