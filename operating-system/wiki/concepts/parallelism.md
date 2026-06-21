@@ -77,6 +77,7 @@ CPU 访问(更复杂，源材料留作单独一集；可参考 [[concepts/preemp
 ## 相关
 
 - [[concepts/concurrency]] —— 并行的前提；单核只有并发、无并行
+- [[concepts/race-conditions]] —— 并行写共享数据（如质数计数器）会丢失更新，需同步
 - [[concepts/threads]] —— 被分派到各核心上并行运行的执行单位
 - [[concepts/preemptive-vs-cooperative-os]] —— "更聪明地调度"那条解法的相关调度基础（源材料留作单独一集）
 - [[sources/threads-on-multicore]] —— 来源

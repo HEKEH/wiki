@@ -129,3 +129,12 @@ CPU 密集型 vs IO 密集型、护航效应）、[[concepts/process-states]]（
 （FCFS → SJF + 指数平均 → 轮转 → 优先级 + 老化 → 多级队列 → 多级反馈队列）。从
 [[concepts/threads]]、[[concepts/context-switch]]、[[concepts/preemptive-vs-cooperative-os]]
 回链，并更新 index.md 与 home.md（新增第六条线索 + 一条开放问题：现代真实调度器 CFS/EEVDF 与 IO 调度器）。
+
+## [2026-06-21] ingest | Core Dumped —《编程中最诡异的 Bug——竞态条件》
+
+来源 [[sources/race-conditions]]（Core Dumped 视频，已清洗：删时间戳/Flexispot 广告/口水话，修
+POSIX、operand、the scheduler 等 ASR 错误）。第八次源 ingest。新建 1 个概念页
+[[concepts/race-conditions]]：两大根因（操作非原子 + 抢占时机不可预测）、两类场景（单写多读脏读、
+多写丢失更新）、为何普通变量当锁与 Peterson 软件方案不可靠。从 [[concepts/concurrency]]
+（"同步的必要性"补链）、[[concepts/parallelism]]、[[concepts/preemptive-vs-cooperative-os]]、
+[[concepts/threads]]、[[concepts/shared-memory-ipc]] 回链，更新 index.md。同步是后续待 ingest 主题。

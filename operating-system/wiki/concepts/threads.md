@@ -69,6 +69,7 @@ sources: ["core-dumped-operating-sytems-theory/Why Are Threads Needed On Single 
 
 - [[concepts/concurrency]] —— 线程要实现的目标
 - [[concepts/parallelism]] —— 多核上线程的额外用途：真正同时运行
+- [[concepts/race-conditions]] —— 线程共享地址空间，是竞态条件最常见的载体
 - [[concepts/context-switch]] —— 线程被中断时，其独占的 CPU 状态正是存入/取出 PCB(`task`)的内容
 - [[concepts/cpu-scheduling]] —— 现代系统调度的是线程而非进程；MLFQ 让 UI 线程独立保持高优先级
 - [[concepts/interprocess-communication]] —— 跨进程线程共享数据的途径

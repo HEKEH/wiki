@@ -32,6 +32,7 @@ sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Proc
 - [[concepts/context-switch]] —— 定时器中断到期后真正切换进程的机制；协作式则退化为纯软件、各程序自保状态
 - [[concepts/cpu-scheduling]] —— 抢占是通用调度的默认；轮转/优先级抢占都依赖此处的定时器
 - [[concepts/scheduling-algorithms]] —— 轮转(RR)的时间片正是用定时器实现
+- [[concepts/race-conditions]] —— 抢占的不可预测时机正是竞态条件的根源
 - [[concepts/interrupts]]
 - [[concepts/mode-bit-and-operational-modes]]
 - [[sources/single-bit-mode-bit-os-integrity]] —— 来源

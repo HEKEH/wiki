@@ -52,5 +52,6 @@ sources: ["core-dumped-operating-sytems-theory/IPC： To Share Memory Or To Send
 
 - [[concepts/interprocess-communication]]
 - [[concepts/message-passing-ipc]] —— 另一种模型（更慢但更安全）
+- [[concepts/race-conditions]] —— 共享区域的同步需自负，否则同样产生竞态
 - [[concepts/system-calls]] —— 创建/附加共享区域所需
 - [[sources/ipc-shared-memory-vs-message-passing]] —— 来源

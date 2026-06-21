@@ -38,12 +38,14 @@ sources: ["core-dumped-operating-sytems-theory/Why Are Threads Needed On Single 
 
 ## 同步的必要性
 
-并发任务共享内存(尤其是堆)时,若一个读、另一个同时写同一块内存,结果可能是灾难性的(竞态
-条件)。因此需要**同步**机制;其重要性之高，以至于相关原语直接在**硬件**层面实现(属另一主题)。
+并发任务共享内存(尤其是堆)时,若一个读、另一个同时写同一块内存,结果可能是灾难性的
+([[concepts/race-conditions]])。因此需要**同步**机制;其重要性之高，以至于相关原语直接在**硬件**
+层面实现(属另一主题)。
 
 ## 相关
 
 - [[concepts/threads]] —— 实现进程内并发的执行单位
+- [[concepts/race-conditions]] —— 共享内存并发不加同步时的灾难性后果
 - [[concepts/parallelism]] —— 多核上把并发升级为真正同时执行
 - [[concepts/interprocess-communication]] —— 进程间协作的另一条路径
 - [[concepts/preemptive-vs-cooperative-os]] —— 操作系统靠定时器中断强制轮换，使并发可被抢占
