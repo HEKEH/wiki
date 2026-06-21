@@ -46,6 +46,7 @@ sources: ["core-dumped-operating-sytems-theory/Why Are Threads Needed On Single 
 
 - [[concepts/threads]] —— 实现进程内并发的执行单位
 - [[concepts/race-conditions]] —— 共享内存并发不加同步时的灾难性后果
+- [[concepts/memory-protection]] —— 并发对内存的另一要求：进程间地址空间隔离
 - [[concepts/parallelism]] —— 多核上把并发升级为真正同时执行
 - [[concepts/interprocess-communication]] —— 进程间协作的另一条路径
 - [[concepts/preemptive-vs-cooperative-os]] —— 操作系统靠定时器中断强制轮换，使并发可被抢占

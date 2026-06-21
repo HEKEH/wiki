@@ -31,6 +31,7 @@
 - [[concepts/dispatcher]] — 调度器（决策）vs 分派器（执行上下文切换）；分派延迟、甘特图。
 - [[concepts/scheduling-algorithms]] — 六大算法演进：FCFS → SJF（指数平均预测）→ 轮转 → 优先级（老化）→ 多级队列 → 多级反馈队列。
 - [[concepts/race-conditions]] — 共享数据并发的核心缺陷：操作非原子 + 抢占时机不可预测；单写多读脏读、多写丢失更新、普通变量当锁为何失败。
+- [[concepts/memory-protection]] — 进程间地址空间隔离：基址+界限寄存器在地址总线拦截每次访存、门控读写使能、越界触发段错误；纯软件为何不可行、上下文切换要更新边界。
 
 ## 实体
 
@@ -54,3 +55,4 @@
 - [[sources/hardware-assists-context-switch]] — Core Dumped 视频（已清洗）：上下文切换为何纯软件做不到（PC 被中断覆写），以及多寄存器组、硬件自动压栈、TSS 三种硬件支持。
 - [[sources/cpu-scheduling-algorithms]] — Core Dumped 视频（已清洗）：CPU 调度从 FCFS 到多级反馈队列的完整演进，含 CPU/IO 突发、进程状态、调度器/分派器、各项调度标准与饥饿/老化。
 - [[sources/race-conditions]] — Core Dumped 视频（已清洗）：竞态条件——操作非原子、抢占带来的不可预测时机、共享字符串脏读与质数计数器丢失更新、为何普通标志位与 Peterson 软件方案不可靠。
+- [[sources/why-programs-cant-access-memory]] — Core Dumped 视频（已清洗）：程序为何无法访问彼此内存——地址空间神圣性、纯软件为何开销过大、基址/界限寄存器 + 地址总线拦截 + 比较器/AND 门 + 门控读写使能 + 段错误，以及上下文切换/特权寄存器的角色（预告分页）。

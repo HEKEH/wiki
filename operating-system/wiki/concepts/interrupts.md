@@ -47,4 +47,5 @@ sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Proc
 - [[concepts/mode-bit-and-operational-modes]]
 - [[concepts/system-calls]]
 - [[concepts/preemptive-vs-cooperative-os]]
+- [[concepts/memory-protection]] —— 越界访问触发硬件信号、中断进程并唤起 OS
 - [[sources/single-bit-mode-bit-os-integrity]] —— 来源

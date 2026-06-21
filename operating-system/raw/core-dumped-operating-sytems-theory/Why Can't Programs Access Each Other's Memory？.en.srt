@@ -1,0 +1,1616 @@
+1
+00:00:00,160 --> 00:00:03,840
+This video was sponsored by Brilliant.
+
+2
+00:00:02,320 --> 00:00:05,600
+If I were to ask you what the most
+
+3
+00:00:03,840 --> 00:00:07,839
+important part of a computer is right
+
+4
+00:00:05,600 --> 00:00:10,559
+after the CPU, the answer would most
+
+5
+00:00:07,839 --> 00:00:12,240
+likely be memory.
+
+6
+00:00:10,559 --> 00:00:14,400
+We've previously talked about circuits
+
+7
+00:00:12,240 --> 00:00:16,320
+that can hold a binary value, either
+
+8
+00:00:14,400 --> 00:00:18,000
+using transistors or capacitors to
+
+9
+00:00:16,320 --> 00:00:20,400
+create a memory cell that can store a
+
+10
+00:00:18,000 --> 00:00:22,320
+one or a zero. We learned that
+
+11
+00:00:20,400 --> 00:00:24,320
+physically speaking, memory is
+
+12
+00:00:22,320 --> 00:00:26,640
+essentially a giant grid of these tiny
+
+13
+00:00:24,320 --> 00:00:30,400
+cells where each cell can be accessed
+
+14
+00:00:26,640 --> 00:00:32,399
+using a binary value called an address.
+
+15
+00:00:30,400 --> 00:00:35,040
+This term address originates from
+
+16
+00:00:32,399 --> 00:00:37,360
+hardware design. Since each memory cell
+
+17
+00:00:35,040 --> 00:00:39,600
+has a unique position in this matrix, a
+
+18
+00:00:37,360 --> 00:00:41,760
+binary address combined with additional
+
+19
+00:00:39,600 --> 00:00:43,760
+circuitry can be used to pinpoint the
+
+20
+00:00:41,760 --> 00:00:45,840
+exact cell we want to read from or write
+
+21
+00:00:43,760 --> 00:00:47,920
+to.
+
+22
+00:00:45,840 --> 00:00:49,920
+With a single bit of information, we can
+
+23
+00:00:47,920 --> 00:00:54,480
+represent basic values like true or
+
+24
+00:00:49,920 --> 00:00:57,199
+false, day or night, black or white. But
+
+25
+00:00:54,480 --> 00:01:00,320
+that's it. Only data with two possible
+
+26
+00:00:57,199 --> 00:01:03,039
+states. To represent more complex data,
+
+27
+00:01:00,320 --> 00:01:04,879
+we need more bits. That's why computers
+
+28
+00:01:03,039 --> 00:01:07,520
+don't associate an address with just one
+
+29
+00:01:04,879 --> 00:01:09,360
+bit, but with several. In computer
+
+30
+00:01:07,520 --> 00:01:11,600
+science, this unit is traditionally
+
+31
+00:01:09,360 --> 00:01:15,119
+called a word. But the more common term
+
+32
+00:01:11,600 --> 00:01:17,840
+you'll hear is a bite.
+
+33
+00:01:15,119 --> 00:01:19,920
+A bite typically consists of eight bits.
+
+34
+00:01:17,840 --> 00:01:21,920
+And that's a lot more useful because 8
+
+35
+00:01:19,920 --> 00:01:24,880
+bits allows to represent values with up
+
+36
+00:01:21,920 --> 00:01:27,680
+to 256 different states accessible with
+
+37
+00:01:24,880 --> 00:01:29,600
+a single memory address. The good news
+
+38
+00:01:27,680 --> 00:01:31,680
+is that as I explained in my videos
+
+39
+00:01:29,600 --> 00:01:34,400
+about building memory from transistors,
+
+40
+00:01:31,680 --> 00:01:36,960
+we the developers don't have to think of
+
+41
+00:01:34,400 --> 00:01:38,799
+memory as a grid of circuits. From our
+
+42
+00:01:36,960 --> 00:01:40,799
+perspective, memory behaves like a
+
+43
+00:01:38,799 --> 00:01:44,320
+massive array of bytes, each with its
+
+44
+00:01:40,799 --> 00:01:46,159
+own unique address.
+
+45
+00:01:44,320 --> 00:01:48,320
+Memory is central to the operation of a
+
+46
+00:01:46,159 --> 00:01:50,159
+modern computer system because main
+
+47
+00:01:48,320 --> 00:01:52,560
+memory and the registers built into each
+
+48
+00:01:50,159 --> 00:01:54,240
+CPU core are the only general purpose
+
+49
+00:01:52,560 --> 00:01:56,399
+storage that the CPU can access
+
+50
+00:01:54,240 --> 00:01:58,640
+directly.
+
+51
+00:01:56,399 --> 00:02:01,040
+There are machine instructions like load
+
+52
+00:01:58,640 --> 00:02:02,960
+and store that take memory addresses as
+
+53
+00:02:01,040 --> 00:02:05,600
+arguments to make the CPU read from
+
+54
+00:02:02,960 --> 00:02:08,319
+specific memory locations or write to a
+
+55
+00:02:05,600 --> 00:02:09,920
+specific memory location.
+
+56
+00:02:08,319 --> 00:02:12,319
+But there are no instructions that take
+
+57
+00:02:09,920 --> 00:02:14,640
+disk addresses. Therefore, any
+
+58
+00:02:12,319 --> 00:02:16,879
+instruction being executed and any data
+
+59
+00:02:14,640 --> 00:02:19,840
+it operates on must reside in one of
+
+60
+00:02:16,879 --> 00:02:21,920
+these direct access storage devices. If
+
+61
+00:02:19,840 --> 00:02:23,840
+the data isn't already in memory, it
+
+62
+00:02:21,920 --> 00:02:25,920
+must be moved there before the CPU can
+
+63
+00:02:23,840 --> 00:02:28,080
+use it.
+
+64
+00:02:25,920 --> 00:02:29,840
+For example, even a trivial operation
+
+65
+00:02:28,080 --> 00:02:32,959
+like incrementing a counter involves
+
+66
+00:02:29,840 --> 00:02:35,040
+multiple memory operations.
+
+67
+00:02:32,959 --> 00:02:36,800
+Each instruction requires a memory read
+
+68
+00:02:35,040 --> 00:02:39,120
+because the CPU must fetch it from
+
+69
+00:02:36,800 --> 00:02:41,280
+memory before it can execute it. The
+
+70
+00:02:39,120 --> 00:02:43,599
+load instruction tells the CPU to read a
+
+71
+00:02:41,280 --> 00:02:46,160
+value from a specific memory address.
+
+72
+00:02:43,599 --> 00:02:48,239
+That's another memory read operation.
+
+73
+00:02:46,160 --> 00:02:50,160
+And the store instruction tells the CPU
+
+74
+00:02:48,239 --> 00:02:51,920
+to write a value to a specific memory
+
+75
+00:02:50,160 --> 00:02:54,920
+location, which is a memory write
+
+76
+00:02:51,920 --> 00:02:54,920
+operation.
+
+77
+00:02:56,879 --> 00:03:00,879
+Okay, but up to this point, I haven't
+
+78
+00:02:59,280 --> 00:03:03,440
+said anything you haven't already heard
+
+79
+00:03:00,879 --> 00:03:07,000
+in previous videos. So, what's the point
+
+80
+00:03:03,440 --> 00:03:07,000
+of today's episode?
+
+81
+00:03:07,200 --> 00:03:12,920
+Well, once again, concurrency makes
+
+82
+00:03:09,200 --> 00:03:12,920
+things a lot more complicated.
+
+83
+00:03:13,840 --> 00:03:18,959
+Hi friends, my name is George and this
+
+84
+00:03:16,560 --> 00:03:20,800
+is Core Dumpt.
+
+85
+00:03:18,959 --> 00:03:23,040
+Before starting, consider giving this
+
+86
+00:03:20,800 --> 00:03:26,800
+video a like. It helps others discover
+
+87
+00:03:23,040 --> 00:03:28,800
+my content, which by the way is free.
+
+88
+00:03:26,800 --> 00:03:30,720
+As we've discussed before, running
+
+89
+00:03:28,800 --> 00:03:32,239
+multiple programs simultaneously on the
+
+90
+00:03:30,720 --> 00:03:34,480
+same system introduces several
+
+91
+00:03:32,239 --> 00:03:36,879
+challenges. When programs run
+
+92
+00:03:34,480 --> 00:03:38,640
+concurrently, they must share the CPU.
+
+93
+00:03:36,879 --> 00:03:41,200
+So, scheduling algorithms are used to
+
+94
+00:03:38,640 --> 00:03:43,280
+ensure fair access to computing time.
+
+95
+00:03:41,200 --> 00:03:46,319
+But concurrency doesn't just affect CPU
+
+96
+00:03:43,280 --> 00:03:48,720
+time, it also affects memory.
+
+97
+00:03:46,319 --> 00:03:50,319
+Programs typically reside on disk. But
+
+98
+00:03:48,720 --> 00:03:51,920
+as we mentioned earlier, there are no
+
+99
+00:03:50,319 --> 00:03:53,440
+machine instructions that use disk
+
+100
+00:03:51,920 --> 00:03:55,360
+addresses.
+
+101
+00:03:53,440 --> 00:03:57,519
+So when we launch a program, it must be
+
+102
+00:03:55,360 --> 00:03:59,599
+loaded into memory so the CPU can fetch
+
+103
+00:03:57,519 --> 00:04:02,560
+and execute its instructions and data
+
+104
+00:03:59,599 --> 00:04:04,480
+becoming a process.
+
+105
+00:04:02,560 --> 00:04:06,799
+Each process also needs memory for
+
+106
+00:04:04,480 --> 00:04:09,439
+variables, temporary values, and other
+
+107
+00:04:06,799 --> 00:04:11,439
+kind of data. The total memory allocated
+
+108
+00:04:09,439 --> 00:04:12,959
+to a process is known as its address
+
+109
+00:04:11,439 --> 00:04:15,280
+space.
+
+110
+00:04:12,959 --> 00:04:17,359
+Here's the rule we want to establish. By
+
+111
+00:04:15,280 --> 00:04:19,280
+default, a process should never be able
+
+112
+00:04:17,359 --> 00:04:22,240
+to access the address space of another
+
+113
+00:04:19,280 --> 00:04:24,720
+process. But why?
+
+114
+00:04:22,240 --> 00:04:26,080
+Well, let me give you an example.
+
+115
+00:04:24,720 --> 00:04:28,400
+Imagine two processes running
+
+116
+00:04:26,080 --> 00:04:30,080
+concurrently. The first one displays a
+
+117
+00:04:28,400 --> 00:04:32,639
+payment form that allows a user to send
+
+118
+00:04:30,080 --> 00:04:34,800
+money to someone else. As the user fills
+
+119
+00:04:32,639 --> 00:04:36,400
+out the form, their input is stored in a
+
+120
+00:04:34,800 --> 00:04:38,240
+buffer somewhere in that process's
+
+121
+00:04:36,400 --> 00:04:40,160
+address space.
+
+122
+00:04:38,240 --> 00:04:42,639
+If memory access restrictions are not
+
+123
+00:04:40,160 --> 00:04:44,800
+enforced, the second process or any
+
+124
+00:04:42,639 --> 00:04:46,720
+other process could simply execute a
+
+125
+00:04:44,800 --> 00:04:48,720
+small piece of code using load and store
+
+126
+00:04:46,720 --> 00:04:50,960
+instructions to read that payment data
+
+127
+00:04:48,720 --> 00:04:53,199
+from the first process's address space,
+
+128
+00:04:50,960 --> 00:04:54,880
+copy it into its own address space, and
+
+129
+00:04:53,199 --> 00:04:57,600
+send it over the network to a malicious
+
+130
+00:04:54,880 --> 00:04:59,360
+actor. That would be a serious problem,
+
+131
+00:04:57,600 --> 00:05:00,800
+especially considering how casually we
+
+132
+00:04:59,360 --> 00:05:03,199
+install apps without knowing who
+
+133
+00:05:00,800 --> 00:05:05,440
+developed them. And since the operating
+
+134
+00:05:03,199 --> 00:05:07,600
+system itself also relies on memory to
+
+135
+00:05:05,440 --> 00:05:09,680
+manage the system, unprotected memory
+
+136
+00:05:07,600 --> 00:05:12,080
+access is something no modern OS can
+
+137
+00:05:09,680 --> 00:05:13,360
+afford to overlook.
+
+138
+00:05:12,080 --> 00:05:15,600
+And it's not just reading that's
+
+139
+00:05:13,360 --> 00:05:17,680
+dangerous. If a process could access
+
+140
+00:05:15,600 --> 00:05:20,080
+another process's address space, it
+
+141
+00:05:17,680 --> 00:05:21,759
+could also write to it. A malicious
+
+142
+00:05:20,080 --> 00:05:23,840
+process could alter a buffer to change
+
+143
+00:05:21,759 --> 00:05:26,479
+the payment amount or the recipient
+
+144
+00:05:23,840 --> 00:05:28,560
+without the user ever knowing. Worse
+
+145
+00:05:26,479 --> 00:05:30,080
+yet, without memory protection, one
+
+146
+00:05:28,560 --> 00:05:32,240
+process could even modify another
+
+147
+00:05:30,080 --> 00:05:34,320
+process's code or even the code of the
+
+148
+00:05:32,240 --> 00:05:36,320
+operating system, injecting malicious
+
+149
+00:05:34,320 --> 00:05:39,320
+executable code to make it do virtually
+
+150
+00:05:36,320 --> 00:05:39,320
+anything.
+
+151
+00:05:39,759 --> 00:05:43,680
+The address space of a process is
+
+152
+00:05:41,600 --> 00:05:45,440
+sacred. A process should never be able
+
+153
+00:05:43,680 --> 00:05:47,120
+to read from or write to the memory of
+
+154
+00:05:45,440 --> 00:05:49,199
+another.
+
+155
+00:05:47,120 --> 00:05:50,960
+As with most things in computer science,
+
+156
+00:05:49,199 --> 00:05:53,360
+there are multiple ways to enforce this
+
+157
+00:05:50,960 --> 00:05:55,520
+rule, but doing it entirely in software
+
+158
+00:05:53,360 --> 00:05:57,680
+is not one of them.
+
+159
+00:05:55,520 --> 00:05:59,440
+As mentioned earlier, memory operations
+
+160
+00:05:57,680 --> 00:06:02,240
+happen constantly while a process is
+
+161
+00:05:59,440 --> 00:06:04,319
+running. If the operating system had to
+
+162
+00:06:02,240 --> 00:06:06,160
+manually check for illegal memory access
+
+163
+00:06:04,319 --> 00:06:08,720
+for each process that is currently using
+
+164
+00:06:06,160 --> 00:06:10,560
+the CPU, it would need to run extra code
+
+165
+00:06:08,720 --> 00:06:13,199
+on every single memory operation the
+
+166
+00:06:10,560 --> 00:06:15,440
+user process performs.
+
+167
+00:06:13,199 --> 00:06:16,960
+That's not a trivial task. Since
+
+168
+00:06:15,440 --> 00:06:18,880
+instructions need to be fetched from
+
+169
+00:06:16,960 --> 00:06:21,120
+memory, for every instruction the user
+
+170
+00:06:18,880 --> 00:06:22,880
+process executes, the operating system
+
+171
+00:06:21,120 --> 00:06:25,280
+might have to run several more just to
+
+172
+00:06:22,880 --> 00:06:27,680
+validate the memory access, introducing
+
+173
+00:06:25,280 --> 00:06:30,560
+a massive performance overhead. So
+
+174
+00:06:27,680 --> 00:06:32,800
+hardware support is needed. Now, I know
+
+175
+00:06:30,560 --> 00:06:34,000
+circuitry usually scares developers,
+
+176
+00:06:32,800 --> 00:06:36,400
+especially if you're trying to make
+
+177
+00:06:34,000 --> 00:06:37,919
+sense of it just from textbooks. That's
+
+178
+00:06:36,400 --> 00:06:40,160
+why we focus on breaking things down
+
+179
+00:06:37,919 --> 00:06:41,520
+visually here and why Brilliant is such
+
+180
+00:06:40,160 --> 00:06:43,759
+a great companion for this kind of
+
+181
+00:06:41,520 --> 00:06:45,360
+learning. If you're someone who loves
+
+182
+00:06:43,759 --> 00:06:47,199
+learning new things and building real
+
+183
+00:06:45,360 --> 00:06:49,120
+skills, but feels like endlessly
+
+184
+00:06:47,199 --> 00:06:51,759
+scrolling through PDFs isn't the way to
+
+185
+00:06:49,120 --> 00:06:53,600
+do it, then Brilliant is for you.
+
+186
+00:06:51,759 --> 00:06:56,080
+Brilliant is a learning platform built
+
+187
+00:06:53,600 --> 00:06:57,840
+around active problem solving. Every
+
+188
+00:06:56,080 --> 00:07:00,160
+lesson is designed to let you play with
+
+189
+00:06:57,840 --> 00:07:02,000
+ideas using a first principles approach
+
+190
+00:07:00,160 --> 00:07:04,479
+that helps you understand concepts from
+
+191
+00:07:02,000 --> 00:07:06,080
+the ground up. You'll stay motivated
+
+192
+00:07:04,479 --> 00:07:08,080
+with a perfect blend of engaging
+
+193
+00:07:06,080 --> 00:07:09,759
+challenges, daily streaks, and
+
+194
+00:07:08,080 --> 00:07:12,240
+competitive features that actually make
+
+195
+00:07:09,759 --> 00:07:14,080
+learning feel rewarding. All content on
+
+196
+00:07:12,240 --> 00:07:15,840
+Brilliant is crafted by an award-winning
+
+197
+00:07:14,080 --> 00:07:18,000
+team of teachers, researchers, and
+
+198
+00:07:15,840 --> 00:07:20,960
+professionals from Stanford, MIT,
+
+199
+00:07:18,000 --> 00:07:22,639
+Caltech, Microsoft, Google, and more.
+
+200
+00:07:20,960 --> 00:07:24,400
+The best part is Brilliant is available
+
+201
+00:07:22,639 --> 00:07:26,639
+right on your phone. So instead of
+
+202
+00:07:24,400 --> 00:07:29,440
+passively scrolling PDFs, you can learn
+
+203
+00:07:26,639 --> 00:07:31,199
+a little every day, wherever you are.
+
+204
+00:07:29,440 --> 00:07:33,039
+Courses like thinking in code and
+
+205
+00:07:31,199 --> 00:07:35,039
+programming with variables help you
+
+206
+00:07:33,039 --> 00:07:36,720
+develop the mindset of a programmer by
+
+207
+00:07:35,039 --> 00:07:39,199
+teaching you to break down complex
+
+208
+00:07:36,720 --> 00:07:41,039
+problems into logical manageable parts
+
+209
+00:07:39,199 --> 00:07:42,880
+and also help you develop an intuition
+
+210
+00:07:41,039 --> 00:07:45,840
+for computer logic as you learn to
+
+211
+00:07:42,880 --> 00:07:47,599
+design and debug real programs.
+
+212
+00:07:45,840 --> 00:07:49,919
+To try everything Brilliant has to offer
+
+213
+00:07:47,599 --> 00:07:52,080
+for free for a full 30 days and get 20%
+
+214
+00:07:49,919 --> 00:07:54,160
+off in your annual subscription, visit
+
+215
+00:07:52,080 --> 00:07:56,639
+brilliant.org/coredumpt
+
+216
+00:07:54,160 --> 00:07:59,280
+or scan the QR code on screen or click
+
+217
+00:07:56,639 --> 00:08:02,400
+on the link in the description below.
+
+218
+00:07:59,280 --> 00:08:03,919
+And now back to the video.
+
+219
+00:08:02,400 --> 00:08:06,479
+You might think we need to modify the
+
+220
+00:08:03,919 --> 00:08:09,440
+memory itself. But actually memory
+
+221
+00:08:06,479 --> 00:08:11,599
+remains untouched in this design. While
+
+222
+00:08:09,440 --> 00:08:13,360
+a process runs, the memory unit sees
+
+223
+00:08:11,599 --> 00:08:14,800
+only a stream of memory addresses coming
+
+224
+00:08:13,360 --> 00:08:17,599
+from the CPU through this set of
+
+225
+00:08:14,800 --> 00:08:19,360
+parallel wires called the address bus.
+
+226
+00:08:17,599 --> 00:08:21,440
+The main memory does not know how those
+
+227
+00:08:19,360 --> 00:08:24,400
+addresses are generated or what they are
+
+228
+00:08:21,440 --> 00:08:27,440
+for. So handling this process directly
+
+229
+00:08:24,400 --> 00:08:28,960
+in memory is not the best way. Now, I
+
+230
+00:08:27,440 --> 00:08:30,639
+don't want to draw a million wires, so
+
+231
+00:08:28,960 --> 00:08:32,880
+I'll use the simpler architecture I
+
+232
+00:08:30,639 --> 00:08:34,479
+usually show here in the channel.
+
+233
+00:08:32,880 --> 00:08:36,800
+There's little to no use for general
+
+234
+00:08:34,479 --> 00:08:38,399
+purpose components. In this context,
+
+235
+00:08:36,800 --> 00:08:40,959
+we'll use two special registers to
+
+236
+00:08:38,399 --> 00:08:42,800
+enforce memory boundaries. The base
+
+237
+00:08:40,959 --> 00:08:45,279
+register points to the smallest legal
+
+238
+00:08:42,800 --> 00:08:47,200
+physical memory address of the process.
+
+239
+00:08:45,279 --> 00:08:50,080
+The limit register defines the size of
+
+240
+00:08:47,200 --> 00:08:51,760
+the addressable range for that process.
+
+241
+00:08:50,080 --> 00:08:53,680
+With these registers, we can check
+
+242
+00:08:51,760 --> 00:08:55,440
+whether any address a process tries to
+
+243
+00:08:53,680 --> 00:08:56,800
+access falls within its own address
+
+244
+00:08:55,440 --> 00:08:59,279
+space.
+
+245
+00:08:56,800 --> 00:09:01,279
+In code terms, we're checking whether
+
+246
+00:08:59,279 --> 00:09:03,600
+the address is greater than or equal to
+
+247
+00:09:01,279 --> 00:09:06,560
+the base and lower than the sum of the
+
+248
+00:09:03,600 --> 00:09:08,320
+base plus the limit. It's the same logic
+
+249
+00:09:06,560 --> 00:09:10,399
+the OS would follow if the check were
+
+250
+00:09:08,320 --> 00:09:12,800
+done in software, but here we're
+
+251
+00:09:10,399 --> 00:09:14,480
+translating it into hardware.
+
+252
+00:09:12,800 --> 00:09:16,080
+Note that the sum of the base and limit
+
+253
+00:09:14,480 --> 00:09:18,800
+gives the upper bound of the address
+
+254
+00:09:16,080 --> 00:09:20,480
+space. But this bound is exclusive,
+
+255
+00:09:18,800 --> 00:09:22,959
+which is why we check that the address
+
+256
+00:09:20,480 --> 00:09:25,279
+is less than not equal to the upper
+
+257
+00:09:22,959 --> 00:09:26,959
+bound.
+
+258
+00:09:25,279 --> 00:09:28,800
+The good news is that calculating this
+
+259
+00:09:26,959 --> 00:09:30,640
+upper bound is as simple as adding the
+
+260
+00:09:28,800 --> 00:09:32,959
+contents of the base and limit registers
+
+261
+00:09:30,640 --> 00:09:35,839
+using a binary adder which we covered in
+
+262
+00:09:32,959 --> 00:09:37,760
+a previous episode.
+
+263
+00:09:35,839 --> 00:09:39,519
+Remember we want to validate the address
+
+264
+00:09:37,760 --> 00:09:41,600
+being passed on every single memory
+
+265
+00:09:39,519 --> 00:09:43,600
+operation. And since every address
+
+266
+00:09:41,600 --> 00:09:46,080
+passes through the address bus, we can
+
+267
+00:09:43,600 --> 00:09:47,920
+intercept the address right there. Now
+
+268
+00:09:46,080 --> 00:09:50,720
+that we have all the values we need, we
+
+269
+00:09:47,920 --> 00:09:52,160
+can move on to the comparisons.
+
+270
+00:09:50,720 --> 00:09:53,680
+To compare the address with the
+
+271
+00:09:52,160 --> 00:09:55,120
+boundaries, we'll use binary
+
+272
+00:09:53,680 --> 00:09:57,440
+comparators, which is the most
+
+273
+00:09:55,120 --> 00:09:59,200
+straightforward method. If you're new to
+
+274
+00:09:57,440 --> 00:10:01,360
+this channel, don't let this circuit
+
+275
+00:09:59,200 --> 00:10:03,279
+intimidate you. It's just a combination
+
+276
+00:10:01,360 --> 00:10:06,160
+of logic gates arranged to produce a
+
+277
+00:10:03,279 --> 00:10:08,000
+specific result based on its inputs.
+
+278
+00:10:06,160 --> 00:10:10,640
+In this case, the comparator receives
+
+279
+00:10:08,000 --> 00:10:12,880
+two binary numbers, A and B, and
+
+280
+00:10:10,640 --> 00:10:14,800
+produces three outputs.
+
+281
+00:10:12,880 --> 00:10:17,200
+Only one of these outputs is active at a
+
+282
+00:10:14,800 --> 00:10:20,160
+time, depending on the inputs. One
+
+283
+00:10:17,200 --> 00:10:23,279
+output activates if A equals B, another
+
+284
+00:10:20,160 --> 00:10:25,279
+if A is less than B, and another if A is
+
+285
+00:10:23,279 --> 00:10:27,200
+greater than B.
+
+286
+00:10:25,279 --> 00:10:30,399
+We'll abstract this logic into a simple
+
+287
+00:10:27,200 --> 00:10:32,000
+component called a binary comparator.
+
+288
+00:10:30,399 --> 00:10:33,920
+We'll use one comparator to check
+
+289
+00:10:32,000 --> 00:10:35,839
+whether the address is greater than or
+
+290
+00:10:33,920 --> 00:10:38,640
+equal to the base and another to check
+
+291
+00:10:35,839 --> 00:10:40,560
+whether it's less than the upper bound.
+
+292
+00:10:38,640 --> 00:10:42,800
+But remember, both conditions must be
+
+293
+00:10:40,560 --> 00:10:44,320
+true for the address to be valid. So
+
+294
+00:10:42,800 --> 00:10:47,320
+we'll combine the outputs using an
+
+295
+00:10:44,320 --> 00:10:47,320
+andgate.
+
+296
+00:10:47,680 --> 00:10:51,680
+And that's it. The wire at the end of
+
+297
+00:10:49,760 --> 00:10:53,839
+our circuit will only be active if the
+
+298
+00:10:51,680 --> 00:10:55,600
+address passed to memory falls within
+
+299
+00:10:53,839 --> 00:10:58,560
+the address space defined by the base
+
+300
+00:10:55,600 --> 00:11:00,240
+and limit registers.
+
+301
+00:10:58,560 --> 00:11:02,560
+But how can a single wire prevent
+
+302
+00:11:00,240 --> 00:11:05,040
+illegal memory access?
+
+303
+00:11:02,560 --> 00:11:06,720
+Let's quickly recall how memory works.
+
+304
+00:11:05,040 --> 00:11:08,640
+Sending an address through the address
+
+305
+00:11:06,720 --> 00:11:11,519
+bus doesn't trigger a memory operation
+
+306
+00:11:08,640 --> 00:11:13,760
+on its own. To actually perform a memory
+
+307
+00:11:11,519 --> 00:11:15,360
+operation, we must specify whether we
+
+308
+00:11:13,760 --> 00:11:17,680
+want to read from or write to that
+
+309
+00:11:15,360 --> 00:11:19,680
+address. This is done by activating
+
+310
+00:11:17,680 --> 00:11:21,519
+either the read enable or write enable
+
+311
+00:11:19,680 --> 00:11:23,600
+signal.
+
+312
+00:11:21,519 --> 00:11:25,440
+When read enable is active, memory
+
+313
+00:11:23,600 --> 00:11:28,240
+places the contents of the address onto
+
+314
+00:11:25,440 --> 00:11:30,320
+the datab bus. When write enable is
+
+315
+00:11:28,240 --> 00:11:32,560
+active, memory overwrites the contents
+
+316
+00:11:30,320 --> 00:11:35,600
+at the specified address using the data
+
+317
+00:11:32,560 --> 00:11:37,600
+provided on the data bus.
+
+318
+00:11:35,600 --> 00:11:39,440
+So the simplest way to block illegal
+
+319
+00:11:37,600 --> 00:11:41,760
+memory access is to use the output of
+
+320
+00:11:39,440 --> 00:11:44,160
+our address validator circuit to gate
+
+321
+00:11:41,760 --> 00:11:46,160
+the read and write signals.
+
+322
+00:11:44,160 --> 00:11:48,320
+That way if an instruction attempts to
+
+323
+00:11:46,160 --> 00:11:50,399
+access an address outside the process's
+
+324
+00:11:48,320 --> 00:11:52,160
+address space, the hardware will block
+
+325
+00:11:50,399 --> 00:11:55,040
+the read or write signal from reaching
+
+326
+00:11:52,160 --> 00:11:57,200
+the memory module.
+
+327
+00:11:55,040 --> 00:11:59,440
+In other words, memory will only receive
+
+328
+00:11:57,200 --> 00:12:00,959
+the read or write enable signal if the
+
+329
+00:11:59,440 --> 00:12:04,800
+address is within the bounds of the
+
+330
+00:12:00,959 --> 00:12:06,720
+current processes address space.
+
+331
+00:12:04,800 --> 00:12:08,560
+Another good idea is to add a few extra
+
+332
+00:12:06,720 --> 00:12:11,600
+logic gates to detect when a process
+
+333
+00:12:08,560 --> 00:12:13,680
+attempts to access an illegal address.
+
+334
+00:12:11,600 --> 00:12:15,600
+That way, the circuitry not only blocks
+
+335
+00:12:13,680 --> 00:12:17,440
+the memory operation, but also triggers
+
+336
+00:12:15,600 --> 00:12:18,800
+a hardware signal to the CPU that
+
+337
+00:12:17,440 --> 00:12:20,720
+immediately interrupts the running
+
+338
+00:12:18,800 --> 00:12:22,480
+process and invokes the operating
+
+339
+00:12:20,720 --> 00:12:24,720
+system, which then handles the
+
+340
+00:12:22,480 --> 00:12:26,880
+violation, most likely by terminating
+
+341
+00:12:24,720 --> 00:12:28,959
+the process.
+
+342
+00:12:26,880 --> 00:12:30,880
+On Unix- like systems, when this signal
+
+343
+00:12:28,959 --> 00:12:32,720
+is caught by the operating system, it
+
+344
+00:12:30,880 --> 00:12:35,200
+terminates the process and displays the
+
+345
+00:12:32,720 --> 00:12:36,800
+error message, segmentation fault.
+
+346
+00:12:35,200 --> 00:12:40,560
+Meaning the process tried to access
+
+347
+00:12:36,800 --> 00:12:41,920
+memory it wasn't allowed to.
+
+348
+00:12:40,560 --> 00:12:43,600
+Now, something that should be very clear
+
+349
+00:12:41,920 --> 00:12:45,440
+at this point is that the operating
+
+350
+00:12:43,600 --> 00:12:46,959
+system doesn't need to execute any
+
+351
+00:12:45,440 --> 00:12:49,440
+additional instructions to make this
+
+352
+00:12:46,959 --> 00:12:51,040
+circuitry work. Because of the way
+
+353
+00:12:49,440 --> 00:12:52,720
+everything is wired, the circuit
+
+354
+00:12:51,040 --> 00:12:55,200
+automatically intercepts any memory
+
+355
+00:12:52,720 --> 00:12:58,320
+operation regardless of its purpose and
+
+356
+00:12:55,200 --> 00:13:00,000
+immediately performs the validation.
+
+357
+00:12:58,320 --> 00:13:01,600
+As I'll show in a moment, the only
+
+358
+00:13:00,000 --> 00:13:03,519
+responsibility of the operating system
+
+359
+00:13:01,600 --> 00:13:05,519
+is to set the correct values in the base
+
+360
+00:13:03,519 --> 00:13:09,120
+and limit registers before dispatching
+
+361
+00:13:05,519 --> 00:13:11,040
+the CPU to the user process.
+
+362
+00:13:09,120 --> 00:13:13,360
+All this circuitry is of course embedded
+
+363
+00:13:11,040 --> 00:13:14,880
+inside the CPU.
+
+364
+00:13:13,360 --> 00:13:17,040
+Just keep in mind that for any of this
+
+365
+00:13:14,880 --> 00:13:20,079
+to work as expected, the CPU must
+
+366
+00:13:17,040 --> 00:13:22,079
+support operational modes. These memory
+
+367
+00:13:20,079 --> 00:13:24,560
+management registers like the base and
+
+368
+00:13:22,079 --> 00:13:26,560
+limit registers must be implemented as
+
+369
+00:13:24,560 --> 00:13:30,240
+privileged registers which can only be
+
+370
+00:13:26,560 --> 00:13:32,000
+modified by the operating system.
+
+371
+00:13:30,240 --> 00:13:33,760
+This becomes another responsibility of
+
+372
+00:13:32,000 --> 00:13:36,720
+the operating system during a context
+
+373
+00:13:33,760 --> 00:13:39,200
+switch. When the CPU is reassigned from
+
+374
+00:13:36,720 --> 00:13:40,959
+one process to another, the OS not only
+
+375
+00:13:39,200 --> 00:13:42,959
+captures the state of the interrupted
+
+376
+00:13:40,959 --> 00:13:45,360
+process and restores the state for the
+
+377
+00:13:42,959 --> 00:13:47,920
+new process, but also updates the memory
+
+378
+00:13:45,360 --> 00:13:49,600
+bounds, the base and limit registers to
+
+379
+00:13:47,920 --> 00:13:51,839
+match the address space of the incoming
+
+380
+00:13:49,600 --> 00:13:54,079
+process.
+
+381
+00:13:51,839 --> 00:13:56,959
+Once everything is properly set up, the
+
+382
+00:13:54,079 --> 00:13:59,760
+OS switches the CPU into user mode,
+
+383
+00:13:56,959 --> 00:14:02,320
+allowing the user process to run. But in
+
+384
+00:13:59,760 --> 00:14:04,880
+this mode, the CPU cannot modify the
+
+385
+00:14:02,320 --> 00:14:06,639
+privileged registers. So the process is
+
+386
+00:14:04,880 --> 00:14:08,560
+limited to using only the memory that
+
+387
+00:14:06,639 --> 00:14:12,079
+the operating system has explicitly
+
+388
+00:14:08,560 --> 00:14:14,079
+allocated to it.
+
+389
+00:14:12,079 --> 00:14:16,000
+And that's the basic idea behind how the
+
+390
+00:14:14,079 --> 00:14:18,399
+operating system with support from the
+
+391
+00:14:16,000 --> 00:14:21,680
+hardware prevents user processes from
+
+392
+00:14:18,399 --> 00:14:24,160
+accessing each other's memory.
+
+393
+00:14:21,680 --> 00:14:26,000
+We're not done with memory just yet. So
+
+394
+00:14:24,160 --> 00:14:28,320
+far we've implemented protection for
+
+395
+00:14:26,000 --> 00:14:29,920
+processes running concurrently. But what
+
+396
+00:14:28,320 --> 00:14:31,279
+happens when multiple processes are
+
+397
+00:14:29,920 --> 00:14:34,079
+running and there's no more memory
+
+398
+00:14:31,279 --> 00:14:36,160
+available for new ones? That's a topic
+
+399
+00:14:34,079 --> 00:14:38,240
+for a future episode where we'll explore
+
+400
+00:14:36,160 --> 00:14:39,920
+paging, a memory management technique
+
+401
+00:14:38,240 --> 00:14:42,720
+that allows a computer to use more
+
+402
+00:14:39,920 --> 00:14:44,560
+memory than is physically available. So,
+
+403
+00:14:42,720 --> 00:14:49,880
+make sure to subscribe. You won't want
+
+404
+00:14:44,560 --> 00:14:49,880
+to miss it. See you in the next one.
+

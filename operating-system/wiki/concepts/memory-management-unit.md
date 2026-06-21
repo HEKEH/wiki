@@ -19,6 +19,7 @@ sources: ["core-dumped-operating-sytems-theory/How a Single Bit Inside Your Proc
 
 ## 相关
 
+- [[concepts/memory-protection]] —— MMU 的入门版原型：基址+界限寄存器的连续内存保护
 - [[concepts/mode-bit-and-operational-modes]]
 - [[concepts/interrupts]]
 - [[concepts/kernel-mode-drivers]]

@@ -64,6 +64,7 @@ CPU 访问虚拟地址时 MMU 查页表，**只要翻译或权限检查不通过
 ## 相关
 
 - [[concepts/memory-management-unit]] —— 触发缺页异常的硬件与页表
+- [[concepts/memory-protection]] —— 越权访问转为异常/段错误的前身（基址+界限版）
 - [[concepts/interrupts]] —— 异常经 IDT 进入内核态的同一机制
 - [[analysis/detecting-kernel-corruption]] —— 缺页异常能/不能检测到什么
 - [[sources/single-bit-mode-bit-os-integrity]] —— 来源

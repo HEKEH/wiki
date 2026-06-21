@@ -138,3 +138,14 @@ POSIX、operand、the scheduler 等 ASR 错误）。第八次源 ingest。新建
 多写丢失更新）、为何普通变量当锁与 Peterson 软件方案不可靠。从 [[concepts/concurrency]]
 （"同步的必要性"补链）、[[concepts/parallelism]]、[[concepts/preemptive-vs-cooperative-os]]、
 [[concepts/threads]]、[[concepts/shared-memory-ipc]] 回链，更新 index.md。同步是后续待 ingest 主题。
+
+## [2026-06-21] ingest | Core Dumped —《程序为什么无法访问彼此的内存》
+
+来源 [[sources/why-programs-cant-access-memory]]（Core Dumped 视频，已清洗：删时间戳/Brilliant 广告/
+口水话，修 byte、data bus、AND gate 等 ASR 错误）。第九次源 ingest。新建 1 个概念页
+[[concepts/memory-protection]]：地址空间隔离规则（支付表单例子）、纯软件为何开销过大、基址+界限
+寄存器在地址总线拦截访存 + 二进制比较器/AND 门 + 门控读/写使能 + 越界触发段错误、OS 唯一职责是设
+寄存器、特权寄存器与上下文切换更新边界、与 MMU/分页的关系。从 [[concepts/memory-management-unit]]
+（定位为其入门原型）、[[concepts/mode-bit-and-operational-modes]]、[[concepts/context-switch]]、
+[[concepts/page-fault]]、[[concepts/interrupts]]、[[concepts/concurrency]] 回链，更新 index.md 与
+home.md（新增第八条线索）。分页(paging)是后续待 ingest 主题。
