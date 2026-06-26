@@ -38,7 +38,17 @@ kubelet 是 **CRI / CNI / CSI 的客户端（调用方）**——它调用这些
 
 ## 静态 Pod 与自举
 
-kubelet 还能**直接管理"静态 Pod"**：读取本地某目录的 manifest 起 Pod，**不经过 apiserver**。这是**自举控制平面**的方式——`kubeadm` 用静态 Pod 把 apiserver / controller-manager / scheduler / [[entities/etcd]] 跑起来，解决"apiserver 还没起、谁来起 apiserver"的先有鸡还是先有蛋问题。
+**manifest** 指描述 K8s 对象期望状态的 YAML/JSON 文件（即 [[concepts/声明式API]] 的输入）。普通 manifest 由人/工具写好、经 `kubectl apply` 交给 apiserver 生效；而 kubelet 还能**直接管理"静态 Pod（static Pod）"**——读取**节点本地目录**（由 kubelet 配置 `staticPodPath` 指定，kubeadm 默认 `/etc/kubernetes/manifests/`）里的 manifest 起 Pod，**完全不经过 apiserver、不需要 scheduler**。
+
+| | 普通 manifest | 本地/静态 manifest |
+| --- | --- | --- |
+| 来源 | 人 / Helm / Kustomize 编写 | 引导工具（kubeadm）**生成** |
+| 位置 | 你的仓库 → 提交集群 | 节点 `/etc/kubernetes/manifests/` |
+| 生效 | `kubectl apply` → apiserver | kubelet **直接读目录** |
+
+这是**自举控制平面**的方式：`kubeadm init` 自动生成 apiserver / controller-manager / scheduler / [[entities/etcd]] 的静态 Pod manifest 写入该目录，kubelet 一启动就把它们跑起来——解决"apiserver 还没起、谁来起 apiserver"的循环依赖（见 [[concepts/设计理念]] 引导原则）。
+
+> 静态 Pod 起来后，kubelet 会在 apiserver 里建一个**只读的"镜像 Pod（mirror pod）"**，所以 `kubectl get pods` 也能看到它们，但它们由 kubelet 管、非 scheduler 调度。
 
 ## 相关
 

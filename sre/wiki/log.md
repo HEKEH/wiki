@@ -55,3 +55,12 @@ Append-only chronological record of wiki activity.
 - 内容：与分层架构的关系（kubelet ≠ 核心层，仅实现其执行环境一块）、内部模块表（syncLoop/PLEG/Volume Manager/Probe Manager/cAdvisor/cgroup/Eviction/Device Manager 等）、作为 CRI/CNI/CSI 调用方、静态 Pod 与自举、kubelet≠kubectl 提示。
 - 把 [[entities/Node]]、[[concepts/控制平面与控制循环]] 中 kubelet 的纯文本提及链接化；更新 `index.md`。
 - 顺手修复 [[concepts/控制平面与控制循环]] 两处代码块缺少语言标注（MD040）。
+
+## [2026-06-26] ingest | 设计理念（含勘误）
+
+- ingest `raw/kubernetes/设计理念.md`，按"只补充必要知识"原则：仅就新内容建页，不复制已有的 Pod/Service/Node/Namespace 等。
+- 新建 [[concepts/设计理念]]（API/控制/架构/引导原则 + 容错性/易扩展性）、[[concepts/工作负载控制器]]（业务类型→控制器，含 RC/RS/Job/DaemonSet/StatefulSet，回答 StatefulSet 开放问题）、[[sources/设计理念]]。
+- 补充：[[concepts/声明式API]] 加 metadata/spec/status 三段结构 + 幂等；[[concepts/Volume存储]] 加 PV/PVC（PV↔Node、PVC↔Pod 对称关系，回答 PV/PVC 开放问题）。
+- **勘误/陈旧标注**（核心任务之一）：StatefulSet 自 1.9 GA（非源文档所说 Alpha）；RBAC 自 1.8 GA 且为默认（非 1.3 alpha）；RC 已 legacy；Federation v1 已废弃；Secret 默认仅 base64 非加密；默认命名空间现 4 个非 2 个。详见 [[sources/设计理念]]。
+- 未建页（仅在源摘要登记）：Secret、User/Service Account、RBAC——按需后续 ingest。
+- 更新 `index.md`、`home.md`（新增设计哲学/工作负载洞见，标记 StatefulSet、PV/PVC 开放问题为已解答）。

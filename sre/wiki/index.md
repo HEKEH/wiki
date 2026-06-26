@@ -34,6 +34,8 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[concepts/控制平面与控制循环]] — apiserver/controller/scheduler/kubelet 的职责、协作与 reconcile loop
 - [[concepts/Pod网络模型]] — 每 Pod 一 IP、CNI 分配、veth/Pod CIDR、端口冲突边界
 - [[concepts/分层架构]] — 核心层/应用层/管理层/接口层/生态系统的类 Linux 分层
+- [[concepts/设计理念]] — API/控制/架构/引导设计原则；容错性 + 易扩展性
+- [[concepts/工作负载控制器]] — 业务类型→控制器：Deployment/Job/DaemonSet/StatefulSet（含 RC/RS）
 
 ## Sources
 
@@ -43,3 +45,4 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[sources/kubernetes-201]] — 进阶：扩缩容、滚动升级、资源限制、健康检查
 - [[sources/kubernetes集群]] — 集群组成、联邦、minikube / play-with-k8s
 - [[sources/kubernetes架构原理]] — 架构原理：Borg、核心组件、Add-ons、分层架构（含本地图）
+- [[sources/设计理念]] — 设计原则与核心 API 对象纵览（含勘误：StatefulSet/RBAC 已 GA 等）
