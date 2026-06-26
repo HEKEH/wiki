@@ -7,7 +7,7 @@ sources: [kubernetes/kubernetes简介.md]
 
 # Kubernetes
 
-Kubernetes（K8s）是谷歌开源的**容器集群管理系统**，是 Google 内部大规模容器管理技术 **Borg** 的开源版本，现为容器编排领域的事实标准。
+Kubernetes（K8s）是谷歌开源的**容器集群管理系统**，是 Google 内部大规模容器管理技术 **[[entities/Borg]]** 的开源版本，现为容器编排领域的事实标准。其整体架构（含分层设计）可参见 [[concepts/分层架构]]。
 
 ## 主要能力
 

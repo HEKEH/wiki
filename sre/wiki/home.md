@@ -17,7 +17,7 @@ This wiki is incrementally built and maintained by an LLM agent. Raw sources are
 
 核心洞见：
 
-- [[entities/Kubernetes]] 源自 Google 的 Borg，是容器编排的事实标准；它是一个**构建生态的平台**，而非封闭 PaaS。
+- [[entities/Kubernetes]] 源自 Google 的 [[entities/Borg]]，是容器编排的事实标准；它是一个**构建生态的平台**，而非封闭 PaaS。架构可从 [[concepts/分层架构]]（核心/应用/管理/接口/生态五层）理解。
 - K8s 的可靠性根基在于 [[concepts/声明式API]]：用户声明期望状态，控制器循环自动收敛 —— 这"消除了编排的需要"（见 [[concepts/容器编排]]）。
 - **对象层级**：[[concepts/容器]] → [[entities/Pod]]（调度单位）→ [[entities/Deployment]] → ReplicaSet 管理副本；[[entities/Service]] 经 [[concepts/Label与Selector]] 为 Pod 提供稳定入口。
 - **集群结构**：[[entities/etcd]]（唯一状态源）+ 控制节点 + 服务节点（[[entities/Node]]），见 [[concepts/集群架构]]。

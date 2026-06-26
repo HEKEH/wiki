@@ -10,12 +10,14 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 
 - [[entities/Kubernetes]] — 谷歌开源的容器集群管理系统（Borg 开源版），容器编排事实标准及其核心组件
 - [[entities/etcd]] — 分布式强一致 KV 存储，K8s 唯一的集群状态数据库
+- [[entities/Borg]] — 谷歌内部大规模集群管理系统，K8s 的前身与设计灵感来源
 - [[entities/Pod]] — K8s 调度的基本单位，一组共享网络/IPC 的容器集合
 - [[entities/Service]] — 应用服务抽象，按 label 提供 cluster IP、负载均衡与服务发现
 - [[entities/Deployment]] — 经 ReplicaSet 管理 Pod 的控制器，负责扩缩容与滚动升级
 - [[entities/Node]] — Pod 真正运行的主机（服务节点），运行 kubelet/runtime/kube-proxy
 - [[entities/Namespace]] — 资源对象的抽象集合，用于逻辑隔离
 - [[entities/kubectl]] — K8s 命令行工具，多数命令与 docker 对应
+- [[entities/kubelet]] — 每个 Node 上的主 agent，确保 Pod 按期望运行并上报现状
 
 ## Concepts
 
@@ -31,6 +33,7 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[concepts/集群架构]] — etcd + 控制节点 + 服务节点的集群组成与联邦
 - [[concepts/控制平面与控制循环]] — apiserver/controller/scheduler/kubelet 的职责、协作与 reconcile loop
 - [[concepts/Pod网络模型]] — 每 Pod 一 IP、CNI 分配、veth/Pod CIDR、端口冲突边界
+- [[concepts/分层架构]] — 核心层/应用层/管理层/接口层/生态系统的类 Linux 分层
 
 ## Sources
 
@@ -39,3 +42,4 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[sources/kubernetes-101]] — 入门实操：kubectl、YAML、Volume、Service
 - [[sources/kubernetes-201]] — 进阶：扩缩容、滚动升级、资源限制、健康检查
 - [[sources/kubernetes集群]] — 集群组成、联邦、minikube / play-with-k8s
+- [[sources/kubernetes架构原理]] — 架构原理：Borg、核心组件、Add-ons、分层架构（含本地图）

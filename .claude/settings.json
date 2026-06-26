@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -E '\\\\.md$')"
+      "Bash(grep -E '\\\\.md$')",
+      "WebFetch(domain:kubernetes.feisky.xyz)",
+      "Bash(curl -sL --max-time 30 \"https://kubernetes.feisky.xyz/concepts/architecture\" -o arch.html)"
     ]
   }
 }

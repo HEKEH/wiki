@@ -41,3 +41,17 @@ Append-only chronological record of wiki activity.
 - 内容：每 Pod 一 IP 原则、network namespace、CNI 分配（Pod CIDR + veth pair）、端口冲突边界（containerPort 占 Pod IP 不冲突 vs hostPort/NodePort 占 Node IP 可能冲突）、访问与隔离、验证命令。
 - 更新 `index.md`、`home.md`（新增"网络模型"洞见，并把"Pod 网络 / CNI 分配 IP"开放问题标记为已解答；剩 Service iptables/IPVS 与 NetworkPolicy 细节待补）。
 - 期间另对 [[entities/Service]] 补充了 targetPort 数字 vs 命名端口、多端口；对 [[entities/Namespace]] 补充了隔离边界（默认不隔离网络 + NetworkPolicy）。
+
+## [2026-06-26] ingest | Kubernetes 架构原理
+
+- 下载源文档 `raw/kubernetes/kubernetes架构原理.md`（feisky.xyz/concepts/architecture）及 7 张配图到 `raw/kubernetes/images/`（按原始 /files/ ID 命名）。经用户确认，将 raw markdown 的图片引用改写为本地路径（破例修改 raw）。
+- 新建 [[sources/kubernetes架构原理]]（含本地架构图/分层图）、[[entities/Borg]]（K8s 前身，含 Borg↔K8s 组件对应表）、[[concepts/分层架构]]（核心/应用/管理/接口/生态五层）。
+- 更新 [[entities/Kubernetes]]（Borg/分层架构链接）、[[concepts/集群架构]]（Borg/分层架构链接 + 推荐 Add-ons 小节）、`index.md`、`home.md`。
+- 数据陈旧提示：源文档"默认运行时 Docker"、Heapster、kube-dns、Federation"跨可用区"等已过时，已在源摘要与相关页标注。
+
+## [2026-06-26] query | kubelet → 新建实体页
+
+- 经多轮问答（kubelet ↔ container runtime、核心层是否使用 CRI/CNI/CSI、kubelet 是否等于核心层），沉淀新实体页 [[entities/kubelet]]。
+- 内容：与分层架构的关系（kubelet ≠ 核心层，仅实现其执行环境一块）、内部模块表（syncLoop/PLEG/Volume Manager/Probe Manager/cAdvisor/cgroup/Eviction/Device Manager 等）、作为 CRI/CNI/CSI 调用方、静态 Pod 与自举、kubelet≠kubectl 提示。
+- 把 [[entities/Node]]、[[concepts/控制平面与控制循环]] 中 kubelet 的纯文本提及链接化；更新 `index.md`。
+- 顺手修复 [[concepts/控制平面与控制循环]] 两处代码块缺少语言标注（MD040）。

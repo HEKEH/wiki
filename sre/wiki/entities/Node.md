@@ -14,7 +14,7 @@ Node 是 [[entities/Pod]] 真正运行的主机，可以是物理机也可以是
 为了管理 Pod，每个 Node 至少要运行：
 
 - **container runtime**（如 docker、rkt，现主流为 containerd）—— 实际运行容器。
-- **kubelet** —— 维护容器生命周期，管理 Volume（CVI）与网络（CNI）。
+- **[[entities/kubelet]]** —— 维护容器生命周期，管理 Volume（CVI）与网络（CNI）。
 - **kube-proxy** —— 为 [[entities/Service]] 提供集群内的服务发现与负载均衡。
 
 ## 在集群中的位置
