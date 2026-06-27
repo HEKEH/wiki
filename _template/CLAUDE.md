@@ -23,7 +23,16 @@ sources: [source-file-1.md]
 
 ### Wikilinks
 
-Use `[[category/page-name]]` for cross-references (include the subdirectory path under `wiki/`).
+Use `[[category/page-name]]` for cross-references (include the subdirectory path under `wiki/` and the sequence number prefix, e.g. `[[concepts/02-xxx]]`).
+
+### File Numbering
+
+Files within each `wiki/` subdirectory are prefixed with a two-digit sequence number reflecting the order in which they were added, starting from `01`. For example, `wiki/concepts/` may contain `01-xxx.md`, `02-xxx.md`, …, `10-xxx.md`.
+
+The number records the order in which the knowledge base grew, making it easy to see how it developed and to review pages in the order they were learned.
+
+- When adding a new page, use the next number after the current highest in that directory.
+- When deleting a page, leave its number as a gap and never renumber existing pages, so cross-references stay valid.
 
 ### Categories
 
