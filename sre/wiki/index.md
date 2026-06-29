@@ -18,6 +18,12 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[entities/Namespace]] — 资源对象的抽象集合，用于逻辑隔离
 - [[entities/kubectl]] — K8s 命令行工具，多数命令与 docker 对应
 - [[entities/kubelet]] — 每个 Node 上的主 agent，确保 Pod 按期望运行并上报现状
+- [[entities/kube-apiserver]] — 控制平面唯一入口与数据中枢；REST API、认证/授权/准入、流式列表
+- [[entities/kube-controller-manager]] — 集群大脑；各控制器、Leader Election、Informer、Node 驱逐
+- [[entities/kube-scheduler]] — 调度器；预选/优选、亲和性、Taint、调度框架、DRA
+- [[entities/kube-proxy]] — Service 数据面；userspace/iptables/ipvs/nftables 负载均衡
+- [[entities/CoreDNS]] — 集群 DNS（v1.13 起默认，取代 kube-dns）；A/SRV 记录格式
+- [[entities/kubeadm]] — 官方集群引导工具；static Pod 自举控制平面
 
 ## Concepts
 
@@ -46,3 +52,15 @@ Catalog of all wiki pages, organized by category. Updated on every ingest.
 - [[sources/kubernetes集群]] — 集群组成、联邦、minikube / play-with-k8s
 - [[sources/kubernetes架构原理]] — 架构原理：Borg、核心组件、Add-ons、分层架构（含本地图）
 - [[sources/设计理念]] — 设计原则与核心 API 对象纵览（含勘误：StatefulSet/RBAC 已 GA 等）
+- [[sources/components]] — 核心组件总览：组件通信、端口表、版本支持策略（含端口/版本勘误）
+- [[sources/apiserver]] — kube-apiserver：REST API、访问控制、流式列表（含 8080/beta 勘误）
+- [[sources/controller-manager]] — controller-manager：控制器、选主、Informer、Node 驱逐
+- [[sources/scheduler]] — scheduler：预选/优选、亲和性、Taint、调度框架、DRA
+- [[sources/kubelet]] — kubelet：Pod 清单、static Pod、CRI、驱逐（含 dockershim/Heapster 勘误）
+- [[sources/kube-proxy]] — kube-proxy：四种代理模式与 iptables/ipvs 实现
+- [[sources/kube-dns]] — CoreDNS/kube-dns：DNS 记录格式与存根/上游 DNS
+- [[sources/etcd]] — etcd 深入：Raft、v2/v3 存储与 Watch、对比 Zookeeper/Consul
+- [[sources/federation]] — 集群联邦（Federation v1，**已废弃**，仅历史参考）
+- [[sources/kubectl]] — kubectl 命令行全集（含 --generator/插件机制勘误）
+- [[sources/kubeadm]] — kubeadm 部署流程（init/join、static Pod 引导）
+- [[sources/hyperkube]] — hyperkube all-in-one binary（**v1.17 已移除**）

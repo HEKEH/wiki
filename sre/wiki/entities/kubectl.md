@@ -2,7 +2,7 @@
 title: kubectl
 date: 2026-06-23
 tags: [kubernetes, kubectl, 命令行]
-sources: [kubernetes/kubernetes 101.md, kubernetes/kubernetes 201.md]
+sources: [kubernetes/kubernetes 101.md, kubernetes/kubernetes 201.md, kubernetes/components/kubectl.md]
 ---
 
 # kubectl
@@ -36,3 +36,14 @@ kubectl 是 Kubernetes 的命令行工具，用于创建、查询、操作集群
 - `kubectl cluster-info` —— 查看集群信息。
 
 详见 [[concepts/扩缩容与滚动升级]]。
+
+## 运维 / 调试常用命令
+
+- **节点维护**：`kubectl drain <node>`（疏散 Pod，升级 kubelet 前必做，见 [[entities/kube-controller-manager]] 驱逐）；`kubectl cordon`/`uncordon`（标记节点不可/可调度，不疏散）。drain 不删 mirror pod（静态 Pod 见 [[entities/kubelet]]）。
+- **进/出容器**：`kubectl exec -ti <pod> -- sh`、`kubectl attach`、`kubectl cp`（依赖容器内有 `tar`）、`kubectl port-forward <pod|svc|deploy> 本地:目标`。
+- **直达 API**：`kubectl proxy` 起本地 HTTP 代理；`kubectl get --raw /apis/...` 访问原始 URI（如 metrics API）。配置见 `kubectl config`（cluster/user/context 三元组）。
+- **权限自查**：`kubectl auth can-i <verb> <resource>`；`kubectl auth reconcile -f rbac.yaml` 修复 RBAC。
+- **诊断**：`kubectl get events --sort-by=.metadata.creationTimestamp`（按时间看事件）；`kubectl explain <resource>` 查字段定义；`-o jsonpath`/`custom-columns` 定制输出。
+- **扩展**：`~/.kube/plugins` 或 krew 管理 kubectl 插件（见 [[concepts/插件机制与可扩展性]]）。
+
+> 集群引导工具是 [[entities/kubeadm]]（`kubeadm init/join`），与 kubectl 是两类工具：kubeadm 装集群、kubectl 用集群。

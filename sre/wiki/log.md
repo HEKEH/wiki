@@ -64,3 +64,13 @@ Append-only chronological record of wiki activity.
 - **勘误/陈旧标注**（核心任务之一）：StatefulSet 自 1.9 GA（非源文档所说 Alpha）；RBAC 自 1.8 GA 且为默认（非 1.3 alpha）；RC 已 legacy；Federation v1 已废弃；Secret 默认仅 base64 非加密；默认命名空间现 4 个非 2 个。详见 [[sources/设计理念]]。
 - 未建页（仅在源摘要登记）：Secret、User/Service Account、RBAC——按需后续 ingest。
 - 更新 `index.md`、`home.md`（新增设计哲学/工作负载洞见，标记 StatefulSet、PV/PVC 开放问题为已解答）。
+
+## [2026-06-27] ingest | Kubernetes 核心组件（components 目录，12 篇）
+
+- 按指定顺序 ingest `raw/kubernetes/components/` 下 12 篇：components / apiserver / controller-manager / scheduler / kubelet / kube-proxy / kube-dns / etcd / federation / kubectl / kubeadm / hyperkube。
+- 新建实体页：[[entities/kube-apiserver]]、[[entities/kube-controller-manager]]、[[entities/kube-scheduler]]、[[entities/kube-proxy]]、[[entities/CoreDNS]]、[[entities/kubeadm]]。
+- 深化既有实体页：[[entities/etcd]]（Raft/v2v3/Watch/读一致性/对比 ZK·Consul）、[[entities/kubelet]]（pause 容器/CRI 客户端服务端/驱逐信号）、[[entities/kubectl]]（运维调试命令）、[[entities/Service]]（指向 kube-proxy/CoreDNS）。
+- 概念页补充：[[concepts/控制平面与控制循环]]（新增"各组件深入"导航）。
+- 新增 12 篇源摘要（sources/components…hyperkube），每篇含勘误/时效性标注。
+- 解决开放问题：调度预选/优选细节（→ kube-scheduler）、reconcile/Informer（→ controller-manager）、Service iptables/IPVS 转发（→ kube-proxy）。
+- 勘误汇总（源文档时效性）：8080 明文端口 v1.20 移除、10251/10252 healthz 与 cAdvisor 4194 端口移除、dockershim v1.24 移除、hyperkube v1.17 移除、Federation v1 废弃（→ Karmada）、Endpoints→EndpointSlices、Endpoint 选主锁→Lease、kube-dns→CoreDNS（v1.13 默认）、nftables 实为 v1.31 beta、policy-config 仅 v1.23 前。

@@ -2,7 +2,7 @@
 title: kubelet
 date: 2026-06-26
 tags: [kubernetes, kubelet, 节点, agent]
-sources: [kubernetes/kubernetes基本概念.md, kubernetes/kubernetes架构原理.md]
+sources: [kubernetes/kubernetes基本概念.md, kubernetes/kubernetes架构原理.md, kubernetes/components/kubelet.md]
 ---
 
 # kubelet
@@ -49,6 +49,46 @@ kubelet 是 **CRI / CNI / CSI 的客户端（调用方）**——它调用这些
 这是**自举控制平面**的方式：`kubeadm init` 自动生成 apiserver / controller-manager / scheduler / [[entities/etcd]] 的静态 Pod manifest 写入该目录，kubelet 一启动就把它们跑起来——解决"apiserver 还没起、谁来起 apiserver"的循环依赖（见 [[concepts/设计理念]] 引导原则）。
 
 > 静态 Pod 起来后，kubelet 会在 apiserver 里建一个**只读的"镜像 Pod（mirror pod）"**，所以 `kubectl get pods` 也能看到它们，但它们由 kubelet 管、非 scheduler 调度。
+
+## Pod 清单来源与创建细节
+
+kubelet 以 **PodSpec** 工作，从四种来源接收"本节点该跑哪些 Pod"：
+
+- **API Server**（主，常规路径）：watch+list `/registry/pods` 中绑定到本节点的 Pod。
+- **本地文件**（static Pod）：默认 `/etc/kubernetes/manifests/`，定期重扫。
+- **HTTP endpoint**（`--manifest-url`，**拉**）：kubelet 定时 GET 该 URL 取清单。
+- **HTTP server**（**推**）：kubelet 起监听口，等外部把清单 POST 过来。
+
+> file / http-url / http-server 三者产生的都是 **static Pod**（绕过 apiserver/scheduler，kubelet 直管、建 mirror pod 可见）；**只有 API Server 是常规路径**。后两种 HTTP 方式实践中几乎不用，现实里 static Pod 用本地目录、其余走 apiserver。
+
+创建 Pod 时关键一步：先用 **pause（sandbox）容器**为整个 Pod 建好网络命名空间，其他容器再共享它的网络——这正是 [[entities/Pod]] "一组容器共享网络"的实现根基（见 [[concepts/Pod网络模型]]）。随后挂卷、拉 Secret、按 CRI 拉镜像起容器。
+
+## CRI：客户端 vs 服务端
+
+kubelet 通过 **CRI（Container Runtime Interface，v1.5 引入）** 与容器运行时解耦：CRI 基于 gRPC 定义 `RuntimeService` 与 `ImageService`。**kubelet 是 CRI 客户端，容器运行时实现服务端（CRI shim，监听本地 Unix socket）**。实现有 containerd、CRI-O 等，底层 OCI 引擎有 runc、gVisor、Kata 等。
+
+> ⚠️ 源文档以 Docker/dockershim 为默认运行时——**dockershim 已在 v1.24 移除**，Docker 不再是内置默认；`--network-plugin` 选项亦已移除（CNI 成为唯一方式）；Heapster 早已废弃，节点/容器指标改由 metrics-server 经 `/metrics/resource` 提供，**cAdvisor 4194 端口也已移除**。
+
+## 驱逐信号（Eviction）
+
+Eviction Manager 监控资源并在触达阈值时停 Pod、置 `PodPhase=Failed`：
+
+| 信号（节点剩余资源） | 跌破阈值触发的 Condition |
+| --- | --- |
+| `memory.available`（可用内存） | MemoryPressure |
+| `nodefs.available` / `nodefs.inodesFree` | DiskPressure |
+| `imagefs.available` / `imagefs.inodesFree` | DiskPressure |
+
+读表要点：
+
+- **信号**=节点某资源剩余量；**Condition**=越线后给 Node 打的状态标记。阈值用 `--eviction-hard=memory.available<500Mi,...` 配。
+- **两个文件系统**：`nodefs`=节点主盘(Pod 卷、容器日志)；`imagefs`=放镜像+容器可写层的盘(可能独立,也可能同 nodefs)。
+- **available vs inodesFree**：前者是剩余**空间(字节)**，后者是剩余 **inode(文件数)**——小文件太多会先耗尽 inode,即便有空间也触发 DiskPressure。
+- 越线后：打 Condition → 先**回收**(删停止的 Pod、清未用镜像)→ 不够再按 QoS 驱逐 → 该 Condition 还反馈给 [[entities/kube-scheduler]](MemoryPressure 拒 BestEffort 新 Pod、DiskPressure 拒一切新 Pod)。
+
+- **软驱逐**：达阈值并超过宽限期才动手；**硬驱逐**：达阈值立即驱逐。
+- 驱逐用户 Pod 的顺序：**BestEffort → Burstable → Guaranteed**（QoS 越低越先被驱，见 [[concepts/资源限制]]）。
+- 与 [[entities/kube-controller-manager]] 的"Node 驱逐"区分：这是 **节点本地**因资源紧张主动驱逐；后者是 **控制面**因节点失联远程驱逐。
 
 ## 相关
 
