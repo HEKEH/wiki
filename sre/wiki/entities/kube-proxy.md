@@ -106,12 +106,16 @@ DNAT --to-destination 10.244.2.5:80   ← 把目标从 ClusterIP 换成真实 Po
 
 **串起来**：`包 → KUBE-SERVICES(找 nginx) → KUBE-SVC-NGINX(掷骰子选 B) → KUBE-SEP-2(目标改写成 10.244.2.7:80)` → 交 CNI 送达。
 
+> 这些链**都由 kube-proxy 生成**(Service/EndpointSlices 只是它读的"期望")：**`KUBE-SVC-*` 每个 [[entities/Service]](的每个端口)一条**、做负载均衡；**`KUBE-SEP-*` 每个后端 endpoint(Pod)一条**、做 DNAT——SEP 源于 **EndpointSlices**(由 controller-manager 按 selector 选中的就绪 Pod 维护)。名字里的 `NGINX`/`1/2/3` 只是**示意**,真实为哈希(如 `KUBE-SVC-4N57TFCL4MD7ZTDA`)。
+
 ### 辅助链
 
 - **`KUBE-MARK-MASQ` / `KUBE-POSTROUTING`**：给需要的包打标记,出站做 **SNAT/MASQUERADE**(改源地址)——即前面"回包找回路"那套,跨节点时尤其需要。
-- **`KUBE-NODEPORTS`**：处理从节点端口进来的 **NodePort** 流量,匹配后同样跳进 `KUBE-SVC-...` 走负载均衡。
-- **`KUBE-FW-xxx`**：处理 **LoadBalancer** 的外部入口 IP。
+- **`KUBE-NODEPORTS`**：处理从节点端口进来的 **NodePort** 流量,匹配后同样跳进 `KUBE-SVC-...` 走负载均衡。该 nodePort 号**全集群统一、每台 Node 都开同一个**;匹配后**直接 DNAT 到后端 Pod IP**(不是转发到"另一台 Node 的 nodePort"),Pod 在别的 Node 则靠 Pod 网络三层路由过去、并 SNAT 成入口 Node IP 以便回包。
+- **`KUBE-FW-xxx`**：**每个 `type: LoadBalancer` Service 一条**,处理发往其**外部 LB IP** 的包——先做 `loadBalancerSourceRanges` **源地址防火墙**(FW=firewall),再汇入该 Service 的 `KUBE-SVC-*`。它与 [[entities/Ingress]] 无特殊关系(导向的是该 Service 自己的后端 Pod,只有当该 Service 恰是 Ingress 控制器时后端才是控制器 Pod)。注:iptables 按**包到节点时的目标 IP** 选链。云 LB 通常已把目标从 LB IP 改成 `NodeIP:nodePort` 再转给节点 → 命中 `KUBE-NODEPORTS`、`KUBE-FW` 反而闲置;只有当包到节点时**目标仍是 LB IP**(集群内 Pod 直接访问 LB IP、或 MetalLB L2/DSR 这类不改目标的实现)才命中 `KUBE-FW`。
 - **`externalTrafficPolicy: Local`**：若开启且**本节点无该 Service 的 Pod**,**直接丢弃**外部来包——让外部流量只落到真有后端的节点,从而**保留客户端真实源 IP**(免去跨节点转发与 SNAT)。
+
+> **三入口汇一核心**：ClusterIP(`KUBE-SERVICES`)、NodePort(`KUBE-NODEPORTS`)、LoadBalancer(`KUBE-FW-*`)只是三种**入口匹配**,最终都并入同一条 `KUBE-SVC-*`(负载均衡)→ `KUBE-SEP-*`(DNAT 到 Pod)——正对应 [[entities/Service]] 四类型的"层层叠加"。
 
 ## ipvs 模式
 

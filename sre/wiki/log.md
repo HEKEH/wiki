@@ -74,3 +74,52 @@ Append-only chronological record of wiki activity.
 - 新增 12 篇源摘要（sources/components…hyperkube），每篇含勘误/时效性标注。
 - 解决开放问题：调度预选/优选细节（→ kube-scheduler）、reconcile/Informer（→ controller-manager）、Service iptables/IPVS 转发（→ kube-proxy）。
 - 勘误汇总（源文档时效性）：8080 明文端口 v1.20 移除、10251/10252 healthz 与 cAdvisor 4194 端口移除、dockershim v1.24 移除、hyperkube v1.17 移除、Federation v1 废弃（→ Karmada）、Endpoints→EndpointSlices、Endpoint 选主锁→Lease、kube-dns→CoreDNS（v1.13 默认）、nftables 实为 v1.31 beta、policy-config 仅 v1.23 前。
+
+## [2026-06-30] ingest | 资源对象之工作负载（objects 目录，第一批 7 篇）
+
+- 从 feisky handbook `/concepts/objects` 下载全部 24 篇至 `raw/kubernetes/objects/`（经 `gh api` 取仓库原文，含 gateway-api、customresourcedefinition）；分批 ingest，本批为**工作负载** 7 篇：pod / replicaset / deployment / statefulset / daemonset / job / cronjob。
+- 新建实体页：[[entities/ReplicaSet]]、[[entities/StatefulSet]]、[[entities/DaemonSet]]、[[entities/Job]]、[[entities/CronJob]]。
+- 深化既有实体页：[[entities/Pod]]（生命周期/restartPolicy、init+原生 sidecar v1.33 GA、多容器模式、imagePullPolicy、优雅终止、PDB、原地资源调整）、[[entities/Deployment]]（RollingUpdate/Recreate、比例扩容、暂停恢复、状态 conditions、revisionHistoryLimit）。
+- 概念页补充：[[concepts/工作负载控制器]]（表格与各节链到新实体页 + Job/StatefulSet/DaemonSet 进阶指针）、[[concepts/扩缩容与滚动升级]]（Recreate/暂停/历史指针）。
+- 新增 7 篇源摘要（sources/pod…cronjob），每篇含勘误/时效性标注。
+- 解决开放问题：StatefulSet 高级特性（有序部署、headless Service、volumeClaimTemplates、Partitions）→ [[entities/StatefulSet]]。
+- 勘误汇总：StatefulSet/DaemonSet 默认更新策略实为 **RollingUpdate**（源称 OnDelete 已过时）；Pod "仅支持 Docker 镜像"过时（CRI/任意 OCI）；PriorityClass `scheduling.k8s.io/v1alpha1`→v1 GA；`extensions/v1beta1`/`apps/v1beta1`→apps/v1；Deployment `--record` 废弃、默认 maxSurge/maxUnavailable 25%、revisionHistoryLimit 默认 10；`kubectl run --schedule` 创建 CronJob 已移除；`kubectl get --show-all` 移除；DaemonSet 示例 `master` taint→`control-plane`；k8s.gcr.io→registry.k8s.io。
+- 待续批次：网络（service/ingress/network-policy/gateway-api）、配置存储（configmap/secret/volume/pv/local-volume）、集群治理（namespace/node/quota/serviceaccount/security-context/podpreset/autoscaling/crd）。
+
+## [2026-06-30] ingest | 资源对象之网络（objects 目录，第二批 4 篇）
+
+- ingest service / ingress / network-policy / gateway-api。
+- 新建实体页：[[entities/Ingress]]、[[entities/GatewayAPI]]、[[entities/NetworkPolicy]]。
+- 深化 [[entities/Service]]：补齐四类型（含 LoadBalancer/ExternalName）、headless、无 selector 外部服务、源 IP 与 externalTrafficPolicy/internalTrafficPolicy、EndpointSlices（Endpoints v1.33 弃用）、多 Service CIDR、暴露层次（L4→L7）。
+- 交叉引用：[[concepts/Pod网络模型]]、[[entities/Namespace]] 的 NetworkPolicy 由纯文本改为 wikilink。
+- 新增 4 篇源摘要（sources/service/ingress/network-policy/gateway-api）。
+- 解决开放问题：NetworkPolicy 细节 → [[entities/NetworkPolicy]]。
+- 勘误汇总：Endpoints API v1.33 弃用→EndpointSlices；Ingress `extensions/v1beta1`+`serviceName/servicePort`→`networking.k8s.io/v1`+`backend.service.name`/`pathType`；Service 示例 kube-dns→CoreDNS；NetworkPolicy 示例 `protocol: tcp`→`TCP`、`kubectl run --replicas/--labels` 旧 generator 已变。
+- 待续批次：配置存储（configmap/secret/volume/pv/local-volume）、集群治理（namespace/node/quota/serviceaccount/security-context/podpreset/autoscaling/crd）。
+
+## [2026-06-30] ingest | 资源对象之配置与存储（objects 目录，第三批 5 篇）
+
+- ingest configmap / secret / volume / persistent-volume / local-volume。
+- 新建实体页：[[entities/ConfigMap]]、[[entities/Secret]]、[[entities/PersistentVolume]]（PV/PVC/StorageClass，并入 Local Volume）。
+- 深化 [[concepts/Volume存储]]：补 image 卷、临时 vs 持久速览、subPath/Projected，PV/PVC/StorageClass 深机制指针至实体页，in-tree→CSI 勘误。
+- 新增 5 篇源摘要（sources/configmap/secret/volume/persistent-volume/local-volume）。
+- 勘误汇总：ServiceAccount 自动 token Secret v1.24 起取消→TokenRequest 投射卷；`--experimental-encryption-provider-config`→`--encryption-provider-config`；Recycle 回收策略弃用；in-tree 云存储插件→CSI；gitRepo 移除、FlexVolume 弃用；`storage.kubernetes.io/overlay·scratch`→`ephemeral-storage`；Local Volume v1.14 GA；新增 RWOP 访问模式。
+- 待续批次：集群治理（namespace/node/quota/serviceaccount/security-context/podpreset/autoscaling/crd）。
+
+## [2026-06-30] ingest | 资源对象之集群治理（objects 目录，第四批 8 篇，objects 全部完成）
+
+- ingest namespace / node / quota / serviceaccount / security-context / podpreset / autoscaling / customresourcedefinition。
+- 新建实体页：[[entities/ResourceQuota]]（含 LimitRange）、[[entities/ServiceAccount]]、[[entities/SecurityContext]]、[[entities/Autoscaling]]（HPA/VPA）、[[entities/CustomResourceDefinition]]。
+- 深化既有实体页：[[entities/Node]]（自注册/Node Controller/Condition/cordon·drain/优雅·非优雅关闭）、[[entities/Namespace]]（内置 ns、级联删除、ResourceQuota 链接）。
+- 概念页补充：[[concepts/扩缩容与滚动升级]]（指向 HPA/VPA 自动扩缩容）。
+- 新增 8 篇源摘要；PodPreset 仅建源摘要（**v1.20 已移除**，不建实体页）。
+- 解决开放问题：安全与访问控制（Secret/ServiceAccount/SecurityContext）→ 各自实体页。
+- 勘误汇总：ServiceAccount 自动 token v1.24 取消→TokenRequest 投射卷、RBAC v1alpha1→v1；PodSecurityPolicy v1.21 弃用 v1.25 移除→PSA；PodPreset v1.20 移除；HPA `autoscaling/v2beta1`→`v2`(v1.23 GA)、Heapster 移除→metrics-server；CRD `apiextensions.k8s.io/v1beta1`→`v1`(v1.16 GA, v1beta1 v1.22 移除)、structural schema 强制；Node `rkt`/`OutOfDisk` 移除。
+- **objects 目录 24 篇全部 ingest 完毕**（工作负载 7 + 网络 4 + 配置存储 5 + 治理 8）。后续可考虑：RBAC 单独概念页、Cluster Autoscaler、Karmada 多集群、版本支持周期权威来源。
+
+## [2026-07-01] query | RBAC → 新建概念页
+
+- 经多轮问答（RBAC 是什么、逐行拆解 Role/RoleBinding 示例），沉淀新概念页 [[concepts/RBAC]]。
+- 内容：授权在 apiserver 三关卡中的定位、四对象 2×2（Role/ClusterRole × RoleBinding/ClusterRoleBinding）、三要素（subject/rule/默认拒绝白名单）、pod-reader 逐行示例、常见组合（含 ClusterRole+RoleBinding 复用）、内置 ClusterRole、与自定义控制器 RBAC 的关联。
+- 交叉引用：[[entities/ServiceAccount]]、[[entities/CustomResourceDefinition]] 中"RBAC"纯文本改为 wikilink。
+- 更新 `index.md`、`home.md`（把开放问题"RBAC 仍可单独建概念页"标记为已解答）。

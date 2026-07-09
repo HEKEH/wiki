@@ -1,8 +1,8 @@
 ---
 title: Service
 date: 2026-06-23
-tags: [kubernetes, service, 服务发现, 负载均衡]
-sources: [kubernetes/kubernetes基本概念.md, kubernetes/kubernetes 101.md]
+tags: [kubernetes, service, 服务发现, 负载均衡, endpointslices]
+sources: [kubernetes/kubernetes基本概念.md, kubernetes/kubernetes 101.md, kubernetes/objects/service.md]
 ---
 
 # Service
@@ -79,10 +79,61 @@ ports:
 kubectl expose deployment nginx-app --port=80 --target-port=80 --type=NodePort
 ```
 
-- **ClusterIP**（默认）：仅集群内可访问，如 `http://10.0.0.66`。
-- **NodePort**：在每个 Node 上开放一个端口（如 30772），集群内外均可通过 `http://<node-ip>:30772` 访问。
+四种类型，**层层叠加**（后者在前者基础上扩展）：
 
-> 例：ClusterIP 服务在集群内可用 `http://10.0.0.66` 访问；NodePort 则集群外也能用 `http://<node-ip>:30772` 访问。
+| 类型 | 含义 | 对外 |
+| --- | --- | --- |
+| **ClusterIP**（默认） | 仅集群内可达的虚拟 IP（如 `http://10.0.0.66`） | 否 |
+| **NodePort** | 在每台 Node 开一个端口，`<NodeIP>:NodePort` 可达 | 集群内外 |
+| **LoadBalancer** | 在 NodePort 上叠 **cloud provider 的外部 LB**；物理机可用 MetalLB | 公网 |
+| **ExternalName** | 不分配 ClusterIP，用 **DNS CNAME** 把服务名转发到外部域名 | — |
+
+> 暴露层次：**Service 是 L4**。要 L7（按域名/路径路由、TLS）用 [[entities/Ingress]] 或其下一代 [[entities/GatewayAPI]]；集群外访问还可用 NodePort、LoadBalancer、Ingress 或把 ClusterIP 网段路由出去（ECMP）。
+
+### LoadBalancer 如何拿到公网 IP
+
+不是云"主动发现"，而是集群里的 **cloud-controller-manager（CCM）** 的 **service controller** 在 **watch `type: LoadBalancer` 的 Service**（套用 [[concepts/控制平面与控制循环]] 的 reconcile 范式）：
+
+1. `apply` 一个 `type: LoadBalancer` 的 Service。
+2. CCM watch 到 → 调**云厂商 API** 开一台真实云 L4 LB（AWS NLB/ELB、GCP forwarding rule、阿里 SLB…）。
+3. 云返回公网 IP → CCM 写回该 Service 的 **`status.loadBalancer.ingress`**，即 `kubectl get svc` 里的 **`EXTERNAL-IP`**。
+
+- **前提**：集群跑着 CCM 且配了云凭证。托管集群（EKS/GKE/AKS）开箱即用；**自建且无云 provider 时 `EXTERNAL-IP` 永远 `<pending>`**——裸金属用 **MetalLB** 扮演该角色从本地 IP 池分配。
+- **底层链路**：`type: LoadBalancer` 同时隐含分配一个 NodePort，云 LB 只把流量打到**节点的 NodePort**，到 Pod 的最后一跳仍是 [[entities/kube-proxy]]：`公网 → 云 LB → NodeIP:nodePort → kube-proxy DNAT → Pod`。配 `externalTrafficPolicy: Local` 可省一跳并保留源 IP（见下）。
+- **一个 Service 默认一个外部 IP**；**端口不是分配的、是你 `spec.ports[].port` 声明的**(同 IP 可开多端口)。每台云 LB + IP 通常都**产生费用**——所以**不给每个服务都配 LoadBalancer**，而是用 [[entities/Ingress]]/[[entities/GatewayAPI]] 让多服务**共享一个 LB 入口**(L7 按域名/路径分流)。可共享/指定 IP:MetalLB 的 `allow-shared-ip` 注解、或(已弃用的)`spec.loadBalancerIP`。
+
+### 三个端口：port / nodePort / targetPort
+
+NodePort/LoadBalancer 型 Service 实际涉及**三个端口**，别混淆（以 `port:80 → targetPort:8080` 为例）：
+
+| 字段 | 谁监听 | 说明 |
+| --- | --- | --- |
+| **`port`** | ClusterIP（及云 LB 对外） | Service 前端口；集群内 `ClusterIP:port`、云 LB 对外也用它 |
+| **`nodePort`** | 每台 Node | 自动分配（默认 30000–32767，`--service-node-port-range` 可改），**云 LB 实际转发到这里**；不写则系统分配，非 80 这类低端口 |
+| **`targetPort`** | 后端 Pod 容器 | 流量最终落到的 `containerPort` |
+
+- **`port` 与 `targetPort` 不必相等**（前者对外、后者是容器实际端口）；数字相同只是好记。
+- **`nodePort` 全集群统一**：一个 Service（每个端口）只分配**一个** nodePort 号，kube-proxy 在**所有 Node** 上都开这同一个号，故任意 `NodeIP:nodePort` 皆可入，且全局唯一、别的 Service 不能复用。
+- 完整端口链：`客户端:port → 云 LB:port → NodeIP:nodePort(高位) → kube-proxy DNAT → PodIP:targetPort`。
+
+## Headless 与无 selector 的特殊形态
+
+- **Headless Service（`clusterIP: None`）**：不分配 ClusterIP，DNS 直接返回**后端 Pod 的 A 记录列表**（客户端自己选/做有状态寻址）——[[entities/StatefulSet]] 靠它给每个 Pod 固定 DNS（见 [[entities/CoreDNS]]）。
+- **无 selector 的 Service**：不写 selector，手动建同名 endpoint（推荐 EndpointSlice）指向**集群外 IP**，从而把外部服务（如外部数据库）也包装成 Service。
+
+## 源 IP 与流量策略
+
+- ClusterIP 内部流量**不 SNAT**，后端能看到真实源；NodePort/LoadBalancer 默认 **SNAT**（后端只看到 Node IP）。
+- **两级负载均衡**：云 LB 在**多个 Node 间**分发（第一级），kube-proxy 再在**多个 Pod 间**分发（第二级）。默认 `externalTrafficPolicy: Cluster` 下云 LB 把**所有 Node**纳入后端池、流量可落任意 Node，本地无 Pod 时 kube-proxy 跨 Node 转发（多一跳 + SNAT，故丢源 IP）。
+- `externalTrafficPolicy: Local`：云 LB 健康检查**只在有本 Service Pod 的 Node 通过**，故只把流量发给这些 Node、kube-proxy 只转本地 Pod（本地无则丢包），从而**保留客户端真实源 IP**、省一跳；代价是 Pod 在各 Node 分布不均时**负载可能不均**（细节见 [[entities/kube-proxy]]）。
+- `internalTrafficPolicy: Local`：集群内部流量也只发本节点 endpoint。
+
+## endpoints 的现代实现：EndpointSlices
+
+后端 `IP:端口` 列表早期记在单个 **Endpoints** 对象里；规模大时它臃肿。现用 **EndpointSlices**（`discovery.k8s.io/v1`）：一个 Service 对应**多个 slice**（按 label `kubernetes.io/service-name` 关联），支持双栈、扩展性更好。
+
+> ⚠️ **Endpoints API 于 v1.33 弃用**（仍保留不移除，但新功能只进 EndpointSlices）。EndpointSlice 由 controller-manager 的 EndpointSlice 控制器维护（见 [[entities/kube-controller-manager]]）。
+> 较新：**多 Service CIDR（v1.33 GA）** 经 `ServiceCIDR`/`IPAddress` 对象可给 ClusterIP 动态加多个网段。
 
 ## DNS 名与命名规则
 
@@ -120,3 +171,5 @@ api  .  team-b  .  svc  .  cluster.local
 - DNS 名怎么解析（CoreDNS、A/SRV 记录、Headless）：[[entities/CoreDNS]]。
 - 自动伸缩/回收的 Pod 会自动加入/移出 Service 的 endpoints，见 [[concepts/扩缩容与滚动升级]]。
 - [[concepts/健康检查]] 中的 ReadinessProbe 决定 Pod 是否接收 Service 流量。
+- L7 路由与对外暴露：[[entities/Ingress]]、[[entities/GatewayAPI]]。
+- 限制 Pod 间访问：[[entities/NetworkPolicy]]。

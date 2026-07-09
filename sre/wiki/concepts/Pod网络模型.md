@@ -53,7 +53,7 @@ IP 分配由 **CNI（Container Network Interface）插件**完成（见 [[concep
 ## 访问与隔离
 
 - **访问**：Pod IP 会随重启变化，不直接依赖；通过 [[entities/Service]] 的 cluster IP / DNS 名稳定访问。
-- **隔离**：默认所有 Pod（跨 [[entities/Namespace]] 也）网络互通；要限制需用 **NetworkPolicy**，且依赖支持它的 CNI 插件。
+- **隔离**：默认所有 Pod（跨 [[entities/Namespace]] 也）网络互通；要限制需用 **[[entities/NetworkPolicy]]**，且依赖支持它的 CNI 插件。
 
 ## 验证
 

@@ -1,8 +1,8 @@
 ---
 title: Pod
 date: 2026-06-23
-tags: [kubernetes, pod, 容器]
-sources: [kubernetes/kubernetes基本概念.md, kubernetes/kubernetes 101.md]
+tags: [kubernetes, pod, 容器, 生命周期, init-container, sidecar]
+sources: [kubernetes/kubernetes基本概念.md, kubernetes/kubernetes 101.md, kubernetes/objects/pod.md]
 ---
 
 # Pod
@@ -48,6 +48,39 @@ spec:
 ```
 
 通过 `kubectl create -f nginx.yaml` 创建。
+
+> 生产环境**不直接建裸 Pod**：裸 Pod 一旦调度即与 Node 绑定，**Node 挂掉不会重新调度**（直接删除）。用控制器（[[entities/Deployment]]/[[entities/StatefulSet]]/[[entities/DaemonSet]]/[[entities/Job]]）托管才有容错（见 [[concepts/工作负载控制器]]）。
+
+## 生命周期与重启
+
+- **Phase**（`status.phase`，粗粒度状态）：`Pending`（已创建，镜像还在拉等）→ `Running` → `Succeeded` / `Failed`；`Unknown` 通常是 apiserver 连不上 kubelet。
+- **restartPolicy**：`Always`（默认）/ `OnFailure` / `Never`。**只在 Pod 所在 Node 本地重启容器，不会换节点**；换节点是上层控制器重建新 Pod 的事。
+- **优雅终止**：删除时 kubelet 先给容器发 `SIGTERM`，等 grace period（默认 30s）再 `SIGKILL`；可用 `preStop` 钩子做清理。
+
+## Init 容器与 sidecar
+
+- **Init 容器**：在应用容器前**按序 run-to-completion**，全部成功才启动应用容器；常用于初始化配置、等待依赖。镜像独立，可装应用镜像里不便包含的工具。
+- **原生 sidecar**：给 Init 容器设 `restartPolicy: Always`（v1.28 alpha、v1.29 beta 默认开启、**v1.33 GA**）即变成**贯穿 Pod 生命周期、先于主容器就绪**的 sidecar（日志/代理/网格）——比普通 sidecar 容器多了"启动顺序"保证。
+
+## 多容器协作模式
+
+Pod 内多容器共享网络/卷，常见模式：**sidecar**（边车，加日志/监控/代理）、**ambassador**（大使，代理对外连接）、**adapter**（适配器，转换数据/协议格式）。这正是"为什么需要 Pod 这一层"的落地（见上文）。
+
+## 镜像拉取策略（imagePullPolicy）
+
+`IfNotPresent`（默认，本地有就不拉）/ `Always`（每次校验远端）/ `Never`（只用本地）。注意 **`:latest` 标签默认 `Always`**；生产应避免 `:latest`（不可复现）。与节点上的镜像管理/GC 相关，见 [[entities/kubelet]]。
+
+## 私有镜像与身份相关字段
+
+- **`imagePullSecrets`**：引用 `kubernetes.io/dockerconfigjson` 类型的 [[entities/Secret]] 拉私有仓库镜像；也可挂到 [[entities/ServiceAccount]] 上让其名下 Pod 自动继承。
+- **`serviceAccountName`**：Pod 以哪个 [[entities/ServiceAccount]] 身份访问 API（默认 `default`，token 经投射卷注入）。
+- **主机命名空间开关**：`hostNetwork` / `hostPID` / `hostIPC`（共享宿主对应命名空间，见 [[concepts/Pod网络模型]] 端口冲突）、`hostUsers: false`（启用用户命名空间隔离）——均属安全敏感项，详见 [[entities/SecurityContext]]。
+
+## PodDisruptionBudget（PDB）
+
+声明一组 Pod **同时可用的最小数量**（`minAvailable`/`maxUnavailable`），约束**自愿中断**（如 `kubectl drain` 节点维护、滚动升级）一次别端掉太多副本。作用于 Deployment/ReplicaSet/StatefulSet 管理的 Pod。
+
+> 较新：**原地资源调整（In-Place Pod Resize，v1.33 Beta）** 可不重启容器改 CPU/内存（`kubectl ... --subresource resize`），并与 VPA 集成。
 
 ## 相关
 
