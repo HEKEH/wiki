@@ -1,12 +1,6 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -E '\\\\.md$')",
-      "WebFetch(domain:kubernetes.feisky.xyz)",
-      "Bash(curl -sL --max-time 30 \"https://kubernetes.feisky.xyz/concepts/architecture\" -o arch.html)",
-      "Bash(curl -sL --max-time 40 \"https://kubernetes.feisky.xyz/concepts/components\" -o components.html)",
-      "Bash(gh api *)",
-      "Bash(echo \"---exit:$?---\")"
     ]
   }
 }
