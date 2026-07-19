@@ -59,8 +59,29 @@ spec:
 
 ## Init 容器与 sidecar
 
-- **Init 容器**：在应用容器前**按序 run-to-completion**，全部成功才启动应用容器；常用于初始化配置、等待依赖。镜像独立，可装应用镜像里不便包含的工具。
-- **原生 sidecar**：给 Init 容器设 `restartPolicy: Always`（v1.28 alpha、v1.29 beta 默认开启、**v1.33 GA**）即变成**贯穿 Pod 生命周期、先于主容器就绪**的 sidecar（日志/代理/网格）——比普通 sidecar 容器多了"启动顺序"保证。
+- **Init 容器**：在应用容器前**按序 run-to-completion**（一个跑完退出才跑下一个），全部成功才启动应用容器；常用于初始化配置、等待依赖、跑迁移。镜像独立，可装应用镜像里不便包含的工具。
+
+- **传统 sidecar 的痛点**：把辅助容器（日志/网格代理如 Envoy）放进 `containers` 与主容器**并列**——但 `containers` 里的容器**并行启动、无启停顺序**：① 代理没就绪主容器就发请求 → 早期请求失败；② 关闭时代理可能**先于主容器死** → 尾部请求丢；③ 在 [[entities/Job]] 里 sidecar 常驻不退 → **Job 永远判不了"完成"**。
+
+- **原生 sidecar** 解决上述问题：把 sidecar 写成 **`initContainers` 里、单独设 `restartPolicy: Always` 的容器**。K8s 对它特殊对待——它常驻不退出，故 K8s 改为**等它"就绪"**（而非退出）就放行下一步。于是它同时获得：**先于主容器启动**（在 init 序列里）+ **贯穿 Pod 生命**（Always 常驻）+ **晚于主容器关闭**，且在 Job 里**不阻止完成**。复用 initContainers 是因其本就自带"排序/先启动"机制。（`v1.28` alpha → `v1.29` beta 默认开 → **`v1.33` GA**）
+
+  ```yaml
+  initContainers:
+  - { name: setup, image: busybox, command: ["sh","-c","echo prepare"] }  # 普通 init:跑完退出
+  - name: proxy
+    image: envoy
+    restartPolicy: Always     # ← 这一行使它成为"先启动+常驻"的 sidecar
+  containers:
+  - { name: app, image: myapp }
+  # 顺序:setup 跑完 → proxy 就绪 → app 启动;proxy 全程在、且晚于 app 关闭
+  ```
+
+| | 普通 Init | 传统 sidecar(`containers`) | 原生 sidecar(init+`Always`) |
+| --- | --- | --- | --- |
+| 启动 | 主容器前、按序 | 与主容器并行、**无序** | 主容器前(**有序**) |
+| 运行多久 | 跑完就退 | 贯穿 Pod 生命 | 贯穿 Pod 生命 |
+| 关闭 | (已退出) | **无保证**(可能先死) | **晚于主容器** |
+| Job 里 | 正常 | **阻止 Job 完成** | 不阻止 |
 
 ## 多容器协作模式
 
