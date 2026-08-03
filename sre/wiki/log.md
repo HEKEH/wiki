@@ -123,3 +123,11 @@ Append-only chronological record of wiki activity.
 - 内容：授权在 apiserver 三关卡中的定位、四对象 2×2（Role/ClusterRole × RoleBinding/ClusterRoleBinding）、三要素（subject/rule/默认拒绝白名单）、pod-reader 逐行示例、常见组合（含 ClusterRole+RoleBinding 复用）、内置 ClusterRole、与自定义控制器 RBAC 的关联。
 - 交叉引用：[[entities/ServiceAccount]]、[[entities/CustomResourceDefinition]] 中"RBAC"纯文本改为 wikilink。
 - 更新 `index.md`、`home.md`（把开放问题"RBAC 仍可单独建概念页"标记为已解答）。
+
+## [2026-08-02] query | Pod 生命周期与多容器代理模式 → 深化 Pod 页
+
+- 经多轮问答（`Running` vs `Succeeded`、`Always` vs `OnFailure`、sidecar 网格代理 vs ambassador），沉淀进既有页 [[entities/Pod]]，未新建页面。
+- 「生命周期与重启」补充：终态判定（全部容器终止 + 退出码决定 Succeeded/Failed）、`kubectl` STATUS 列 ≠ `status.phase`（`Completed` / `CrashLoopBackOff`）、restartPolicy 三值对照表、**`Always` 永远到不了 `Succeeded`**、取值受控制器 API 层强制（Deployment 系只能 `Always`、Job 系只能 `OnFailure`/`Never`）及其原因、Job 里 `OnFailure`（就地重启，保留 emptyDir/节点）vs `Never`（重建 Pod，留现场）的重试粒度、指数退避 10s→上限 5min/10min 重置。
+- 「多容器协作模式」补充：三种模式在 API 层无区别（仅意图差异，ambassador/adapter 为 sidecar 特化）、网格代理 vs ambassador vs adapter 六维对照表（方向/应用是否感知/代理对象/解决什么/谁引入/典型实现）、ambassador 的「localhost 契约」价值、Istio ambient 把代理移出 Pod 作为「网格代理属于基础设施」的佐证。
+- 追加一轮问答（"为什么应用连 `localhost:<port>` 能打到 ambassador 容器"）：新增两个 `###` 小节——**为什么 localhost 能打到隔壁容器**（pause 容器持有 netns、共享 lo/端口空间、不经 CNI/iptables；推论：端口 Pod 内全局、`containerPort` 与此无关）与 **ambassador 配置范式**（HAProxy→外部 Redis 的完整 ConfigMap + 原生 sidecar manifest、Cloud SQL Auth Proxy 同形对照、三个坑：绑 `0.0.0.0` 泄露/回环-only 不能用 httpGet·tcpSocket 探针需 exec/启动竞争）。frontmatter tags 加 `ambassador`。
+- `index.md` 未变更（无新增页面）。
