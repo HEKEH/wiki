@@ -25,6 +25,41 @@ StatefulSet 是管理**有状态应用**的控制器（与为无状态设计的 
 - **volumeClaimTemplates**（每副本独立存储）
 - StatefulSet 本体（`serviceName` 指向上面的 headless service）
 
+## 定义示例（Headless Service + StatefulSet）
+
+```yaml
+# ① Headless Service —— 它的 name 就是 per-pod DNS 里的"域"那一段
+apiVersion: v1
+kind: Service
+metadata: { name: nginx, namespace: default, labels: { app: nginx } }
+spec:
+  clusterIP: None                # ← 关键:headless(不分配 ClusterIP、不负载均衡)
+  selector: { app: nginx }       # 须与下面 template 的 labels 一致
+  ports: [{ name: web, port: 80 }]
+  # publishNotReadyAddresses: true   # 集群 bootstrap 需成员未 Ready 就互相解析时开
+---
+# ② StatefulSet —— serviceName 必须等于上面 Service 的 name
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: web, namespace: default }
+spec:
+  serviceName: nginx             # ← 对齐 Service 名,才生成 per-pod DNS
+  replicas: 3
+  selector: { matchLabels: { app: nginx } }
+  template:
+    metadata: { labels: { app: nginx } }    # ← 须与 Service selector 匹配
+    spec:
+      containers:
+      - { name: nginx, image: nginx, ports: [{ containerPort: 80, name: web }] }
+  volumeClaimTemplates:          # 每副本各一份 PVC:www... 见"三种稳定"②
+  - metadata: { name: www }
+    spec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 1Gi } } }
+```
+
+生成的 DNS：`nginx.default.svc.cluster.local` 返回全部 Pod IP；`web-0.nginx.default.svc.cluster.local`（及 web-1/2）精确到单个 Pod。
+
+**三处必对齐**（错一个 per-pod DNS 就不生成）：① `clusterIP: None`；② StatefulSet `serviceName` == Service `name`；③ Service `selector` == Pod `template` labels。另：**先建 Service 再建 StatefulSet**；集群型应用 bootstrap 时成员未 Ready 就要互相解析，开 `publishNotReadyAddresses: true`。
+
 ## 更新策略 `.spec.updateStrategy`
 
 - **RollingUpdate**（默认）：按**逆序**（N-1→0）逐个删建，等 Ready 再下一个。

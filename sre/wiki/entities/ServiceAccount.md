@@ -23,10 +23,46 @@ ServiceAccount（SA）是给 **Pod 内进程**调用 [[entities/kube-apiserver]]
 
 SA 只回答"**你是谁**"（认证）；"**能做什么**"由 **[[concepts/RBAC]]** 决定——`Role`/`ClusterRole` 定义权限，`RoleBinding`/`ClusterRoleBinding` 把权限绑到 SA。这正是 [[entities/kube-apiserver]] 访问控制三关卡里的认证→授权（见该页）。
 
+端到端完整例子——身份(SA)→ 权限(Role)→ 绑定(RoleBinding)→ Pod 使用,四个对象串起来:
+
 ```yaml
-roleRef: { kind: Role, name: pod-reader }
-subjects: [{ kind: ServiceAccount, name: default }]
+# ① ServiceAccount:专用身份(别用 default)
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: pod-reader-sa, namespace: default }
+---
+# ② Role:定义"能做什么"——只读 Pod
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: { name: pod-reader, namespace: default }
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+# ③ RoleBinding:把权限授予这个 SA
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: { name: read-pods, namespace: default }
+subjects:
+- { kind: ServiceAccount, name: pod-reader-sa, namespace: default }
+roleRef: { kind: Role, name: pod-reader, apiGroup: rbac.authorization.k8s.io }
+---
+# ④ Pod:以这个 SA 身份运行
+apiVersion: v1
+kind: Pod
+metadata: { name: reader, namespace: default }
+spec:
+  serviceAccountName: pod-reader-sa      # ← 关联 SA(不写则用 default)
+  containers:
+  - name: kubectl
+    image: bitnami/kubectl
+    command: ["sh","-c","kubectl get pods && sleep 3600"]
 ```
+
+协作:Pod 里的 `kubectl` 凭投射 token 认证成 `pod-reader-sa` → apiserver 认证(你是谁)→ RBAC 查到 `read-pods` 把 `pod-reader` 绑给了它 → 放行 `get pods`;但 `delete pod`、`get secrets` 因没授权被拒。
+
+> ⚠️ **别把权限授给 `default` SA**:它被 namespace 内所有没指定 SA 的 Pod 共用,给它加权等于给一大片 Pod 加权,违反最小权限。**应建专用 SA**(如上 `pod-reader-sa`),仅需要的 Pod 用 `serviceAccountName` 关联。
 
 ## token 的现代形态（重要变化）
 
