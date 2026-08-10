@@ -26,12 +26,46 @@ class Descriptor:
         ...
 ```
 
+一个最小的可运行例子——把「校验」从属性访问里独立出来：
+
+```python
+class Positive:
+    def __set_name__(self, owner, name):
+        self.name = "_" + name              # radius → _radius，作为后备存储
+    def __get__(self, obj, objtype=None):
+        if obj is None:                     # Circle.radius：通过【类】访问
+            return self                     #   返回描述符自身（惯例，见 §6）
+        return getattr(obj, self.name)      # c.radius：真正的值在 obj._radius
+    def __set__(self, obj, value):
+        if value <= 0:
+            raise ValueError(f"{self.name[1:]} 必须为正")
+        setattr(obj, self.name, value)
+
+class Circle:
+    radius = Positive()                     # ← 必须是【类属性】才生效
+    def __init__(self, r):
+        self.radius = r                     # 走 __set__，构造时就有校验
+
+c = Circle(2)
+c.radius             #=> 2                  走 __get__
+c.radius = -1        # ❌ ValueError: radius 必须为正
+Circle.radius        #=> <Positive object>   obj 为 None 的分支
+```
+
+三个关键点：**① 必须挂在类上**（`self.radius = Positive()` 写在 `__init__` 里无效）；
+**② 值存在 `obj._radius`**，描述符实例本身不存值——否则所有实例会共享同一份
+（它是类属性，同 [[language/objects-mutability]] 的可变类变量陷阱）；
+**③ `__set_name__` 让描述符自动知道自己被赋给了哪个名字**，不用写成 `Positive("radius")`。
+
 **两种描述符（决定优先级，必考）**：
 
 | 类型 | 定义 | 优先级 |
 |---|---|---|
 | **data descriptor（数据描述符）** | 定义了 `__set__` 或 `__delete__` | **高于**实例 `__dict__` |
 | **non-data descriptor（非数据描述符）** | 只定义了 `__get__` | **低于**实例 `__dict__` |
+
+上面的 `Positive` 定义了 `__set__`，所以是**数据描述符**——`c.__dict__["radius"] = -1`
+也绕不过校验。
 
 ## 2. 属性查找的完整顺序（核心考点）
 

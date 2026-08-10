@@ -21,11 +21,11 @@ Python 知识库内容目录。共 **59 个内容页**（另有 home/index/log �
 | ★ [[language/objects-mutability]] | 名字绑定、可变性、拷贝、参数传递、`is` vs `==` |
 | ★ [[language/scope-closure]] | LEGB、闭包 cell、延迟绑定、无块级作用域 |
 | [[language/functions-arguments]] | 五类参数、解包、默认值陷阱、签名内省 |
-| ★ [[language/decorators]] | 装饰器全谱、`wraps` 的必要性、顺序、异步装饰器 |
+| ★ [[language/decorators]] | 装饰器全谱、`wraps` / `update_wrapper`、手写 staticmethod/classmethod/property、顺序、异步装饰器 |
 | ★ [[language/iterators-generators]] | 迭代器/生成器/`yield from`、惰性求值、异步生成器 |
 | [[language/context-managers]] | `with` 协议、`@contextmanager`、ExitStack |
 | ★ [[language/classes-mro]] | 类、C3 线性化、`super()` 的真实含义、ABC |
-| ★ [[language/descriptors-properties]] | 描述符协议、属性查找顺序、property、`__slots__` |
+| ★ [[language/descriptors-properties]] | 描述符协议（含最小可运行例）、属性查找顺序、property、`__slots__` |
 | [[language/metaclasses]] | 类的创建流程、`__new__`、以及为什么不该用元类 |
 | [[language/typing]] | 类型注解、泛型、Protocol、mypy（与 TS 对照） |
 | [[language/exceptions]] | 异常层级、EAFP、异常链、ExceptionGroup |

@@ -232,3 +232,92 @@ session 关闭后访问过期属性抛 `DetachedInstanceError`；`lazy="raise"` 
 **依据**：[[bridge/js-to-python]] §⑧ 数字；[[internals/cpython-object-model]]（`int` 任意精度，`sys.getsizeof(10**100)` 随位数增大）。
 
 **结论**：Python 3 只有一种整数类型 `int`（CPython 底层 `PyLongObject`），任意精度，整数运算不会像 JS `Number`（IEEE 754、安全整数 `2^53-1`）那样失真；精度问题出在 `float`，以及 `int` 转 `float` 时。
+
+## [2026-08-09] ingest | functools.update_wrapper 详解
+
+**触发**：连续追问 `@functools.wraps(fn)` 与类装饰器里的 `functools.update_wrapper(self, fn)`，
+原页面对后者只有一句注释「类版的 wraps」，跳步。
+
+**改动**：[[language/decorators]] §1 新增子节「`functools.update_wrapper`：`wraps` 底层真正干活的函数」——
+`wraps` 是 `update_wrapper` 预填 `wrapped=fn` 的 `partial`、签名与两个常量的作用、
+额外设置的 `__wrapped__`、参数顺序与返回值两个易错点、类装饰器为何只能用它
+（没有 `def` 可贴装饰器语法）+ `Counter` 示例。同步更新 §3 的注释指向与 `index.md` 摘要。
+初稿约 100 行，按「过长」的反馈压到约 30 行，只留主干。
+
+**实测环境**：CPython 3.12.10，本节所有 `#=>` 输出均已跑通。
+
+**同批修正**：本页 §3 `CountCalls.__get__` 补上 `obj is None` 分支——原版从类上访问
+（`Svc.m`）会返回 `partial(self.__call__, None)`，把 `None` 当成 self，`Svc.m(inst, x)`
+报 `takes 2 positional arguments but 3 were given`。同时补注不加 `__get__` 的报错、
+与 `property`/`staticmethod` 同构、以及「一个方法只对应一个装饰器实例 → `count` 全实例共享」。
+
+**遗留**：[[language/functions-arguments]] §1 的
+`api(url="/a", timeout=1)` 报错信息与实测不符（函数带 `**opts` 时 `url=` 被吞进 kwargs，
+实际报 `missing 1 required positional argument`）。两处待确认后修正。
+
+## [2026-08-09] ingest | 描述符协议的最小可运行例 + 类装饰器共享状态的展开
+
+**触发**：追问 `CountCalls.__get__` 里「描述符协议」是什么、以及「为什么 `count` 是所有实例共享的」。
+
+**改动**：
+
+- [[language/descriptors-properties]] §1 原本只有方法体全是 `...` 的骨架，**没有可运行示例**
+  （违反本库硬性要求）。补入 `Positive` 描述符最小完整例（`__set_name__` 自动获知字段名、
+  `obj is None` 分支、值存 `obj._radius`），并点明三个关键点：必须挂类上、
+  描述符实例本身不存值（否则实例间共享）、`__set_name__` 免去手写字段名。
+  末尾接住原有的数据/非数据描述符表格——`Positive` 有 `__set__` 故为数据描述符，
+  实测 `c.__dict__["radius"] = -1` 也绕不过校验。
+  未与 §6 `Typed` 重复：§1 是最小例，§6 是可复用字段校验的放大版。
+- [[language/decorators]] §3 把原先压缩成四行的说明展开：`__get__` 补的是「函数自动绑定 self」
+  这一能力（含不加时的 TypeError 实测）、`obj is None` 分支的含义与内置描述符的一致性、
+  新增「⚠️ `count` 是所有实例共享的」小节——装饰发生在类体执行时故装饰器实例是**类变量**，
+  附归属示意图与 `a.m.func.__self__ is b.m.func.__self__ #=> True` 的证据，
+  并指出每实例状态必须落到 `obj.__dict__`（`cached_property` 的做法），
+  与 §4 `lru_cache` 装饰实例方法泄漏同根。
+
+**实测环境**：CPython 3.12.10，两处新增代码块的 `#=>` 全部跑通（含 `count #=> 4` 是
+顺序执行上一个代码块后的累计值，已在注释中写明）。
+
+**遗留**：[[language/functions-arguments]] §1 的 `api(url="/a", timeout=1)` 报错信息与实测不符
+（函数带 `**opts` 时 `url=` 被吞进 kwargs，实际报 `missing 1 required positional argument`）。
+
+## [2026-08-09] ingest | 手写 staticmethod / classmethod / property
+
+**触发**：读到 §4 的 `@staticmethod` 时追问「怎么自己实现一个」。
+
+**改动**：[[language/decorators]] §4 新增子节「自己实现 `staticmethod`/`classmethod`/`property`（高频手撕题）」。
+核心论点：**三者都只是描述符，差别全在 `__get__` 返回什么**——
+`staticmethod` 原样返回 `fn`（不绑定）、`classmethod` 返回 `MethodType(fn, objtype)`（绑定到类）、
+`property` 直接 `fget(obj)`。附三段实现 + 一个把三者用上的 `C`/`Sub` 演示，
+以及四行对照表（普通函数 / staticmethod / classmethod / property 各自的 `__get__` 返回值与描述符类型）。
+
+**实测要点**（CPython 3.12.10 全部跑通）：`type(C.util)` 就是 `function`；
+`Sub.create(1)` 的 `cls` 是 `Sub` 而非 `C`（classmethod 的真正价值）；
+`my_property` 因定义了 `__set__` 是数据描述符，`c.__dict__["w"] = 999` 遮不住它；
+`setter` 返回**新对象**，故两个函数必须同名。另注 3.10+ 的真 `staticmethod` 可直接调用，
+实现里补了 `__call__` 对齐。
+
+与 [[language/descriptors-properties]] §3「方法为什么能自动绑定」互补：那边讲原理，
+这边是「手写复刻」的落地版，两处交叉引用。
+
+**补注**（同日）：§4 该子节的代码里 `objtype` 与 `MethodType` 原为直接使用未加解释，
+追问后补两条要点——`objtype` 是「**从哪个类访问到的**」而非「定义在哪个类上」
+（实测 `Sub.p` 传入 `Sub`，哪怕描述符定义在 `C` 上，这是 classmethod 配合继承的根因）；
+`MethodType(fn, obj)` ≈ JS 的 `fn.bind(obj)`，`type(d.m)` 即 `types.MethodType`，
+比 `partial` 多 `__self__`/`__func__`，代价是只能绑第一个位置参数。
+
+**补注 2**（同日）：§4 `lru_cache` 坑列表里「每实例的 `lru_cache`」原先只给了名字没给写法，
+现补上完整例子——`__init__` 里 `self.get = lru_cache(...)(self._get)`，包的是**已绑定方法**
+故 key 不含 `self`，两实例缓存独立（实测 `cache_info` 各自计数、`g1.get is g2.get` 为 `False`）。
+并如实标注代价：这制造了循环引用（实例 → `self.get` → 绑定方法 → 实例），
+`del` 后引用计数回收不掉、**`gc.collect()` 之后才回收**（weakref 实测），
+与类级 `lru_cache`「`del` + `gc.collect()` 后依然存活」有本质区别。
+末尾加三行选型表（无参 → `cached_property`；有参实例少 → 每实例 `lru_cache`；
+实例极多 → `cachetools.cachedmethod` 或 `WeakKeyDictionary`）。
+
+**补注 3**（同日）：[[language/decorators]] 页面因多轮追问已增长到约 500 行，
+在开头「前端类比」之后加了「记忆点速查（复习先扫这里）」——12 行表格，
+每行一个一句话结论 + 指向的小节号，覆盖全页 7 节（脱糖等式、闭包+转发、`wraps` 的作用与后果、
+`update_wrapper` 参数顺序、层数规律、类装饰器补 `__get__`、装饰器实例是类变量、
+三个内置都是描述符、`lru_cache` 三坑、装饰/调用方向、异步装饰、三者作用范围）。
+目的是让长页可先扫结论再按需下钻，与既有的 `> 面试落点` 块形成两级复习入口。
