@@ -2,7 +2,7 @@
 title: Session
 tags: [agent-architecture, persistence, event-log]
 date: 2026-04-23
-sources: [../../raw/Scaling-Managed-Agents-Decoupling.md, ../../raw/Effective-harnesses-for-long.md]
+sources: [Scaling-Managed-Agents-Decoupling.md, Effective-harnesses-for-long.md]
 status: active
 ---
 
@@ -10,7 +10,7 @@ status: active
 
 ## Definition
 
-Agent 运行过程中的追加写入事件日志（append-only log），持久化存储所有发生的事件。Session 是独立于 [Harness](harness.md) 和 [Sandbox](sandbox.md) 的组件。
+Agent 运行过程中的追加写入事件日志（append-only log），持久化存储所有发生的事件。Session 是独立于 [[concepts/02-harness]] 和 [[concepts/03-sandbox]] 的组件。
 
 ## 核心接口
 
@@ -27,7 +27,7 @@ Agent 运行过程中的追加写入事件日志（append-only log），持久�
 | 容量 | 无限（持久化存储） | 有限（token 上限） |
 | 可逆性 | 完全可逆，所有事件保留 | 不可逆（compaction/trimming 丢弃信息） |
 | 用途 | 事实来源（source of truth） | Claude 当前工作空间 |
-| 管理 | 只保证可用和持久 | 由 [Harness](harness.md) 负责上下文工程 |
+| 管理 | 只保证可用和持久 | 由 [[concepts/02-harness]] 负责上下文工程 |
 
 ### 为什么这种分离重要
 
@@ -44,7 +44,7 @@ Agent 运行过程中的追加写入事件日志（append-only log），持久�
 
 ## 跨 Session 状态衔接
 
-[Effective Harnesses for Long-Running Agents](../sources/Effective-Harnesses-for-Long-Running-Agents.md) 展示了 Session 的实际应用——每个新 context window 开始时，Agent 通过三重机制恢复状态：
+[[sources/02-effective-harnesses-for-long-running-agents]] 展示了 Session 的实际应用——每个新 context window 开始时，Agent 通过三重机制恢复状态：
 
 1. **claude-progress.txt** — 追加写入的交接笔记（自由文本），记录每个 session 的进展、问题、下一步和完成状态；主观的上下文叙述，与 feature list 的客观状态互补
 2. **git history** — 代码变更的时间线，支持 `git revert` 回滚
@@ -54,9 +54,9 @@ Agent 运行过程中的追加写入事件日志（append-only log），持久�
 
 ## 相关概念
 
-- [Harness](harness.md) — 从 session 读取事件、写入 context window
-- [Sandbox](sandbox.md) — 独立于 session 的执行环境
-- [Context Engineering](context-engineering.md) — harness 如何管理 context window
-- [Meta-harness](meta-harness.md) — session 是 meta-harness 的核心抽象之一
-- [Long-Running Agent](long-running-agent.md) — 跨 session 工作是核心挑战
-- [Initializer/Coding Agent 模式](initializer-coding-agent.md) — 跨 session 状态衔接的具体实践
+- [[concepts/02-harness]] — 从 session 读取事件、写入 context window
+- [[concepts/03-sandbox]] — 独立于 session 的执行环境
+- [[concepts/09-context-engineering]] — harness 如何管理 context window
+- [[concepts/07-meta-harness]] — session 是 meta-harness 的核心抽象之一
+- [[concepts/10-long-running-agent]] — 跨 session 工作是核心挑战
+- [[concepts/11-initializer-coding-agent]] — 跨 session 状态衔接的具体实践

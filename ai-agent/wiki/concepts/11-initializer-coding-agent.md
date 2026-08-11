@@ -2,7 +2,7 @@
 title: Initializer/Coding Agent 模式
 tags: [agent-architecture, harness-design, multi-session]
 date: 2026-04-24
-sources: [../../raw/Effective-harnesses-for-long.md]
+sources: [Effective-harnesses-for-long.md]
 status: active
 ---
 
@@ -10,7 +10,7 @@ status: active
 
 ## Definition
 
-一种双 Agent 分工模式，用于解决 [Long-Running Agent](long-running-agent.md) 跨 context window 工作时的状态衔接问题。第一个 session 使用专门的 Initializer Agent 搭建环境，后续所有 session 使用 Coding Agent 做增量推进。
+一种双 Agent 分工模式，用于解决 [[concepts/10-long-running-agent]] 跨 context window 工作时的状态衔接问题。第一个 session 使用专门的 Initializer Agent 搭建环境，后续所有 session 使用 Coding Agent 做增量推进。
 
 > 注：这两个 "Agent" 仅拥有不同的初始 user prompt，system prompt、工具集和整体 harness 完全相同。
 
@@ -21,7 +21,7 @@ status: active
 | 产出 | 作用 |
 |---|---|
 | `init.sh` | 环境初始化脚本（启动开发服务器、安装依赖等），消除每个 session 花时间搞清"如何运行" |
-| `feature_list.json` | 细粒度 feature 列表（见 [Feature List Pattern](feature-list-pattern.md)），为"完成"提供客观标准 |
+| `feature_list.json` | 细粒度 feature 列表（见 [[concepts/12-feature-list-pattern]]），为"完成"提供客观标准 |
 | `claude-progress.txt` | 追加写入的交接笔记，记录每个 session 的进展与下一步（详见下文） |
 | 初始 git commit | 展示哪些文件被添加，提供版本回滚基线 |
 
@@ -99,9 +99,9 @@ pwd → 读 claude-progress.txt → 读 feature_list.json → git log
 
 ## 与其他架构的关系
 
-- 是 [Harness](harness.md) 的一种具体实现策略——在同一个 harness 内通过不同 prompt 实现角色分工
-- 与 [Meta-harness](meta-harness.md) 不同——meta-harness 容纳不同 harness 实现，本模式在同一 harness 内切换 prompt
-- 是 [Session](session.md) 跨窗口衔接的应用模式
+- 是 [[concepts/02-harness]] 的一种具体实现策略——在同一个 harness 内通过不同 prompt 实现角色分工
+- 与 [[concepts/07-meta-harness]] 不同——meta-harness 容纳不同 harness 实现，本模式在同一 harness 内切换 prompt
+- 是 [[concepts/01-session]] 跨窗口衔接的应用模式
 
 ## 局限与开放问题
 
@@ -111,8 +111,8 @@ pwd → 读 claude-progress.txt → 读 feature_list.json → git log
 
 ## 相关概念
 
-- [Long-Running Agent](long-running-agent.md) — 本模式解决的问题域
-- [Feature List Pattern](feature-list-pattern.md) — Initializer Agent 创建、Coding Agent 消费的核心工件
-- [Harness](harness.md) — 承载此模式的编排循环
-- [Session](session.md) — 跨 context window 的持久化存储
-- [Context Engineering](context-engineering.md) — 管理 context window 的工程实践
+- [[concepts/10-long-running-agent]] — 本模式解决的问题域
+- [[concepts/12-feature-list-pattern]] — Initializer Agent 创建、Coding Agent 消费的核心工件
+- [[concepts/02-harness]] — 承载此模式的编排循环
+- [[concepts/01-session]] — 跨 context window 的持久化存储
+- [[concepts/09-context-engineering]] — 管理 context window 的工程实践

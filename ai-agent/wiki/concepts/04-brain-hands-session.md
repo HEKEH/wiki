@@ -2,7 +2,7 @@
 title: Brain-Hands-Session 解耦模型
 tags: [agent-architecture, decoupling, abstraction]
 date: 2026-04-23
-sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
+sources: [Scaling-Managed-Agents-Decoupling.md]
 status: active
 ---
 
@@ -10,15 +10,15 @@ status: active
 
 ## Definition
 
-将 Agent 系统虚拟化为三个可独立替换的组件的架构模型——Brain（大脑）、Hands（双手）、Session（记忆）。这是 [Managed Agents](../entities/Managed-Agents.md) 的核心架构，借鉴了操作系统的抽象思路。
+将 Agent 系统虚拟化为三个可独立替换的组件的架构模型——Brain（大脑）、Hands（双手）、Session（记忆）。这是 [[entities/02-managed-agents]] 的核心架构，借鉴了操作系统的抽象思路。
 
 ## 三组件映射
 
 | 比喻 | 组件 | 接口 | 职责 | 失败策略 |
 |------|------|------|------|----------|
-| 🧠 大脑 | [Harness](harness.md) | `wake(sessionId)`, Claude 调用 | 推理 + 路由 | 崩溃后新建，从 session 恢复 |
-| ✋ 双手 | [Sandbox](sandbox.md) | `execute(name, input) → string` | 执行 + 操作 | 失败后新建，通过 `provision()` 初始化 |
-| 📝 记忆 | [Session](session.md) | `getEvents()`, `emitEvent()` | 持久化日志 | 不适用——session 是持久化的 |
+| 🧠 大脑 | [[concepts/02-harness]] | `wake(sessionId)`, Claude 调用 | 推理 + 路由 | 崩溃后新建，从 session 恢复 |
+| ✋ 双手 | [[concepts/03-sandbox]] | `execute(name, input) → string` | 执行 + 操作 | 失败后新建，通过 `provision()` 初始化 |
+| 📝 记忆 | [[concepts/01-session]] | `getEvents()`, `emitEvent()` | 持久化日志 | 不适用——session 是持久化的 |
 
 ## 演化过程
 
@@ -48,7 +48,7 @@ Session (持久化) ←→ Harness (无状态) ←→ Sandbox (可替换)
 
 优势：
 - 每个组件可独立失败和恢复
-- [Pets vs Cattle](pets-vs-cattle.md) — 容器和 harness 变为 cattle
+- [[concepts/05-pets-vs-cattle]] — 容器和 harness 变为 cattle
 - 安全边界清晰——凭证不暴露在 sandbox
 - 多脑多手——brain 和 hand 可独立扩展
 
@@ -68,8 +68,8 @@ Session (持久化) ←→ Harness (无状态) ←→ Sandbox (可替换)
 
 ## 相关概念
 
-- [Harness](harness.md) — Brain 的具体实现
-- [Sandbox](sandbox.md) — Hands 的具体实现
-- [Session](session.md) — Memory 的具体实现
-- [Meta-harness](meta-harness.md) — 容纳此解耦模型的系统
-- [Pets vs Cattle](pets-vs-cattle.md) — 解耦的运维哲学
+- [[concepts/02-harness]] — Brain 的具体实现
+- [[concepts/03-sandbox]] — Hands 的具体实现
+- [[concepts/01-session]] — Memory 的具体实现
+- [[concepts/07-meta-harness]] — 容纳此解耦模型的系统
+- [[concepts/05-pets-vs-cattle]] — 解耦的运维哲学

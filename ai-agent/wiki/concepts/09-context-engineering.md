@@ -2,7 +2,7 @@
 title: Context Engineering
 tags: [agent-architecture, context-window, prompt-engineering]
 date: 2026-04-23
-sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
+sources: [Scaling-Managed-Agents-Decoupling.md]
 status: active
 ---
 
@@ -26,7 +26,7 @@ status: active
 
 ## 在 Managed Agents 中的解决
 
-[Managed Agents](../entities/Managed-Agents.md) 通过 [Session](session.md) 与 [Harness](harness.md) 的分离来解决：
+[[entities/02-managed-agents]] 通过 [[concepts/01-session]] 与 [[concepts/02-harness]] 的分离来解决：
 
 - **Session**: 保证所有事件持久化、可查询、不丢失
 - **Harness**: 自由决定将哪些事件放入 context window（compaction、trimming、缓存优化等）
@@ -40,7 +40,7 @@ status: active
 
 ## 相关概念
 
-- [Session](session.md) — context engineering 的数据源
-- [Harness](harness.md) — context engineering 的执行者
-- [Context Anxiety](context-anxiety.md) — context 管理不当引发的模型行为
-- [Sandbox](sandbox.md) — 独立于 context 的执行环境
+- [[concepts/01-session]] — context engineering 的数据源
+- [[concepts/02-harness]] — context engineering 的执行者
+- [[concepts/06-context-anxiety]] — context 管理不当引发的模型行为
+- [[concepts/03-sandbox]] — 独立于 context 的执行环境

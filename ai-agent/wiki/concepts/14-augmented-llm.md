@@ -2,8 +2,7 @@
 title: The Augmented LLM
 tags: [agent, building-block, llm, mcp]
 date: 2026-04-25
-sources:
-  - sources/Building-Effective-AI-Agents.md
+sources: [Building-Effective-AI-Agents.md]
 ---
 
 # The Augmented LLM
@@ -34,14 +33,14 @@ Augmented LLM（基础构件）
     → Agent（动态自控）
 ```
 
-Augmented LLM 是所有 [Agentic Systems](agentic-systems.md) 的起点。每个 Workflow 模式中的节点、Agent 循环中的每一步，本质上都是一个 Augmented LLM 调用。
+Augmented LLM 是所有 [[concepts/13-agentic-systems]] 的起点。每个 Workflow 模式中的节点、Agent 循环中的每一步，本质上都是一个 Augmented LLM 调用。
 
 ## 与其他概念的关系
 
-- [Context Engineering](context-engineering.md) 管理 Augmented LLM 中"记忆"增强的具体内容
-- [Agent-Computer Interface (ACI)](aci.md) 关注 Augmented LLM 中"工具"增强的接口设计
-- [Harness](harness.md) 是 Augmented LLM 的运行时包装：调用 LLM → 路由工具 → 追加结果 → 循环
+- [[concepts/09-context-engineering]] 管理 Augmented LLM 中"记忆"增强的具体内容
+- [[concepts/20-aci]] 关注 Augmented LLM 中"工具"增强的接口设计
+- [[concepts/02-harness]] 是 Augmented LLM 的运行时包装：调用 LLM → 路由工具 → 追加结果 → 循环
 
 ## 来源
 
-- [Building Effective AI Agents](../sources/Building-Effective-AI-Agents.md) — Anthropic 工程博客
+- [[sources/03-building-effective-ai-agents]] — Anthropic 工程博客

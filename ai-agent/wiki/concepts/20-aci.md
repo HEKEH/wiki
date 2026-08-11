@@ -2,8 +2,7 @@
 title: Agent-Computer Interface (ACI)
 tags: [agent, tool, design, interface]
 date: 2026-04-25
-sources:
-  - sources/Building-Effective-AI-Agents.md
+sources: [Building-Effective-AI-Agents.md]
 ---
 
 # Agent-Computer Interface (ACI)
@@ -37,10 +36,10 @@ SWE-bench Agent 开发中发现：Agent 离开根目录后使用相对路径会�
 
 ## 与其他概念的关系
 
-- [The Augmented LLM](augmented-llm.md) 中"工具"增强的接口设计就是 ACI
-- [Context Engineering](context-engineering.md) 管理 ACI 中工具描述的上下文内容
-- [Harness](harness.md) 的工具路由逻辑需要遵循 ACI 设计原则
+- [[concepts/14-augmented-llm]] 中"工具"增强的接口设计就是 ACI
+- [[concepts/09-context-engineering]] 管理 ACI 中工具描述的上下文内容
+- [[concepts/02-harness]] 的工具路由逻辑需要遵循 ACI 设计原则
 
 ## 来源
 
-- [Building Effective AI Agents](../sources/Building-Effective-AI-Agents.md) — Anthropic 工程博客
+- [[sources/03-building-effective-ai-agents]] — Anthropic 工程博客

@@ -2,7 +2,7 @@
 title: Feature List Pattern
 tags: [agent-architecture, harness-design, testing]
 date: 2026-04-24
-sources: [../../raw/Effective-harnesses-for-long.md]
+sources: [Effective-harnesses-for-long.md]
 status: active
 ---
 
@@ -10,7 +10,7 @@ status: active
 
 ## Definition
 
-一种结构化的需求拆解和追踪模式：将用户的高层 prompt 展开为细粒度的 feature 列表，每个 feature 包含描述、验证步骤和通过状态，作为 [Long-Running Agent](long-running-agent.md) 的"客观完成标准"。
+一种结构化的需求拆解和追踪模式：将用户的高层 prompt 展开为细粒度的 feature 列表，每个 feature 包含描述、验证步骤和通过状态，作为 [[concepts/10-long-running-agent]] 的"客观完成标准"。
 
 ## 核心设计
 
@@ -69,7 +69,7 @@ Feature list 天然引导 Agent 进行端到端测试（而非仅单元测试）
 
 ## 相关概念
 
-- [Long-Running Agent](long-running-agent.md) — Feature List 服务的问题域
-- [Initializer/Coding Agent 模式](initializer-coding-agent.md) — Initializer 创建 feature list，Coding Agent 消费
-- [Harness](harness.md) — 承载此模式的编排循环
-- [Context Engineering](context-engineering.md) — feature list 是跨 session 传递上下文的一种方式
+- [[concepts/10-long-running-agent]] — Feature List 服务的问题域
+- [[concepts/11-initializer-coding-agent]] — Initializer 创建 feature list，Coding Agent 消费
+- [[concepts/02-harness]] — 承载此模式的编排循环
+- [[concepts/09-context-engineering]] — feature list 是跨 session 传递上下文的一种方式

@@ -2,7 +2,7 @@
 title: Sandbox
 tags: [agent-architecture, execution, container, security]
 date: 2026-04-23
-sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
+sources: [Scaling-Managed-Agents-Decoupling.md]
 status: active
 ---
 
@@ -10,7 +10,7 @@ status: active
 
 ## Definition
 
-Agent 的"双手"——Claude 运行代码和编辑文件的执行环境。Sandbox 是可替换的 cattle，通过统一接口被 [Harness](harness.md) 调用。
+Agent 的"双手"——Claude 运行代码和编辑文件的执行环境。Sandbox 是可替换的 cattle，通过统一接口被 [[concepts/02-harness]] 调用。
 
 ## 核心接口
 
@@ -49,6 +49,6 @@ Sandbox 延迟创建显著降低了 TTFT：
 
 ## 相关概念
 
-- [Harness](harness.md) — 通过工具调用操作 sandbox
-- [Session](session.md) — 独立于 sandbox 的持久化日志
-- [Pets vs Cattle](pets-vs-cattle.md) — sandbox 的设计哲学
+- [[concepts/02-harness]] — 通过工具调用操作 sandbox
+- [[concepts/01-session]] — 独立于 sandbox 的持久化日志
+- [[concepts/05-pets-vs-cattle]] — sandbox 的设计哲学

@@ -2,7 +2,7 @@
 title: Effective Harnesses for Long-Running Agents
 tags: [agent-architecture, harness-design, long-running]
 date: 2026-04-24
-sources: [../../raw/Effective-harnesses-for-long.md]
+sources: [Effective-harnesses-for-long.md]
 author: Justin Young
 status: active
 ---
@@ -11,7 +11,7 @@ status: active
 
 ## 概述
 
-Anthropic 工程博客文章，探讨如何让 Agent 在跨越多个 context window 的长时运行任务中持续有效工作。作者 Justin Young，基于 Claude Agent SDK 的内部实验，提出 **Initializer Agent + Coding Agent** 的双 Agent 设计模式。
+Anthropic 工程博客文章，探讨如何让 Agent 在跨越多个 context window 的长时运行任务中持续有效工作。作者 [[entities/06-justin-young]]，基于 [[entities/03-claude|Claude]] Agent SDK 的内部实验，提出 **Initializer Agent + Coding Agent** 的双 Agent 设计模式。
 
 **原文链接**: [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
 
@@ -64,15 +64,15 @@ Anthropic 工程博客文章，探讨如何让 Agent 在跨越多个 context win
 
 ## 与其他来源的关系
 
-- 延伸了 [Scaling Managed Agents: Decoupling](Scaling-Managed-Agents-Decoupling.md) 中的 [Harness](../concepts/harness.md) 概念——本文是 harness 的具体实现策略
-- 与 [Session](../concepts/session.md) 互补——解决了跨 Session 的状态衔接问题
-- 与 [Context Anxiety](../concepts/context-anxiety.md) 相关——是 context window 限制的工程应对
+- 延伸了 [[sources/01-scaling-managed-agents-decoupling]] 中的 [[concepts/02-harness]] 概念——本文是 harness 的具体实现策略
+- 与 [[concepts/01-session]] 互补——解决了跨 Session 的状态衔接问题
+- 与 [[concepts/06-context-anxiety]] 相关——是 context window 限制的工程应对
 
 ## 相关概念
 
-- [Long-Running Agent](../concepts/long-running-agent.md) — 跨多个 context window 工作的 Agent
-- [Initializer/Coding Agent 模式](../concepts/initializer-coding-agent.md) — 双 Agent 分工设计
-- [Feature List Pattern](../concepts/feature-list-pattern.md) — 用结构化 JSON 拆解和追踪需求
-- [Harness](../concepts/harness.md) — Agent 的编排循环
-- [Session](../concepts/session.md) — 跨 context window 的持久化存储
-- [Context Engineering](../concepts/context-engineering.md) — 管理 context window 的工程实践
+- [[concepts/10-long-running-agent]] — 跨多个 context window 工作的 Agent
+- [[concepts/11-initializer-coding-agent]] — 双 Agent 分工设计
+- [[concepts/12-feature-list-pattern]] — 用结构化 JSON 拆解和追踪需求
+- [[concepts/02-harness]] — Agent 的编排循环
+- [[concepts/01-session]] — 跨 context window 的持久化存储
+- [[concepts/09-context-engineering]] — 管理 context window 的工程实践

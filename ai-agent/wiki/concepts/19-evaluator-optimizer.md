@@ -2,8 +2,7 @@
 title: Evaluator-Optimizer
 tags: [workflow, agent, pattern, iteration, feedback]
 date: 2026-04-25
-sources:
-  - sources/Building-Effective-AI-Agents.md
+sources: [Building-Effective-AI-Agents.md]
 ---
 
 # Evaluator-Optimizer
@@ -37,10 +36,10 @@ Input → [Generator LLM] → [Evaluator LLM] → 满足标准？
 
 ## 与其他模式的关系
 
-- 可与 [Prompt Chaining](prompt-chaining.md) 组合：串行步骤中嵌入评估循环
-- 可与 [Orchestrator-Workers](orchestrator-workers.md) 组合：编排器委派后评估结果
-- 与 [Feature List Pattern](feature-list-pattern.md) 精神一致：都有明确的完成标准和迭代验证
+- 可与 [[concepts/15-prompt-chaining]] 组合：串行步骤中嵌入评估循环
+- 可与 [[concepts/18-orchestrator-workers]] 组合：编排器委派后评估结果
+- 与 [[concepts/12-feature-list-pattern]] 精神一致：都有明确的完成标准和迭代验证
 
 ## 来源
 
-- [Building Effective AI Agents](../sources/Building-Effective-AI-Agents.md) — Anthropic 工程博客
+- [[sources/03-building-effective-ai-agents]] — Anthropic 工程博客

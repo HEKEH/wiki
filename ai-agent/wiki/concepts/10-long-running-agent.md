@@ -2,7 +2,7 @@
 title: Long-Running Agent
 tags: [agent-architecture, long-running, context-window]
 date: 2026-04-24
-sources: [../../raw/Effective-harnesses-for-long.md]
+sources: [Effective-harnesses-for-long.md]
 status: active
 ---
 
@@ -36,7 +36,7 @@ Compaction（上下文压缩）能让 Agent 在单个 context window 内工作�
 1. **初始环境搭建** — 建立所有后续 session 需要的上下文基础设施
 2. **增量推进 + 干净状态** — 每个 session 做一小步，结束时留下可合并的代码
 
-具体模式见 [Initializer/Coding Agent 模式](initializer-coding-agent.md)。
+具体模式见 [[concepts/11-initializer-coding-agent]]。
 
 ## 类比：轮班工程师
 
@@ -51,9 +51,9 @@ Compaction（上下文压缩）能让 Agent 在单个 context window 内工作�
 
 ## 相关概念
 
-- [Initializer/Coding Agent 模式](initializer-coding-agent.md) — 解决 long-running 问题的具体设计
-- [Feature List Pattern](feature-list-pattern.md) — 拆解需求为可追踪的细粒度项
-- [Session](session.md) — 跨 context window 的持久化存储
-- [Harness](harness.md) — Agent 的编排循环
-- [Context Engineering](context-engineering.md) — 管理 context window 的工程实践
-- [Context Anxiety](context-anxiety.md) — context window 限制下模型的行为异常
+- [[concepts/11-initializer-coding-agent]] — 解决 long-running 问题的具体设计
+- [[concepts/12-feature-list-pattern]] — 拆解需求为可追踪的细粒度项
+- [[concepts/01-session]] — 跨 context window 的持久化存储
+- [[concepts/02-harness]] — Agent 的编排循环
+- [[concepts/09-context-engineering]] — 管理 context window 的工程实践
+- [[concepts/06-context-anxiety]] — context window 限制下模型的行为异常

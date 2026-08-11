@@ -2,8 +2,7 @@
 title: Prompt Chaining
 tags: [workflow, agent, pattern]
 date: 2026-04-25
-sources:
-  - sources/Building-Effective-AI-Agents.md
+sources: [Building-Effective-AI-Agents.md]
 ---
 
 # Prompt Chaining
@@ -32,8 +31,8 @@ Input → LLM₁ → [Gate?] → LLM₂ → [Gate?] → ... → Output
 
 ## 在 Workflow 模式中的位置
 
-最基础的编排模式，复杂度最低。当子步骤需要不同处理时，演进为 [Routing](routing.md)；当步骤可并行时，演进为 [Parallelization](parallelization.md)。
+最基础的编排模式，复杂度最低。当子步骤需要不同处理时，演进为 [[concepts/16-routing]]；当步骤可并行时，演进为 [[concepts/17-parallelization]]。
 
 ## 来源
 
-- [Building Effective AI Agents](../sources/Building-Effective-AI-Agents.md) — Anthropic 工程博客
+- [[sources/03-building-effective-ai-agents]] — Anthropic 工程博客

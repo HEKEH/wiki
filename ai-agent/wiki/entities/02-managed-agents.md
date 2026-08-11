@@ -2,7 +2,7 @@
 title: Managed Agents
 tags: [product, anthropic, agent-architecture, hosted-service]
 date: 2026-04-23
-sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
+sources: [Scaling-Managed-Agents-Decoupling.md]
 status: active
 ---
 
@@ -10,7 +10,7 @@ status: active
 
 ## Overview
 
-[Anthropic](Anthropic.md) 在 Claude Platform 上提供的托管式 Agent 服务，代用户运行长周期 Agent 任务。其核心设计哲学是 [Meta-harness](../concepts/meta-harness.md)：对接口有主见，对实现无主见。
+[[entities/01-anthropic]] 在 Claude Platform 上提供的托管式 Agent 服务，代用户运行长周期 Agent 任务。其核心设计哲学是 [[concepts/07-meta-harness]]：对接口有主见，对实现无主见。
 
 ## 架构
 
@@ -18,15 +18,15 @@ Managed Agents 将 Agent 虚拟化为三个可独立替换的组件：
 
 | 组件                                | 比喻  | 接口                                                        |
 | --------------------------------- | --- | --------------------------------------------------------- |
-| [Session](../concepts/session.md) | 记忆  | `getSession()`, `emitEvent()`, `getEvents()`              |
-| [Harness](../concepts/harness.md) | 大脑  | `wake(sessionId)`, Claude 调用 + 工具路由                       |
-| [Sandbox](../concepts/sandbox.md) | 双手  | `execute(name, input) → string`, `provision({resources})` |
+| [[concepts/01-session]] | 记忆  | `getSession()`, `emitEvent()`, `getEvents()`              |
+| [[concepts/02-harness]] | 大脑  | `wake(sessionId)`, Claude 调用 + 工具路由                       |
+| [[concepts/03-sandbox]] | 双手  | `execute(name, input) → string`, `provision({resources})` |
 |                                   |     |                                                           |
 
 ### 关键设计原则
 
 1. **解耦** — Harness、Sandbox、Session 独立运行，任一组件失败不影响其他
-2. **[Pets vs Cattle](../concepts/pets-vs-cattle.md)** — 容器和 harness 都是 cattle，可替换、可重启
+2. **[[concepts/05-pets-vs-cattle]]** — 容器和 harness 都是 cattle，可替换、可重启
 3. **安全边界** — 凭证永远不暴露在 sandbox 中
 4. **Session 持久化** — Session 是追加写入的事件日志，独立于 Claude 的 context window
 
@@ -46,4 +46,4 @@ Managed Agents 将 Agent 虚拟化为三个可独立替换的组件：
 
 ## 与 Claude Code 的关系
 
-Claude Code 是一种优秀的 [harness](../concepts/harness.md) 实现；Managed Agents 作为 meta-harness 可以容纳 Claude Code 或其他任务特定的 harness。
+Claude Code 是一种优秀的 [[concepts/02-harness]] 实现；Managed Agents 作为 meta-harness 可以容纳 Claude Code 或其他任务特定的 harness。

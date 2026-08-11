@@ -2,8 +2,7 @@
 title: Parallelization
 tags: [workflow, agent, pattern, parallel]
 date: 2026-04-25
-sources:
-  - sources/Building-Effective-AI-Agents.md
+sources: [Building-Effective-AI-Agents.md]
 ---
 
 # Parallelization
@@ -51,9 +50,9 @@ Input → [LLM instance 1] →\
 
 ## 与其他模式的关系
 
-- 与 [Routing](routing.md) 互补：Routing 选一条路走，Parallelization 同时走多条路
-- [Orchestrator-Workers](orchestrator-workers.md) 是 Parallelization 的动态版本：子任务不预定义，由编排器决定
+- 与 [[concepts/16-routing]] 互补：Routing 选一条路走，Parallelization 同时走多条路
+- [[concepts/18-orchestrator-workers]] 是 Parallelization 的动态版本：子任务不预定义，由编排器决定
 
 ## 来源
 
-- [Building Effective AI Agents](../sources/Building-Effective-AI-Agents.md) — Anthropic 工程博客
+- [[sources/03-building-effective-ai-agents]] — Anthropic 工程博客

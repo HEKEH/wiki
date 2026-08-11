@@ -2,7 +2,7 @@
 title: Meta-harness
 tags: [agent-architecture, abstraction, design-philosophy]
 date: 2026-04-23
-sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
+sources: [Scaling-Managed-Agents-Decoupling.md]
 status: active
 ---
 
@@ -10,7 +10,7 @@ status: active
 
 ## Definition
 
-一种不限定特定 harness 实现的系统设计——对接口有主见，对实现无主见。[Managed Agents](../entities/Managed-Agents.md) 即是一个 meta-harness。
+一种不限定特定 harness 实现的系统设计——对接口有主见，对实现无主见。[[entities/02-managed-agents]] 即是一个 meta-harness。
 
 ## 设计哲学
 
@@ -22,14 +22,14 @@ Meta-harness 将同样的模式应用于 Agent：
 
 | OS 抽象 | Agent 抽象 |
 |---------|-----------|
-| Process | [Session](session.md) |
+| Process | [[concepts/01-session]] |
 | File | Event |
 | `read()` | `getEvents()` |
 | Hardware → Abstraction | Agent Components → Interfaces |
 
 ### 接口优于实现
 
-- **有主见的**：Claude 需要[操纵状态](session.md)的能力、[执行计算](sandbox.md)的能力、多脑多手的扩展能力
+- **有主见的**：Claude 需要[[concepts/01-session|操纵状态]]的能力、[[concepts/03-sandbox|执行计算]]的能力、多脑多手的扩展能力
 - **无主见的**：具体有多少 brain 和 hand、它们在哪里运行、使用什么特定 harness
 
 ## 可容纳的 Harness 类型
@@ -40,12 +40,12 @@ Meta-harness 将同样的模式应用于 Agent：
 
 ## 与 The Bitter Lesson 的共鸣
 
-[The Bitter Lesson](bitter-lesson.md) 告诉我们：利用算力的通用方法最终胜过人类设计的特定方法。Meta-harness 延续了这一洞见——不为特定模型缺陷设计特定方案，而是提供足够通用的接口让实现自由进化。
+[[concepts/08-bitter-lesson]] 告诉我们：利用算力的通用方法最终胜过人类设计的特定方法。Meta-harness 延续了这一洞见——不为特定模型缺陷设计特定方案，而是提供足够通用的接口让实现自由进化。
 
 ## 相关概念
 
-- [Harness](harness.md) — meta-harness 所容纳的实现
-- [Session](session.md) — meta-harness 的核心抽象之一
-- [Sandbox](sandbox.md) — meta-harness 的核心抽象之一
-- [The Bitter Lesson](bitter-lesson.md) — 哲学共鸣
-- [Pets vs Cattle](pets-vs-cattle.md) — meta-harness 所采用的运维模式
+- [[concepts/02-harness]] — meta-harness 所容纳的实现
+- [[concepts/01-session]] — meta-harness 的核心抽象之一
+- [[concepts/03-sandbox]] — meta-harness 的核心抽象之一
+- [[concepts/08-bitter-lesson]] — 哲学共鸣
+- [[concepts/05-pets-vs-cattle]] — meta-harness 所采用的运维模式

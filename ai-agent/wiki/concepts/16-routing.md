@@ -2,8 +2,7 @@
 title: Routing
 tags: [workflow, agent, pattern, classification]
 date: 2026-04-25
-sources:
-  - sources/Building-Effective-AI-Agents.md
+sources: [Building-Effective-AI-Agents.md]
 ---
 
 # Routing
@@ -34,7 +33,7 @@ Input → [Classifier] → Branch A (specialized prompt/tools)
 
 ## 与 Orchestrator-Workers 的谱系关系
 
-Routing 和 [Orchestrator-Workers](orchestrator-workers.md) 结构同源——都是"中心决策 → 分发到专门处理"，区别在于**选一个还是分多个**：
+Routing 和 [[concepts/18-orchestrator-workers]] 结构同源——都是"中心决策 → 分发到专门处理"，区别在于**选一个还是分多个**：
 
 - **Routing 是互斥选择**（1-of-N）——走 A 就不走 B，分支之间是"或"关系，直接输出分支结果
 - **Orchestrator-Workers 是组合分解**（M-of-N）——任务拆成互补子任务，都需完成，需综合（synthesis）步骤
@@ -56,10 +55,10 @@ Orchestrator-Workers 本质是 Routing 的泛化——把"选一个分支"升级
 
 ## 与其他模式的关系
 
-- 是 [Prompt Chaining](prompt-chaining.md) 的横向扩展：Chaining 是串行，Routing 是分类后分支
-- 与 [Parallelization](parallelization.md) 的区别：Routing 选一个分支执行，Parallelization 同时执行多个
+- 是 [[concepts/15-prompt-chaining]] 的横向扩展：Chaining 是串行，Routing 是分类后分支
+- 与 [[concepts/17-parallelization]] 的区别：Routing 选一个分支执行，Parallelization 同时执行多个
 - 在 Agent 中的表现：Agent 根据子任务性质选择工具（文件编辑器 vs Shell vs 浏览器），分类器就是 LLM 自身
 
 ## 来源
 
-- [Building Effective AI Agents](../sources/Building-Effective-AI-Agents.md) — Anthropic 工程博客
+- [[sources/03-building-effective-ai-agents]] — Anthropic 工程博客

@@ -2,7 +2,7 @@
 title: Pets vs Cattle
 tags: [infrastructure, operations, metaphor, scalability]
 date: 2026-04-23
-sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
+sources: [Scaling-Managed-Agents-Decoupling.md]
 status: active
 ---
 
@@ -19,7 +19,7 @@ status: active
 
 ### 耦合设计的问题
 
-将所有 Agent 组件（[Session](session.md)、[Harness](harness.md)、[Sandbox](sandbox.md)）放入单一容器 = 采用了 Pet 模式：
+将所有 Agent 组件（[[concepts/01-session]]、[[concepts/02-harness]]、[[concepts/03-sandbox]]）放入单一容器 = 采用了 Pet 模式：
 
 - 容器失败 → session 丢失
 - 容器无响应 → 必须"护理"恢复
@@ -40,7 +40,7 @@ status: active
 
 ## 相关概念
 
-- [Harness](harness.md) — cattle 化的 brain
-- [Sandbox](sandbox.md) — cattle 化的执行环境
-- [Session](session.md) — 持久化的状态，不需要 cattle 化
-- [Meta-harness](meta-harness.md) — 设计 cattle 化系统的框架
+- [[concepts/02-harness]] — cattle 化的 brain
+- [[concepts/03-sandbox]] — cattle 化的执行环境
+- [[concepts/01-session]] — 持久化的状态，不需要 cattle 化
+- [[concepts/07-meta-harness]] — 设计 cattle 化系统的框架

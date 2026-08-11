@@ -2,7 +2,7 @@
 title: "Scaling Managed Agents: Decoupling the Brain, Hands, and Session"
 tags: [agent-architecture, decoupling, harness-design, anthropic, infrastructure]
 date: 2026-04-23
-sources: [../../raw/Scaling-Managed-Agents-Decoupling.md]
+sources: [Scaling-Managed-Agents-Decoupling.md]
 status: ingested
 ---
 
@@ -10,15 +10,15 @@ status: ingested
 
 ## Summary
 
-Anthropic 工程博客文章，阐述 [Managed Agents](../entities/Managed-Agents.md) 的架构设计哲学：借鉴操作系统的抽象思路（`process`、`file`），将 Agent 的三大组件——[Session](../concepts/session.md)、[Harness](../concepts/harness.md)、[Sandbox](../concepts/sandbox.md)——解耦为可独立替换的接口，使系统足以容纳"尚未设想的程序"。
+Anthropic 工程博客文章，阐述 [[entities/02-managed-agents]] 的架构设计哲学：借鉴操作系统的抽象思路（`process`、`file`），将 Agent 的三大组件——[[concepts/01-session]]、[[concepts/02-harness]]、[[concepts/03-sandbox]]——解耦为可独立替换的接口，使系统足以容纳"尚未设想的程序"。
 
 ## 核心论点
 
-1. **Harness 假设会过时** — Claude Sonnet 4.5 存在 [Context Anxiety](../concepts/context-anxiety.md)，需要 harness 添加上下文重置；但 Opus 4.5 消除了该行为，重置逻辑变成死代码。Harness 必须持续进化。
-2. **解耦 > 耦合** — 将所有组件放入单一容器 = 采用了 [Pets vs Cattle](../concepts/pets-vs-cattle.md) 中的"宠物"模式；解耦后每个组件变为可替换的 cattle。
+1. **Harness 假设会过时** — Claude Sonnet 4.5 存在 [[concepts/06-context-anxiety]]，需要 harness 添加上下文重置；但 Opus 4.5 消除了该行为，重置逻辑变成死代码。Harness 必须持续进化。
+2. **解耦 > 耦合** — 将所有组件放入单一容器 = 采用了 [[concepts/05-pets-vs-cattle]] 中的"宠物"模式；解耦后每个组件变为可替换的 cattle。
 3. **安全边界不可妥协** — 凭证永远不应暴露在 sandbox 中；通过 Git remote 注入和 MCP 代理+保险库模式实现。
-4. **Session 是持久化的上下文对象** — [Session](../concepts/session.md) ≠ Context Window；session 保证数据不丢，harness 负责上下文工程（compaction/trimming），二者关注点分离。
-5. **[Meta-harness](../concepts/meta-harness.md) 哲学** — 对接口有主见，对实现无主见；接口应比实现更长寿。
+4. **Session 是持久化的上下文对象** — [[concepts/01-session]] ≠ Context Window；session 保证数据不丢，harness 负责上下文工程（compaction/trimming），二者关注点分离。
+5. **[[concepts/07-meta-harness]] 哲学** — 对接口有主见，对实现无主见；接口应比实现更长寿。
 
 ## 三大组件
 
