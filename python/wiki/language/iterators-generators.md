@@ -39,6 +39,112 @@ list(it)         #=> []      ← 已耗尽
 > 这是生产事故高发点：把 `zip()` / `map()` / `filter()` / 生成器的结果**用两次**，第二次是空的。
 > Python 3 里这些内置函数全部返回惰性迭代器（Python 2 返回 list）。
 
+### 「用两次」的典型翻车现场
+
+这类 bug 的可怕之处在于**大多不报错**——只是静默地少做了事。
+
+```python
+# ① 先校验、再使用 —— 最常见，也最静默
+def send_batch(records):
+    if not any(r.valid for r in records):     # 第一次遍历：把 records 吃光了
+        raise ValueError("no valid record")
+    for r in records:                          # 第二次：空的
+        send(r)                                # ❗ 一条都没发，还不抛异常
+
+send_batch(filter(is_fresh, load_all()))       # 传进来的是 filter 对象
+```
+
+```python
+# ② 求平均值：sum 之后再 len
+nums = map(int, "1,2,3".split(","))
+avg = sum(nums) / len(list(nums))   # ❌ ZeroDivisionError —— sum 已耗尽，list(nums) == []
+```
+
+```python
+# ③ 记日志顺手数了一下
+def process(items):
+    log.info("待处理 %d 条", sum(1 for _ in items))   # 数完就没了
+    for it in items:                                   # 循环体一次都不进
+        handle(it)
+```
+
+```python
+# ④ zip 校验长度后再建 dict
+pairs = zip(keys, values)
+assert len(list(pairs)) == len(keys)   # 通过了
+d = dict(pairs)                        #=> {} ❗ 空字典
+```
+
+```python
+# ⑤ 失败重试：重试的是被啃过的残骸
+chunks = (buf for buf in split(big_file))
+for attempt in range(3):
+    try:
+        upload(chunks)        # 第 1 次传到一半失败 → 第 2 次从断点继续 → 第 3 次直接传空
+        break
+    except NetworkError:
+        continue
+```
+
+```python
+# ⑥ in / any / next 只是"部分消耗"，比全空更难查
+g = (x for x in range(5))
+3 in g       #=> True     顺带吃掉了 0,1,2,3
+list(g)      #=> [4]      只剩尾巴
+
+# ⑦ 双重循环共用同一个迭代器
+it = iter([1, 2, 3])
+[(a, b) for a in it for b in it]   #=> [(1, 2), (1, 3)]   ❗ 期望 9 对
+```
+
+```python
+# ⑧ itertools.groupby：外层一前进，之前的分组立刻作废（所有分组共享同一个源游标）
+from itertools import groupby
+
+gs = list(groupby([1, 1, 2, 2, 3]))                    # ❌ 先把分组物化
+[(k, list(g)) for k, g in gs]                          #=> [(1, []), (2, []), (3, [])]
+
+[(k, list(g)) for k, g in groupby([1, 1, 2, 2, 3])]    # ✅ 边遍历边消费
+                                                       #=> [(1,[1,1]), (2,[2,2]), (3,[3])]
+```
+
+`groupby` 不预先分组，它只有**一个**源游标，边走边切。外层每次 `__next__` 做两件事：
+换一个新的"当前组令牌"，然后把游标快进过当前组的剩余元素。旧的分组子迭代器
+（grouper）循环条件里带着 `self.id is id` 的令牌校验，令牌一换就立刻结束——所以它不是
+"数据被抢走后返回残缺结果"，而是**干脆利落地返回空**，一声不吭。
+
+`list(groupby(...))` 连最后一组都是空的，是因为 `list()` 必须多调一次 `__next__` 才能拿到
+`StopIteration`；那一次调用的第一步就是换令牌，第三组因此也被判死。这也解释了只前进一步时
+的差异：`k1,g1 = next(it); k2,g2 = next(it)` → `g1` 空，`g2` 还活着。
+
+同类"一次性"对象还有：文件对象、`csv.reader`、`os.scandir()`、DB cursor、
+`requests.iter_lines()`、`re.finditer()`、异步生成器。
+
+**三种修法**：
+
+```python
+# a) 物化 —— 在 API 边界把不确定的输入钉死（数据量可控时的首选）
+def send_batch(records):
+    records = list(records)     # 一行防住所有下游二次遍历
+
+# b) 传「可再生的工厂」而不是迭代器 —— 数据量大、不能全进内存时
+def send_batch(make_records):   # 传 callable
+    if not any(r.valid for r in make_records()):
+        raise ValueError(...)
+    for r in make_records():    # 重新生成一个新迭代器
+        send(r)
+
+# c) itertools.tee —— 只需要两路并行消费时
+a, b = itertools.tee(gen, 2)
+# ⚠️ tee 内部有缓冲：两路进度差多少就缓存多少元素，
+#    "一路跑完再跑另一路"等于把整个序列存进内存，还不如直接 list()
+```
+
+> **面试落点**：判断一个对象能不能重复遍历，看 `iter(x) is x`——为 `True` 说明它是迭代器，
+> 一次性；为 `False`（如 list、dict、`dict.items()` 视图、`range`）才能反复遍历。
+> 写公开 API 时，参数类型标注 `Iterable[T]` 就意味着**只能承诺遍历一次**，
+> 需要多次遍历应该标 `Sequence[T]` 或在函数入口 `list()` 一下。
+
 ### 手写迭代器
 
 ```python
@@ -53,6 +159,72 @@ class Countdown:
 
 list(Countdown(3))   #=> [3, 2, 1]
 ```
+
+注意这是**一次性**的写法——遍历状态 `self.n` 被就地改掉，且 `__iter__` 返回自身：
+
+```python
+c = Countdown(3)
+list(c), list(c)                 #=> ([3, 2, 1], [])
+[(a, b) for a in c for b in c]   #=> [(3, 2), (3, 1)]   ❗ 期望 9 对（同坑 ⑦）
+```
+
+### 耗尽是不可逆的
+
+协议规定：`__next__()` 一旦抛出 `StopIteration`，后续调用**必须**继续抛——
+文档明确写着"不遵守这条的实现被视为 broken"。所以迭代器协议里没有 `reset()` / `rewind()`，
+想从头再来只能**回到源头重新要一个迭代器**。
+
+```python
+l = [1, 2, 3]
+it = iter(l)
+list(it)         #=> [1, 2, 3]
+l.append(4)
+next(it)         # ❌ StopIteration —— 源变长了也救不回来
+                 #    CPython 的 list_iterator 耗尽时把内部序列指针置为 NULL
+
+# 但"未耗尽时"改源，迭代器是看得见的 —— 边遍历边改容器的坑
+l2 = [1, 2, 3]
+it2 = iter(l2); next(it2)
+l2.append(4)
+list(it2)        #=> [2, 3, 4]
+
+# 生成器耗尽后执行帧直接销毁，连状态都不剩
+g = (x for x in range(3)); list(g)
+g.gi_frame                       #=> None
+inspect.getgeneratorstate(g)     #=> 'GEN_CLOSED'
+```
+
+> ⚠️ 唯一常见的"能倒带"的迭代器是**文件对象**（`f.seek(0)`）。但 `seek` 不属于迭代器协议，
+> 是文件对象靠可寻址的 OS 句柄额外提供的能力。换成 socket、`sys.stdin`、管道、
+> `requests.iter_lines()`，同样是 file-like，`seek` 直接抛 `io.UnsupportedOperation`。
+> 别把它当成"迭代器可以重置"的证据。
+
+### 可重复遍历的写法
+
+想让类能被反复 `for`，**`__iter__` 就不能 `return self`**，而要每次返回一个新的迭代器。
+最简洁的做法是把 `__iter__` 本身写成生成器函数：
+
+```python
+class Countdown:                  # ✅ 可重复遍历
+    def __init__(self, n): self.n = n
+    def __iter__(self):
+        cur = self.n              # 遍历状态是局部变量，不污染实例
+        while cur > 0:
+            yield cur
+            cur -= 1
+
+c = Countdown(3)
+list(c), list(c)                 #=> ([3, 2, 1], [3, 2, 1])
+iter(c) is c                     #=> False   每次调用产出一个新生成器
+len([(a, b) for a in c for b in c])   #=> 9   嵌套遍历也正常
+2 in c; list(c)                  #=> [3, 2, 1]   `in` 之后依然完整
+```
+
+> **设计判据**：遍历状态放在**实例属性**上 → 类是一次性的（自己既当 Iterable 又当 Iterator）；
+> 放在 `__iter__` 的**局部变量**里 → 类可重复遍历。标准库走的是后者：`list` / `dict` / `set`
+> 自己只是 Iterable，每次 `iter()` 现造一个独立的 `list_iterator` / `dict_keyiterator`。
+> `collections.abc` 把 `Iterable` 和 `Iterator` 拆成两个 ABC，区分的正是这两种角色。
+> 只有当"游标"本身就是要暴露给用户的东西时（如 DB cursor、`csv.reader`），才该让两者合一。
 
 `for` 循环的等价展开（面试常要求手写）：
 
@@ -197,7 +369,7 @@ def sub():
     return "done"
 
 def outer():
-    r = yield from sub()
+    r = yield from sub() # r 是 "done"
     print("sub returned", r)     #=> sub returned done
     yield 2
 
