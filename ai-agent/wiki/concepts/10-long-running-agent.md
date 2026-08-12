@@ -57,3 +57,6 @@ Compaction（上下文压缩）能让 Agent 在单个 context window 内工作�
 - [[concepts/02-harness]] — Agent 的编排循环
 - [[concepts/09-context-engineering]] — 管理 context window 的工程实践
 - [[concepts/06-context-anxiety]] — context window 限制下模型的行为异常
+- [[concepts/30-compaction-and-note-taking]] — 上下文侧的三种标准技术（压实 / 笔记 / 子 agent）
+- [[concepts/43-durable-execution]] — 执行状态侧的持久化、恢复与渐进部署
+- [[concepts/45-token-economics]] — 长程任务的成本控制

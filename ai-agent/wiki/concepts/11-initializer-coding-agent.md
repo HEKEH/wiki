@@ -29,7 +29,7 @@ status: active
 
 后续所有 session 使用，标准化的启动流程：
 
-```
+```text
 pwd → 读 claude-progress.txt → 读 feature_list.json → git log
 → 运行 init.sh → 冒烟测试（验证已有功能正常）
 → 选一个未完成 feature → 实现 → 端到端测试 → commit → 写 progress
@@ -58,7 +58,7 @@ pwd → 读 claude-progress.txt → 读 feature_list.json → git log
 
 ### 示例
 
-```
+```text
 ## Session 1 — Initializer
 
 - Read app_spec.txt and created feature_list.json with 200+ features

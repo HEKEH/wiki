@@ -11,7 +11,7 @@ sources: [Building-Effective-AI-Agents.md]
 
 ## 机制
 
-```
+```text
 Input → [Classifier] → Branch A (specialized prompt/tools)
                      → Branch B (specialized prompt/tools)
                      → Branch C (specialized prompt/tools)
@@ -40,7 +40,7 @@ Routing 和 [[concepts/18-orchestrator-workers]] 结构同源——都是"中心
 
 两者可视为"中心决策+分发"谱系上的相邻节点：
 
-```
+```text
 固定 1-of-N         动态 1-of-N        动态 M-of-N
 ──────────────→ ──────────────→ ──────────────→
 硬编码路由           Routing          Orchestrator-Workers

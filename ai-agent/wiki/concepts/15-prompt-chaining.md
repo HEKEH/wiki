@@ -11,7 +11,7 @@ sources: [Building-Effective-AI-Agents.md]
 
 ## 机制
 
-```
+```text
 Input → LLM₁ → [Gate?] → LLM₂ → [Gate?] → ... → Output
 ```
 

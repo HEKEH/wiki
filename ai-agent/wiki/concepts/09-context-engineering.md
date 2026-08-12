@@ -38,9 +38,22 @@ status: active
 
 这意味着 context engineering 的具体实现会随模型进化而变化，但 session 作为数据源保持稳定。
 
+## 2025–2026 的方法论化
+
+Anthropic 后来把这一实践系统化为一篇专文（[[sources/06-effective-context-engineering]]），要点：
+
+- 与 prompt engineering 的分野：**策展整个 token 状态**，且每轮推理都要重做
+- 总纲：**找到能最大化目标达成概率的、最小的高信号 token 集合**
+- 为什么必要：[[concepts/29-context-rot-and-attention-budget]]
+- system prompt 的"**right altitude**"、工具集要剪、few-shot 要策展而非堆边界情况
+- 运行时取 context：[[concepts/28-agentic-search]]（just-in-time + progressive disclosure）
+- 长程三术：[[concepts/30-compaction-and-note-taking]]
+
 ## 相关概念
 
 - [[concepts/01-session]] — context engineering 的数据源
 - [[concepts/02-harness]] — context engineering 的执行者
 - [[concepts/06-context-anxiety]] — context 管理不当引发的模型行为
 - [[concepts/03-sandbox]] — 独立于 context 的执行环境
+- [[concepts/26-memory]] — context 之外的记忆载体
+- [[concepts/45-token-economics]] — token 既是注意力也是成本

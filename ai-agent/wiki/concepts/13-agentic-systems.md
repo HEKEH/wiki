@@ -68,7 +68,7 @@ Anthropic 提出的统一分类：将所有 Agent 变体统称为 **Agentic Syst
 
 两者可视为同一个谱系在不同参数下的实例：
 
-```
+```text
 谱系：中心决策 + 分发
 
   固定 1-of-N         动态 1-of-N        动态 M-of-N
@@ -85,6 +85,9 @@ Orchestrator-Workers 本质是 Routing 的泛化——把"选一个分支"升级
 
 ## 与 Wiki 其他概念的关系
 
+- [[concepts/21-agent-loop]] 是 Agent 一侧的最小实现骨架（含退出条件），并给出 OpenAI 的三组件表述
+- [[analysis/04-single-vs-multi-agent]] 把本页的分类延伸为完整的架构决策流程
+- [[concepts/35-manager-vs-decentralized]] 是多 agent 形态的两种编排
 - [[concepts/02-harness]] 是 Workflow 和 Agent 的**运行时实现**：控制循环 + 工具路由 + 状态管理
 - [[concepts/04-brain-hands-session]] 是 Agentic System 的**物理部署架构**
 - [[concepts/08-bitter-lesson]] 暗示：随着模型能力增长，Workflows 中硬编码的逻辑可能逐步消融为纯 Agent

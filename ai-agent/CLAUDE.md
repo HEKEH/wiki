@@ -2,7 +2,15 @@
 
 ## Domain
 
-Agent 架构设计 —— 如何构建可扩展、可演进的 AI Agent 系统。当前主干由 Anthropic 三篇工程博客构成：Managed Agents 的 Brain-Hands-Session 解耦架构、长时运行 harness 的 Initializer/Coding Agent 模式、以及 Agentic Systems 分类框架（Workflows vs Agents 与五种编排模式）。
+AI Agent 的系统性知识体系 —— 从架构设计到工程落地、评估与安全，服务于系统学习与面试准备。
+
+主干由三类一手材料构成：
+
+1. **厂商工程方法论**：Anthropic 工程博客（Agentic Systems 分类框架与五种编排模式、Brain-Hands-Session 解耦、长时运行 harness 的 Initializer/Coding Agent、上下文工程、多 agent 生产复盘、工具设计、Code Execution with MCP）+ OpenAI《A Practical Guide to Building Agents》
+2. **协议与框架规范**：MCP（spec 2026-07-28）、A2A、OpenAI Agents SDK、LangGraph
+3. **学术与安全基线**：Lilian Weng 的三组件综述、28 篇基础论文摘要、OWASP GenAI LLM Top 10 (2026)、lethal trifecta
+
+面试导向的入口在 `wiki/analysis/`：学习路线图、高频题库、框架对比、单 vs 多 agent 决策、术语速查、资料清单。
 
 ## Conventions
 

@@ -11,7 +11,7 @@ sources: [Building-Effective-AI-Agents.md]
 
 ## 机制
 
-```
+```text
 Input → [Generator LLM] → [Evaluator LLM] → 满足标准？
               ↑                                    │
               └──────── Feedback ───────────── No ─┘

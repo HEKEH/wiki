@@ -27,7 +27,7 @@ sources: [Building-Effective-AI-Agents.md]
 
 ## 在模式层级中的位置
 
-```
+```text
 Augmented LLM（基础构件）
   → Workflow 模式（预定义编排）
     → Agent（动态自控）
@@ -39,6 +39,8 @@ Augmented LLM 是所有 [[concepts/13-agentic-systems]] 的起点。每个 Workf
 
 - [[concepts/09-context-engineering]] 管理 Augmented LLM 中"记忆"增强的具体内容
 - [[concepts/20-aci]] 关注 Augmented LLM 中"工具"增强的接口设计
+- 三种增强各自的展开：检索 → [[concepts/27-rag]] / [[concepts/28-agentic-search]]；工具 → [[concepts/25-tool-use-and-function-calling]] / [[concepts/31-mcp]]；记忆 → [[concepts/26-memory]]
+- 与 Lilian Weng 的 Planning / Memory / Tool use 三组件是同一事物的两种表述，见 [[sources/04-llm-powered-autonomous-agents]]
 - [[concepts/02-harness]] 是 Augmented LLM 的运行时包装：调用 LLM → 路由工具 → 追加结果 → 循环
 
 ## 来源

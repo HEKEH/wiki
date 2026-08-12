@@ -34,12 +34,26 @@ SWE-bench Agent 开发中发现：Agent 离开根目录后使用相对路径会�
 
 这是经典的 Poka-yoke：不是训练模型"记住用对路径"，而是**让错误不可能发生**。
 
+## 实操版：Writing Effective Tools
+
+Anthropic 后来出了一篇专文把 ACI 落成可执行清单（[[sources/08-writing-effective-tools-for-agents]]）：
+
+- 工具是"确定性系统与非确定性 agent 之间的契约"，不能按给开发者写 API 的方式写
+- 别把 API 端点逐个包成工具；用 `search_*` / `*_context` 这类贴合 agent 工作方式的工具
+- 命名空间、语义化标识符（避免 UUID）、`response_format` 详略分级、token 预算与可行动的错误信息
+- **评估驱动**：生成贴近真实的任务 → 跑 eval 收集准确率/调用次数/token/错误 → 让 Claude 读 transcript 批量改工具（曾使任务完成时间降 40%）
+
+机制与清单见 [[concepts/25-tool-use-and-function-calling]]。
+
 ## 与其他概念的关系
 
 - [[concepts/14-augmented-llm]] 中"工具"增强的接口设计就是 ACI
 - [[concepts/09-context-engineering]] 管理 ACI 中工具描述的上下文内容
 - [[concepts/02-harness]] 的工具路由逻辑需要遵循 ACI 设计原则
+- [[concepts/31-mcp]] 是工具的标准化分发协议，ACI 原则同样适用于 MCP server
+- [[concepts/40-excessive-agency]] 提醒：工具设计阶段就在决定安全边界
 
 ## 来源
 
 - [[sources/03-building-effective-ai-agents]] — Anthropic 工程博客
+- [[sources/08-writing-effective-tools-for-agents]] — 工具设计实操

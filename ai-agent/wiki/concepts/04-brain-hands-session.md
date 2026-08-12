@@ -24,7 +24,7 @@ status: active
 
 ### v1: 耦合设计（单容器）
 
-```
+```text
 ┌─────────────────────────┐
 │     单一容器              │
 │  Session + Harness +     │
@@ -41,7 +41,7 @@ status: active
 
 ### v2: 解耦设计
 
-```
+```text
 Session (持久化) ←→ Harness (无状态) ←→ Sandbox (可替换)
    📝                 🧠                  ✋
 ```

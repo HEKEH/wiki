@@ -13,7 +13,7 @@ sources: [Building-Effective-AI-Agents.md]
 
 ### Sectioning（分片）
 
-```
+```text
 Input → [Subtask A] →\
        [Subtask B] →→ Aggregator → Output
        [Subtask C] →/
@@ -23,7 +23,7 @@ Input → [Subtask A] →\
 
 ### Voting（投票）
 
-```
+```text
 Input → [LLM instance 1] →\
        [LLM instance 2] →→ Vote/Aggregate → Output
        [LLM instance 3] →/

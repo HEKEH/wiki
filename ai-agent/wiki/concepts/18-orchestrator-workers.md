@@ -11,7 +11,7 @@ sources: [Building-Effective-AI-Agents.md]
 
 ## 机制
 
-```
+```text
 Input → [Orchestrator LLM]
           ├→ Worker 1 (specific subtask) →┐
           ├→ Worker 2 (specific subtask) →→ Synthesize → Output

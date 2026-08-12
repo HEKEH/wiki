@@ -3,11 +3,12 @@ title: Effective Harnesses for Long-Running Agents
 tags: [agent-architecture, harness-design, long-running]
 date: 2026-04-24
 sources: [Effective-harnesses-for-long.md]
-author: Justin Young
 status: active
 ---
 
 # Effective Harnesses for Long-Running Agents
+
+作者：[[entities/06-justin-young]]（[[entities/01-anthropic]]）
 
 ## 概述
 
