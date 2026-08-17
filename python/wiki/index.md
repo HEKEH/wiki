@@ -1,6 +1,6 @@
 # Index
 
-Python 知识库内容目录。共 **59 个内容页**（另有 home/index/log 三个导航页），按分类组织。★ 标记的是面试高频/必读页。
+Python 知识库内容目录。共 **60 个内容页**（另有 home/index/log 三个导航页），按分类组织。★ 标记的是面试高频/必读页。
 
 ## interview —— 面试题库与路线图
 
@@ -11,6 +11,7 @@ Python 知识库内容目录。共 **59 个内容页**（另有 home/index/log �
 | ★ [[interview/question-bank-internals-concurrency]] | GIL/GC/内存/并发/asyncio 25 题 + 答案 |
 | ★ [[interview/question-bank-web]] | FastAPI/数据库/架构/部署/安全/工程 24 题 + 答案 |
 | ★ [[interview/traps]] | 22 个经典陷阱题（全部在 3.13 实测）+ 四段式答题法 |
+| ★ [[interview/review-set-01]] | 复习题组 01：语言核心五题综合体检（Day 1–4）+ 逐条解答，全部 3.13 实测 |
 | [[interview/coding-patterns]] | 手撕代码模板与 Pythonic 惯用法 |
 
 ## language —— 语言核心机制

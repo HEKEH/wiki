@@ -321,3 +321,43 @@ session 关闭后访问过期属性抛 `DetachedInstanceError`；`lazy="raise"` 
 `update_wrapper` 参数顺序、层数规律、类装饰器补 `__get__`、装饰器实例是类变量、
 三个内置都是描述符、`lru_cache` 三坑、装饰/调用方向、异步装饰、三者作用范围）。
 目的是让长页可先扫结论再按需下钻，与既有的 `> 面试落点` 块形成两级复习入口。
+
+## [2026-08-17] ingest | 复习题组 01：语言核心五题（会话产出落页）
+
+**触发**：用户按 [[interview/roadmap]] 第 1 周 Day 1–4 的四个主题要 5 道复习题，
+逐题作答后逐条批改；批改内容有普适价值，落成 [[interview/review-set-01]]。
+
+**新页** `interview/review-set-01.md`：五题各含「题目 / 参考答案 / 解析 / 面试落点」，
+覆盖对象模型与拷贝、作用域与闭包、参数全谱与签名内省、装饰器、迭代器生成器与上下文管理器。
+**所有输出在 CPython 3.13.3 实测**（版本差异处标注，另在 3.9.6 上验证过 `@contextmanager` 复用的报错类型）。
+
+**本轮实测确认、值得单列的事实**（部分修正了原先页面里说得不够准的地方）：
+
+1. `copy.copy(tuple)` 是 **no-op**——`copy.py` 的 `_copy_immutable` 表含 tuple，
+   `copy.copy(t) is t`、`tuple(t) is t`、`t[:] is t` 全部为 `True`；
+   `deepcopy` 仅在「每个元素的拷贝都 `is` 原元素」时才复用原 tuple。
+   原 [[language/objects-mutability]] 用「浅拷贝共享内层元素」解释这一现象，对 list/dict 成立，对 tuple 偏软。
+2. **类作用域推导式的边界条件**：坑的准确表述不是「推导式不能用类变量」，而是
+   「**只有最外层 iterable 能用**」——因为它在类作用域求值后作为参数 `.0` 传入隐式函数。
+   若同名变量在模块级存在，则全部成立（实测 A/B 两个类对比）。这是 [[language/scope-closure]] 可补的一处。
+3. `@contextmanager` **完全忽略生成器的返回值**——`return`／`return False`／`return True`
+   行为一致，判据是「生成器有没有 `except` 住」（内部走 `gen.throw()`）。
+   与类实现 CM 看 `__exit__` 返回值形成对照，[[language/context-managers]] 未强调此差异。
+4. `@contextmanager` 产物复用报 **`AttributeError: '_GeneratorContextManager' object has no attribute 'args'`**
+   （3.9 与 3.13 一致），根因是 `__enter__` 末尾 `del self.args, self.kwds, self.func`。
+   非 `RuntimeError`——这个报错在线上排查时极易误导。
+5. **可重用（reusable）≠ 可重入（reentrant）**：文件对象类实现但不可重用；
+   `threading.Lock` 可重用不可重入（实测嵌套 `acquire(timeout=0.2)` 返回 `False`）；`RLock` 两者皆可。
+6. 同步 wrapper 装 `async def` **不报错**：coroutine 对象被透传，`asyncio.run` 照常工作，
+   计时只覆盖「协程创建」（实测 300ms 协程测出 0.7µs）。`@wraps` 修不了
+   `inspect.iscoroutinefunction`（查的是 `CO_COROUTINE` 标志位）；3.12+ 可用 `inspect.markcoroutinefunction`。
+7. `def api(a, /, ..., **kw)` 与去掉 `**kw` 的版本，对 `api(a=1)` 报**两句不同的错**：
+   前者 `missing 1 required positional argument`，后者
+   `got some positional-only arguments passed as keyword arguments`——加 `**kwargs` 会牺牲报错质量。
+
+**交叉引用**：新页加入 [[interview/roadmap]] 第 1 周表格下方作为 Day 1–4 自测入口；
+[[wiki/index]] interview 段新增一行，内容页计数 59 → 60。
+
+**与既有页面的分工**：[[interview/traps]] 是单点陷阱速查，本页是**多考点串联的综合题**，
+更接近真实面试「一段代码问五个输出」的形态。末尾另立一节「不报错的错」，
+把 1-(4)、4-(5)、5-(5) 三处归纳为同一模式：Python 选择静默地做点别的，而不是拒绝执行。
