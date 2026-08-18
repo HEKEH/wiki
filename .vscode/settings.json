@@ -1,5 +1,26 @@
 {
+    "errorLens.excludeBySource": [
+        "cSpell"
+    ],
     "cSpell.words": [
-        "kubelet"
+        "aenter",
+        "aexit",
+        "asynccontextmanager",
+        "asyncio",
+        "contextmanager",
+        "dunder",
+        "fastapi",
+        "futs",
+        "getsource",
+        "imap",
+        "initargs",
+        "kubelet",
+        "levelname",
+        "perf",
+        "pydantic",
+        "pytest",
+        "repr",
+        "starmap",
+        "uvloop"
     ]
 }

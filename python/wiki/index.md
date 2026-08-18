@@ -11,8 +11,15 @@ Python 知识库内容目录。共 **60 个内容页**（另有 home/index/log �
 | ★ [[interview/question-bank-internals-concurrency]] | GIL/GC/内存/并发/asyncio 25 题 + 答案 |
 | ★ [[interview/question-bank-web]] | FastAPI/数据库/架构/部署/安全/工程 24 题 + 答案 |
 | ★ [[interview/traps]] | 22 个经典陷阱题（全部在 3.13 实测）+ 四段式答题法 |
-| ★ [[interview/review-set-01]] | 复习题组 01：语言核心五题综合体检（Day 1–4）+ 逐条解答，全部 3.13 实测 |
 | [[interview/coding-patterns]] | 手撕代码模板与 Pythonic 惯用法 |
+
+## review —— 复习题组（自测卷 + 批改）
+
+按 [[interview/roadmap]] 的进度逐组产出，编号递增。每组 = 多考点串联的综合题 +「题目 / 参考答案 / 解析 / 面试落点」四段解答，输出全部实测。
+
+| 页面 | 覆盖范围 | 一句话 |
+|---|---|---|
+| ★ [[review/review-set-01]] | Day 1–4 · 语言核心 | 对象模型/作用域/参数/装饰器/生成器五题综合体检，全部 3.13 实测 |
 
 ## language —— 语言核心机制
 
@@ -24,7 +31,7 @@ Python 知识库内容目录。共 **60 个内容页**（另有 home/index/log �
 | [[language/functions-arguments]] | 五类参数、解包、默认值陷阱、签名内省 |
 | ★ [[language/decorators]] | 装饰器全谱、`wraps` / `update_wrapper`、手写 staticmethod/classmethod/property、顺序、异步装饰器 |
 | ★ [[language/iterators-generators]] | 迭代器/生成器/`yield from`、惰性求值、异步生成器 |
-| [[language/context-managers]] | `with` 协议、`@contextmanager`、ExitStack |
+| [[language/context-managers]] | `with` 协议、`@contextmanager`、ExitStack、标准库锁/池的 `__exit__` 语义差异 |
 | ★ [[language/classes-mro]] | 类、C3 线性化、`super()` 的真实含义、ABC |
 | ★ [[language/descriptors-properties]] | 描述符协议（含最小可运行例）、属性查找顺序、property、`__slots__` |
 | [[language/metaclasses]] | 类的创建流程、`__new__`、以及为什么不该用元类 |
@@ -51,7 +58,7 @@ Python 知识库内容目录。共 **60 个内容页**（另有 home/index/log �
 |---|---|
 | ★ [[concurrency/concurrency-models]] | 三模型对比与选型决策树、`concurrent.futures` |
 | [[concurrency/threading]] | 线程、锁、死锁四条件、Queue、原子性误区 |
-| [[concurrency/multiprocessing]] | 进程、fork vs spawn、pickle 限制、IPC 手段 |
+| [[concurrency/multiprocessing]] | 进程、fork vs spawn、pickle 限制、IPC 手段、Pool 的 terminate 语义 |
 | ★ [[concurrency/asyncio-fundamentals]] | 事件循环、协程惰性、`await` 机制、阻塞事故 |
 | ★ [[concurrency/asyncio-patterns]] | TaskGroup、超时、取消、限流、contextvars、生态 |
 | [[concurrency/io-multiplexing]] | select/poll/epoll、C10K、asyncio 的物理底座 |

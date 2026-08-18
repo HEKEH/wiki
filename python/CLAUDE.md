@@ -78,6 +78,11 @@ Each category maps to a subdirectory under `wiki/`:
 - **engineering** (`wiki/engineering/`): 工程实践 —— 包管理与虚拟环境、pytest、静态检查工具链、性能剖析
 - **bridge** (`wiki/bridge/`): 前端视角的对照页 —— JS↔Python 语法心智、两种事件循环对比、npm↔pip 生态
 - **interview** (`wiki/interview/`): 学习路线图、分主题高频题库与参考答案、手撕代码惯用法、经典陷阱题
+- **review** (`wiki/review/`): 复习题组 —— 按 roadmap 进度产出的自测卷与批改记录，文件名
+  `review-set-NN.md`（两位数字，递增，不复用编号）。每组是**多考点串联的综合题**，
+  与 `interview/traps` 的单点速查、`interview/question-bank-*` 的分主题题库分工不同。
+  单题结构固定为「题目 / 参考答案 / 解析 / 面试落点」四段，所有输出必须实测并标注 CPython 版本；
+  页首用一张表列出「# / 主题 / 涉及页面 / 高频错点」，并回链对应的 [[interview/roadmap]] 天数。
 - **sources** (`wiki/sources/`): `raw/` 下原始源文档的摘要与导读
 - **analysis** (`wiki/analysis/`): 对比、综合与查询结果
 

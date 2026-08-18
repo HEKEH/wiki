@@ -154,10 +154,10 @@ def setenv(**kw):
             else:
                 os.environ[k] = v
 
-# ③ 锁（标准库对象大多已经是 CM）
-with threading.Lock(): ...
-with asyncio.Lock(): ...          # async with
-with multiprocessing.Pool() as p: ...
+# ③ 锁与池（标准库对象大多已经是 CM，但三者的 __enter__/__exit__ 语义各不相同）
+lock = threading.Lock()           # 锁必须是共享的同一个对象，不能在 with 里现场 new
+with lock:                        # __enter__ = acquire()，__exit__ = release()（异常也放锁）
+    ...
 
 # ④ 多个 CM 一行（3.10+ 支持括号换行）
 with (
@@ -170,6 +170,89 @@ with (
 with pytest.raises(ValueError, match="bad"):
     parse("x")
 ```
+
+### 5.1 标准库同步原语的 CM 语义各不相同（高频错点）
+
+上面 ③ 只写了 `threading.Lock` 一种，因为**另外两个各有各的坑**，不能照着套。
+以下输出均在 CPython 3.11.9 实测（3.9–3.13 行为一致）。
+
+**① `threading.Lock`：`__enter__` 返回的是 `True`，不是锁本身**
+
+```python
+lk = threading.Lock()
+with lk as x:
+    print(repr(x))                #=> True     ← 不是 <locked _thread.lock object>
+```
+
+所以锁一律写 `with lk:`，写 `with lk as l:` 拿到的 `l` 是个布尔值，后续 `l.release()` 会 `AttributeError`。
+
+**② `asyncio.Lock`：只有 `__aenter__`，用 `with` 直接抛 TypeError**
+
+```python
+# ❌ 错误写法
+with asyncio.Lock():
+    ...
+#=> TypeError: 'Lock' object does not support the context manager protocol
+
+# ✅ 正确写法
+lock = asyncio.Lock()
+async def worker():
+    async with lock:
+        await do_something()
+```
+
+`asyncio.Lock` 从来没有 `__enter__`：3.7 起弃用了那个只会抛 `RuntimeError` 提示用 `async with` 的版本，
+3.9 起彻底移除，于是报错从「友好的 RuntimeError」退化成了「协议缺失的 TypeError」。
+语义与线程锁一样是进入 acquire、离开 release，区别在于等锁时是 `await` 挂起、交还事件循环，
+而不是阻塞整个线程。参见 [[concurrency/asyncio-fundamentals]]。
+
+**③ `multiprocessing.Pool`：`__exit__` 是 `terminate()`，不是 `close()` + `join()`**
+
+```python
+# 源码就这一行
+def __exit__(self, exc_type, exc_val, exc_tb):
+    self.terminate()              # 立刻杀掉 worker，不等未完成的任务
+```
+
+于是块内用异步 API 提交、块外取结果，任务会被**静默杀掉**：
+
+```python
+import multiprocessing as mp, time
+
+def slow(n):
+    time.sleep(1)
+    return n * n
+
+# 以下都要放在 if __name__ == "__main__": 里（spawn 平台的硬性要求）
+
+# ❌ 错误写法
+with mp.Pool(2) as p:
+    r = p.map_async(slow, range(4))   # 不阻塞，提交完就离开 with
+r.get(timeout=5)                      #=> TimeoutError    ← 任务已随 terminate 消失
+
+# ✅ 正确写法：块内用阻塞式 API，或在块内就把结果取出来
+with mp.Pool(2) as p:
+    print(p.map(slow, range(4)))      #=> [0, 1, 4, 9]
+with mp.Pool(2) as p:
+    r = p.map_async(slow, range(4))
+    print(r.get())                    #=> [0, 1, 4, 9]    ← get() 在块内
+```
+
+对照 `concurrent.futures` 的池，`Executor.__exit__` 是 `shutdown(wait=True)`——**语义正好相反**，
+离开 `with` 会等所有已提交任务跑完：
+
+```python
+with ProcessPoolExecutor(2) as ex:
+    futs = [ex.submit(slow, i) for i in range(4)]   # 不阻塞
+# 这里已经等了 ~2s（4 个任务 / 2 个 worker）
+[f.result() for f in futs]            #=> [0, 1, 4, 9]
+```
+
+> **面试落点**：`with` 只保证"离开时调用 `__exit__`"，不保证 `__exit__` 做的是"优雅收尾"。
+> `multiprocessing.Pool` 收的是 `terminate`，`ProcessPoolExecutor` 收的是 `shutdown(wait=True)`——
+> 同样一段 `with` 代码，前者丢任务后者不丢。用不熟的 CM 之前先看一眼它的 `__exit__`。
+
+详见 [[concurrency/multiprocessing]]。
 
 ## 6. 为什么不用 `try/finally` 就好？
 

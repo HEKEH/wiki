@@ -178,6 +178,25 @@ def predict(x):
     return _model.infer(x)           # 直接用，无需传参
 ```
 
+**`with Pool()` 的 `__exit__` 是 `terminate()`，不是 `close()` + `join()`**——立刻杀 worker，
+不等未完成的任务。所以块内必须用阻塞式 API，或者在块内就把结果 `get()` 出来：
+
+```python
+# ❌ 提交完就离开 with，任务被静默杀掉
+with Pool(2) as p:
+    r = p.map_async(slow, range(4))
+r.get(timeout=5)                     #=> TimeoutError
+
+# ✅ get() 写在块内
+with Pool(2) as p:
+    r = p.map_async(slow, range(4))
+    print(r.get())                   #=> [0, 1, 4, 9]
+```
+
+`concurrent.futures` 的池**语义正好相反**：`Executor.__exit__` 是 `shutdown(wait=True)`，
+离开 `with` 会等所有已提交任务跑完。两种池混用时这是最容易踩的一脚，
+详见 [[language/context-managers]] 的 §5.1。
+
 ## 6. 与线程池的接口一致性
 
 ```python
@@ -204,6 +223,7 @@ with Executor(max_workers=4) as ex:
 # ⑧ fork 继承了父进程的随机数种子 → 各子进程生成相同随机数！
 #    解法：子进程里 random.seed(os.getpid()) 或用 numpy 的 SeedSequence
 # ⑨ 忘记 pool.close()/join() 或不用 with → 僵尸进程
+#    但 with 也不是"优雅收尾"：Pool.__exit__ 是 terminate()，异步提交的任务会被杀（见 §5）
 # ⑩ Ctrl+C 会同时发给所有子进程，处理不当会留下孤儿进程
 ```
 

@@ -361,3 +361,48 @@ session 关闭后访问过期属性抛 `DetachedInstanceError`；`lazy="raise"` 
 **与既有页面的分工**：[[interview/traps]] 是单点陷阱速查，本页是**多考点串联的综合题**，
 更接近真实面试「一段代码问五个输出」的形态。末尾另立一节「不报错的错」，
 把 1-(4)、4-(5)、5-(5) 三处归纳为同一模式：Python 选择静默地做点别的，而不是拒绝执行。
+
+## [2026-08-17] refactor | 复习题组独立成 review 分类
+
+**动机**：复习题组会随 roadmap 进度持续新增（review-set-01、02、03…），
+留在 `interview/` 里会把路线图、题库、陷阱页淹没在编号文件中。
+
+**变更**：
+- 新建分类目录 `wiki/review/`，`interview/review-set-01.md` → `review/review-set-01.md`（`git mv`，内容未改）。
+- `python/CLAUDE.md` Categories 段新增 **review** 分类，明确约定：文件名 `review-set-NN.md` 递增不复用；
+  单题四段结构（题目/参考答案/解析/面试落点）；输出实测并标注 CPython 版本；页首表格 + 回链 roadmap 天数。
+- `wiki/index.md`：interview 段删去该行，新增独立的「review —— 复习题组」段（带「覆盖范围」列，便于按 roadmap 天数定位）。
+- `wiki/interview/roadmap.md` 第 1 周表格下方的自测入口改指 [[review/review-set-01]]。
+
+内容页总数不变（60）。本日志此前条目中的 `interview/review-set-01` 为历史记录，按 append-only 约定保留原样。
+
+## [2026-08-17] ingest | with + 标准库锁/池：__exit__ 语义差异（勘误）
+
+**触发**：读 [[language/context-managers]] §5 的「③ 锁」三行示例时发现其中一行是**错的**，
+顺手实测后把三种同步原语的 CM 语义拆开写清楚。
+
+**勘误**：原示例 `with asyncio.Lock(): ...`（注释写着 `# async with`）**跑不通**。
+`asyncio.Lock` 只实现 `__aenter__`/`__aexit__`，3.7 起弃用了那个抛 `RuntimeError` 提示改用
+`async with` 的 `__enter__`，3.9 起彻底移除，于是现在报的是
+`TypeError: 'Lock' object does not support the context manager protocol`——
+友好提示退化成了协议缺失错误。同段的 `with threading.Lock():` 是当场 new 一个锁再加解锁，
+作为「锁必须共享」的反例更有价值，已改写为先绑定再 `with`。
+
+**新增**（[[language/context-managers]] §5.1，CPython 3.11.9 实测，3.9–3.13 一致）：
+
+1. `threading.Lock.__enter__` 返回 **`True`** 而非锁对象——`with lk as l:` 拿到布尔值，
+   后续 `l.release()` 报 `AttributeError`。所以锁一律写 `with lk:` 不带 `as`。
+2. `multiprocessing.Pool.__exit__` 源码只有一行 `self.terminate()`，**不是** `close()` + `join()`。
+   实测 `with Pool(2) as p: r = p.map_async(slow, range(4))` 后在块外 `r.get(timeout=5)`
+   直接 `TimeoutError`——任务随 terminate 被静默杀掉。解法：块内用阻塞式 API（`map`/`starmap`），
+   或把 `get()` 写进块内。
+3. **反向对照**：`concurrent.futures.Executor.__exit__` 是 `shutdown(wait=True)`，
+   离开 `with` 会等所有已提交任务跑完（实测 4 任务 / 2 worker 阻塞 ~2.1s，结果完整）。
+   同样形状的 `with` 代码，`Pool` 丢任务、`ProcessPoolExecutor` 不丢。
+
+**归纳（已落成面试落点）**：`with` 只保证「离开时调用 `__exit__`」，
+不保证 `__exit__` 做的是「优雅收尾」。用不熟的 CM 之前先看一眼它的 `__exit__` 源码。
+
+**交叉引用**：[[concurrency/multiprocessing]] §5 补 Pool 的 terminate 语义与双向链接；
+其陷阱清单 ⑨「忘记 close()/join() 或不用 with → 僵尸进程」原话有误导性（暗示 with 是安全解），
+补一行说明 with 同样会杀任务。[[wiki/index]] 两行摘要相应更新。内容页总数不变（60）。

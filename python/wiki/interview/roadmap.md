@@ -40,7 +40,7 @@ sources: []
 | 6 | 数据模型（dunder 全景）、异常体系 | [[language/data-model]] [[language/exceptions]] |
 | 7 | 复习 + 做 [[interview/traps]] 全部陷阱题 | |
 
-**Day 1–4 的自测**：[[interview/review-set-01]] —— 五道综合题覆盖上面 1–4 天的全部考点，
+**Day 1–4 的自测**：[[review/review-set-01]] —— 五道综合题覆盖上面 1–4 天的全部考点，
 每题 6~8 个输出 + 5 个追问，附逐条解答（全部 3.13 实测）。写完再对答案。
 
 **验收标准**：能不看资料手写一个带参数的重试装饰器、一个上下文管理器、
