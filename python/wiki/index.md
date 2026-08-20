@@ -20,6 +20,7 @@ Python 知识库内容目录。共 **60 个内容页**（另有 home/index/log �
 | 页面 | 覆盖范围 | 一句话 |
 |---|---|---|
 | ★ [[review/review-set-01]] | Day 1–4 · 语言核心 | 对象模型/作用域/参数/装饰器/生成器五题综合体检，全部 3.13 实测 |
+| ★ [[review/review-set-02]] | Day 5 · 类与 MRO | 类变量/name mangling/C3/协作式 super/ABC vs Protocol 两题，含批改记录 |
 
 ## language —— 语言核心机制
 
@@ -32,7 +33,7 @@ Python 知识库内容目录。共 **60 个内容页**（另有 home/index/log �
 | ★ [[language/decorators]] | 装饰器全谱、`wraps` / `update_wrapper`、手写 staticmethod/classmethod/property、顺序、异步装饰器 |
 | ★ [[language/iterators-generators]] | 迭代器/生成器/`yield from`、惰性求值、异步生成器 |
 | [[language/context-managers]] | `with` 协议、`@contextmanager`、ExitStack、标准库锁/池的 `__exit__` 语义差异 |
-| ★ [[language/classes-mro]] | 类、C3 线性化、`super()` 的真实含义、ABC |
+| ★ [[language/classes-mro]] | 类、C3 线性化（含 merge 推演）、`super()` 的真实含义、协作式 `**kwargs`、ABC vs Protocol |
 | ★ [[language/descriptors-properties]] | 描述符协议（含最小可运行例）、属性查找顺序、property、`__slots__` |
 | [[language/metaclasses]] | 类的创建流程、`__new__`、以及为什么不该用元类 |
 | [[language/typing]] | 类型注解、泛型、Protocol、mypy（与 TS 对照） |

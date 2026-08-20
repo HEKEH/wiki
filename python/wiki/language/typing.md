@@ -121,6 +121,26 @@ class Sized(Protocol):
 isinstance([1, 2], Sized)               #=> True
 ```
 
+两个运行时坑（都是「以为有保护，其实没有」，3.11.9 实测）：
+
+```python
+class Weird: __len__ = 123               # 只是个同名属性，不是方法
+isinstance(Weird(), Sized)               #=> True    ← 只查名字，不查签名/是不是 callable
+
+class Empty(Closable): pass              # 显式继承 Protocol
+Empty()                                  #=> 成功！ ← 没实现 close 也放过
+```
+
+不加 `@runtime_checkable` 就用 `isinstance` 是**硬错误**（不是静默返回 False）：
+
+```python
+isinstance(x, Closable)
+# TypeError: Instance and class checks can only be used with @runtime_checkable protocols
+```
+
+第二个坑是与 ABC 的关键区别：**Protocol 不提供 ABC 那种运行时抽象性保护**，
+约束力全在静态检查器。对比详见 [[language/classes-mro]] §6。
+
 > **面试落点**：「Python 怎么表达接口？」——三条路：
 > ① `abc.ABC` 名义子类型（必须显式继承）；② `typing.Protocol` 结构化子类型（鸭子类型的静态化）；
 > ③ 纯鸭子类型（不声明）。库的公开 API 优先 Protocol，需要提供默认实现或强制约束时用 ABC。

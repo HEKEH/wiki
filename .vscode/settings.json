@@ -1,7 +1,5 @@
 {
-    "errorLens.excludeBySource": [
-        "cSpell"
-    ],
+    "errorLens.enabled": false,
     "cSpell.words": [
         "aenter",
         "aexit",

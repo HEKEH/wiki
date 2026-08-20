@@ -406,3 +406,71 @@ session 关闭后访问过期属性抛 `DetachedInstanceError`；`lazy="raise"` 
 **交叉引用**：[[concurrency/multiprocessing]] §5 补 Pool 的 terminate 语义与双向链接；
 其陷阱清单 ⑨「忘记 close()/join() 或不用 with → 僵尸进程」原话有误导性（暗示 with 是安全解），
 补一行说明 with 同样会杀任务。[[wiki/index]] 两行摘要相应更新。内容页总数不变（60）。
+
+## [2026-08-20] query | 类、MRO 与 ABC 的复习题组（review-set-02）
+
+**请求**：基于 [[language/classes-mro]] 出两道复习题（先不给答案），逐题作答后逐条批改。
+
+**新页** `review/review-set-02.md`：两道多考点串联题 + 批改记录，每行输出均 CPython 3.11.9 实测。
+
+1. **类变量 / 实例变量 / name mangling / 三种方法**（5 小问）
+2. **MRO / C3 / 协作式 `**kwargs` / ABC vs Protocol**（A 6 问 + B + C 3 问）
+
+**本次实测新确认的事实**（已写进题组解析）：
+
+- 可变类变量的**子类不隔离**：`Sub` 往 `Base.registry` 里写，
+  `'registry' in Sub.__dict__` 是 **False**。要每子类一张表得用 `__init_subclass__`。
+- 协作式 `**kwargs` 的末端：无人认领的 kwarg 漂到 MRO 终点，抛
+  `TypeError: object.__init__() takes exactly one argument`。这是**特性**（拼写错误能被拓住），
+  删掉末端的 `super().__init__(**kw)` 是错的修法。
+- `@abstractmethod` 包 `@property`（顺序写反）在 3.11.9 上是**类定义时直接报错**：
+  `AttributeError: attribute '__isabstractmethod__' of 'property' objects is not writable`（只读计算属性）。
+- `@runtime_checkable` 的 `isinstance` **只查方法名不查签名**：`class Weird: get = 123` 也返回 True。
+- 显式继承 Protocol 的子类（`class Empty(Storage): pass`）**能实例化**，
+  未实现方法也放过——Protocol 不提供 ABC 那种运行时抽象性保护。
+- 时机对比（已归纳为考点）：**C3 失败在类定义时报错，而 ABC 的抽象方法检查在实例化时**。
+
+**出题自省**（已写进页内）：A6 原本让对比 `C().who()`，但 `C.who` 的 `super()`
+在 C 实例和 D 实例上都指向 `A`，演示不了「同一行指向不同类」。
+能演示的是 `B`：`B().who()` → `'B->A'` vs `D().who()` → `'D->B->C->A'`。已改为 B 版。
+
+**作答错点归类**（两大类，已记入页内批改表）：
+① 不逐行读代码而按「应该长什么样」补细节（凭空补了不存在的 `D.init`、把实参当默认值）；
+② 知道机制但说错结论（mangling 的目的、可变类变量的危害）。
+
+**交叉引用**：[[wiki/index]] review 节新增一行；[[interview/roadmap]] Day 5 下方加自测入口；
+[[language/classes-mro]] 「相关」回链本题组。内容页总数 60 → 61。
+
+## [2026-08-20] ingest | 把 review-set-02 的知识点拆进主题页
+
+**动机**：上一条条目只建了题组页，新实测确认的事实还躺在 [[review/review-set-02]] 里，
+按本库 ingest 约定（「把知识点拆进对应的分类页」）补这一步。
+
+**[[language/classes-mro]] 新增 8 处**（行数 292 → 448）：
+
+1. §1 类变量陷阱——补**子类不隔离**：`'registry' in Sub.__dict__` 是 False，
+   子类往父类的表里写；给出 `__init_subclass__` 的正确写法；归纳三层代价（串味/共写/泄漏）。
+2. §2 绑定方法——补 `c.m is c.m` 是 **False**（每次现造），并加三种方法的 `__get__` 结果对比：
+   `Sub.sm is P.sm` True / `Sub.cm.__self__ is Sub`（**不是** `P`，这就是多态构造的根源）/ `p.im.__func__ is P.im`。
+3. §4 `super()`——补零参 `super()` == `super(B, self)` 的 `__class__` cell 机制，以及
+   **同一行代码不同目标**的铁证：`B().go()` → `B A` vs `D().go()` → `D B C A`。
+   （注明用 `C` 演示不了：`C` 的 MRO 是 `(C, A, object)`，两种实例上 `C.go` 的 super 都指向 `A`。）
+   反面对照硬编码 `A.go(self)` → `D B A`，危害是后插的 mixin **静默失效**。
+4. §5 C3 失败——补**逐步 merge 推演**（三步到双头被拒死锁），并指明报错在 `class` 定义时刻。
+5. §5 协作式继承——补**链条末端撞 `object.__init__`**：无人认领的 kwarg 抛
+   `TypeError: object.__init__() takes exactly one argument`。强调这是**特性**，
+   并标出「删末端 super」的两个代价（静默丢参数 + 换继承结构时断链）。
+6. §6 ABC——补**检查时机**：`ABCMeta` 定义期只收集 `__abstractmethods__`，拦截点在
+   `object.__new__`；归纳为「从未被实例化的坏子类能合并进主干」，并与 C3 的定义期报错**对比**。
+7. §6 装饰器顺序——补原理（`__isabstractmethod__` 标记由 `property` 向上传播），
+   以及写反的真实后果：**不是静默丢失抽象性，而是类定义那一刻 `AttributeError`**。
+8. §6 ABC vs Protocol 表——加「依赖方向」一行，并补 Protocol 的两个运行时坑。
+
+**[[language/typing]] §4 新增**：`runtime_checkable` 的 `isinstance` 只查方法名（`__len__ = 123` 也过）；
+显式继承 Protocol 的空子类能实例化；不加 `runtime_checkable` 用 isinstance 是硬错误而非返回 False。
+回链 [[language/classes-mro]] §6。
+
+**验证**：新增的每一段代码写成 20 条断言的脚本跑过，CPython 3.11.9 全部 OK。
+（`S3()` 的报错原文是复数 `with abstract methods get, put`——文案随版本/个数变化，页内已标注。）
+
+**内容页总数不变（61）**。
