@@ -189,6 +189,86 @@ class Lazy:
 `__getattr__` vs `__getattribute__` 的区别是必考点：前者是**兜底**（找不到才调），后者是**拦截**（每次都调）。
 ORM、配置对象、Mock 库大量使用 `__getattr__`。
 
+**它的作用域：管「定义它的那个类的实例」**——不是「只管实例」。类本身也是对象（元类的实例），
+所以拦类上的查找要把钩子放到**元类**里：
+
+```python
+class C:
+    def __getattr__(self, n): return f"inst:{n}"
+class Meta(type):
+    def __getattr__(cls, n): return f"cls:{n}"
+class D(metaclass=Meta): pass
+
+C().missing    #=> 'inst:missing'
+C.missing      # ❌ AttributeError    ← C 是 type 的实例，C 自己的钩子管不到它
+D.missing      #=> 'cls:missing'
+D().missing    # ❌ AttributeError    ← 元类的钩子也管不到实例
+```
+
+由此三条推论：
+
+- **继承给的是实例，不是类对象**。`Base` 定义了 `__getattr__`，`Sub(Base)` 的**实例**照样兜底，
+  但 `Sub.missing` 仍然 `AttributeError`——`Sub` 是 `type` 的实例，钩子要从 `type(Sub)` 上找。
+- **`__getattr__` 自己也是 dunder**，挂进实例 `__dict__` 无效。
+- **隐式 dunder 调用绕开它**。特殊方法走 `_PyType_Lookup(type(x), name)` 直接翻类型的 MRO 字典，
+  `__getattribute__` / `__getattr__` 都不经过：
+
+  ```python
+  class G:
+      def __getattr__(self, n):
+          if n == "__len__": return lambda: 42
+          raise AttributeError(n)
+
+  G().__len__()   #=> 42        ← 显式调用走属性协议，命中兜底
+  len(G())        # ❌ TypeError: object of type 'G' has no len()   ← 槽位查找，绕过兜底
+  ```
+
+  这也解释了下面 `deepcopy` 为什么会中招：`copy.py` 里是**手写的显式 `getattr`**，
+  走普通属性协议；换成隐式特殊方法查找就不会被拦。
+
+⚠️ **无条件兜底会打坏标准库的钩子探测**。很多代码在**实例**上做
+`getattr(x, "__某个钩子__", None)`，取到就调用——`__getattr__` 会给它一个假的返回值：
+
+```python
+import copy
+
+class G:
+    def __getattr__(self, n): return f"?{n}"
+
+copy.copy(G())        #=> 成功
+copy.deepcopy(G())    # ❌ TypeError: 'str' object is not callable
+```
+
+差别就在 `copy.py` 里相邻两个函数的**探测位置不一致**：
+
+```python
+copier = getattr(cls, "__copy__", None)      # copy()：在【类】上取
+copier = getattr(x, "__deepcopy__", None)    # deepcopy()：在【实例】上取 ← 被兜底拦截
+```
+
+`copy()` 躲过两道关：① `__copy__` 在**类对象** `G` 上找，走的是 `type(G)` 的查找链，
+与实例级的 `G.__getattr__` 无关（要拦得上 metaclass 级 `__getattr__`）；
+② 随后 `getattr(x, "__reduce_ex__")` 虽然是在实例上取，但 `object.__reduce_ex__`
+**真实存在**，常规查找就成功了——而 `__getattr__` 只在常规查找**失败后**才被调，所以没触发。
+`__deepcopy__` 则哪儿都不存在，兜底必然接管。
+x
+顺带一个后果：`hasattr(x, anything)` 恒为 `True`，一切鸭子类型探测失效。正确写法是把
+dunder 排除在兜底之外：
+
+```python
+class G2:
+    def __getattr__(self, n):
+        if n.startswith("__") and n.endswith("__"):
+            raise AttributeError(n)      # ✅ 让 dunder 探测正常地「找不到」
+        return f"?{n}"
+
+copy.deepcopy(G2())   #=> 成功
+```
+
+> **面试落点**：`__getattr__` 必须对 dunder 显式 `raise AttributeError`，否则会随机破坏
+> copy/pickle/框架内省。（`pickle` 在 3.11+ 反而没事——3.11 给 `object` 加了 `__getstate__`，
+> 在类上就找得到；3.10 及更早会踩同一个坑。）实测见 [[review/review-set-03]]。
+
 ### 7. 可调用与描述符
 
 ```python
@@ -277,4 +357,5 @@ def total(items: list[HasPrice]) -> float:   # mypy 能静态校验，运行时�
 - [[language/context-managers]] —— with 协议
 - [[internals/cpython-object-model]] —— dunder 如何映射到 C 层 slot
 - [[bridge/js-to-python]] —— 与 JS Symbol/Proxy 的对照
+- [[review/review-set-03]] —— 本页考点的自测卷（11 个输出 + 6 个追问，3.11.9 实测）
 - [[sources/cpython-docs]] —— 来源：官方 datamodel.rst

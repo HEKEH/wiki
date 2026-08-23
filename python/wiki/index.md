@@ -1,6 +1,6 @@
 # Index
 
-Python 知识库内容目录。共 **60 个内容页**（另有 home/index/log 三个导航页），按分类组织。★ 标记的是面试高频/必读页。
+Python 知识库内容目录。共 **62 个内容页**（另有 home/index/log 三个导航页），按分类组织。★ 标记的是面试高频/必读页。
 
 ## interview —— 面试题库与路线图
 
@@ -21,6 +21,7 @@ Python 知识库内容目录。共 **60 个内容页**（另有 home/index/log �
 |---|---|---|
 | ★ [[review/review-set-01]] | Day 1–4 · 语言核心 | 对象模型/作用域/参数/装饰器/生成器五题综合体检，全部 3.13 实测 |
 | ★ [[review/review-set-02]] | Day 5 · 类与 MRO | 类变量/name mangling/C3/协作式 super/ABC vs Protocol 两题，含批改记录 |
+| ★ [[review/review-set-03]] | Day 6 · 数据模型 | 一个类考 11 个输出：str/repr、eq/hash、协议回退、`__iadd__`、槽位查找、`__getattr__` 兜底，3.11.9 实测，含批改记录 |
 
 ## language —— 语言核心机制
 

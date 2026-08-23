@@ -474,3 +474,71 @@ session 关闭后访问过期属性抛 `DetachedInstanceError`；`lazy="raise"` 
 （`S3()` 的报错原文是复数 `with abstract methods get, put`——文案随版本/个数变化，页内已标注。）
 
 **内容页总数不变（61）**。
+
+## [2026-08-23] ingest | 复习题组 03（数据模型 dunder 全景）
+
+按 [[language/data-model]] 出了一道综合复习题，落成 [[review/review-set-03]]（对应
+[[interview/roadmap]] Day 6）。一个 `Tally` 类 + 11 个输出 + 6 个追问，覆盖六大考点：
+
+1. **str/repr 分工** —— `print(t)` → `1+2`，`print([t])` → `Tally(1, 2)`，
+   且 `print(u, t)` 是 str 不是 repr（多参数 print 常被答错）。
+2. **`__eq__` / `__hash__` 成对** —— `Tally.__hash__` 被自动置为 `None`；
+   追问补了「补 `__hash__` 之后可变对象在 set 里变幽灵」的实测。
+3. **`NotImplemented` vs `False`** —— `t == (1, 2)` 走反射链退回身份比较得 `False`；
+   反面用 `BadEq`/`Odd` 实测出对称性被破坏（换顺序结论就变）。
+4. **容器协议回退边界** —— 本题的 `Tally` 同时有 `__len__` + `__getitem__`，
+   所以 `reversed()` **成功**（`[2, 1]`）；与主题页里只有 `__getitem__` 的 `OnlyGet` 报错形成正反对照。
+   这个边界原页只写了「失败」一侧，现在两侧都有例子。
+5. **`__iadd__` 忘记 `return self`** —— `t += [9]` 静默把 `t` 变成 `None`（对象改成功了，名字丢了），
+   并接到 tuple 里放 list 的 `t[0] += [x]`「既改成功又报错」两步字节码解释。
+6. **槽位查找 + `__getattr__` 兜底** —— `v.__len__ = lambda: 99` 后 `len(v)` 仍是 1 而 `v.__len__()` 是 99；
+   `hasattr` 在无条件 `__getattr__` 下恒 `True`（连不存在的 `__iter__` 都 True）。
+
+**新发现（主题页未覆盖）**：`copy.deepcopy` 在**实例**上探测 `__deepcopy__`，
+会被无条件的 `__getattr__` 拦到并把字符串当函数调用 → `TypeError: 'str' object is not callable`；
+`copy.copy` 不受影响（copier 在类上取）。修法是 `__getattr__` 里对 dunder 显式
+`raise AttributeError`。附带核实：`pickle` 在 **3.11+ 不再中招**（3.11 给 `object` 加了
+`__getstate__`，类上就能找到），3.10 及更早才会踩同一个坑——已在页内标注版本边界。
+
+**验证**：题目代码与全部追问代码逐条跑过，CPython **3.11.9** 输出与页内一致
+（含 `__new__` 打印插入的行序）。
+
+**同步更新**：[[interview/roadmap]] 加「Day 6 的自测」指针；[[review/review-set-03]] 页尾
+回链 data-model / objects-mutability / iterators-generators / descriptors-properties /
+cpython-object-model / traps。
+
+**内容页 61 → 62**（index.md 的计数原为 60，与实际不符，本次一并校正为 62）。
+
+## [2026-08-23] lint | review-set-03 批改 + data-model 属性访问层补全
+
+**批改 [[review/review-set-03]]**：实际作答 **7.5 / 11**，页内新增「批改记录」一节。
+对的：(1)(2)(3)(4)(7)(10)(11)——`reversed` 回退边界与「dunder 只在类型上查找」都答对了，
+说明协议层/槽位层机制是通的。错的三处及错法归类：
+
+- (5) `{t}` 被当成 dict（实为 set 字面量），且不知道 `__eq__` 会把 `__hash__` 清成 `None`。
+- (6) `2 in t` 答成 `False`——误以为「没 `__contains__` 就不支持 `in`」（那会是 `TypeError`），
+  实际退化成迭代比对元素值。
+- (8)(9) 与漏掉的五行 `new (...)` 是**同一个答题习惯**：答「对象里装着什么」而非
+  「这一行打印什么」。(9) 因此没看到 `__iadd__` 缺 `return self` 会把 `t` 绑成 `None`。
+
+结论：缺口集中在「`__eq__`/`__hash__` 成对」与「`+=` 是调用 + 重新绑定两步」两个必考点。
+
+**[[language/data-model]] §6 属性访问两轮补全**（起因是读页时追问「`copy.copy` 为什么能成功」）：
+
+1. **`copy` / `deepcopy` 的不对称有了确切根因**——读 `copy.py` 源码确认是同模块内相邻两个函数
+   探测位置不一致：`copy()` 是 `getattr(cls, "__copy__")`（**类**上取），
+   `deepcopy()` 是 `getattr(x, "__deepcopy__")`（**实例**上取）。`copy()` 还躲过第二关：
+   随后的 `getattr(x, "__reduce_ex__")` 虽在实例上取，但 `object.__reduce_ex__` 真实存在，
+   常规查找即成功，`__getattr__` 只在查找**失败后**才调，压根没触发。
+   反证：给类加 metaclass 级 `__getattr__`，`copy.copy` 立刻同样 `TypeError`。
+2. **新增「`__getattr__` 的作用域」小节**——它管的是「定义它的那个类的**实例**」，不是「只管实例」；
+   类本身是元类的实例，拦类上的查找要把钩子放进元类。三条实测推论：
+   ① 基类的 `__getattr__` 被子类**实例**继承，但 `Sub.missing` 仍 `AttributeError`
+   （`Sub` 是 `type` 的实例）；② `__getattr__` 自己是 dunder，挂进实例 `__dict__` 无效；
+   ③ **隐式 dunder 调用绕开它**——`G().__len__()` 命中兜底得 42，而 `len(G())` 报
+   `TypeError: object of type 'G' has no len()`。第 ③ 条正好解释了 deepcopy 事故的前提：
+   `copy.py` 用的是**手写的显式 `getattr`**，走普通属性协议才会被拦。
+
+**验证**：六种作用域情形 + `copy.py` 两处探测 + metaclass 反证逐条跑过，CPython **3.11.9**。
+
+**内容页总数不变（62）**。

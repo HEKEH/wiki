@@ -46,6 +46,10 @@ sources: []
 **Day 5 的自测**：[[review/review-set-02]] —— 两题串起类变量/name mangling/
 MRO 与 C3 推演/协作式 `**kwargs`/ABC vs Protocol，附批改记录（全部 3.11.9 实测）。
 
+**Day 6 的自测**：[[review/review-set-03]] —— 一道题 11 个输出，串起 str/repr 分工、
+`__eq__`/`__hash__` 成对、`NotImplemented` 语义、容器协议回退边界、`__iadd__` 的 `return self`、
+dunder 的槽位查找与 `__getattr__` 兜底事故（全部 3.11.9 实测）。
+
 **验收标准**：能不看资料手写一个带参数的重试装饰器、一个上下文管理器、
 一个生成器管道，并画出菱形继承的 MRO。
 
