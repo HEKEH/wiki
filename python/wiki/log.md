@@ -584,3 +584,93 @@ cpython-object-model / traps。
 split/subgroup、`except*` 包组、`__del__` 吞异常、Task 异常延迟打印、timeit 基准）。
 
 **内容页总数不变（62）**。
+
+## [2026-08-25] ingest | 复习题组 04（异常体系）+ assert SyntaxWarning 勘误
+
+**动机**：Day 6 的另一半（[[language/exceptions]]）此前只有主题页，没有自测卷；
+review-set-03 只覆盖了数据模型。本次按同一体例产出 [[review/review-set-04]]。
+
+**新增页**：`wiki/review/review-set-04.md` —— 一道题 **17 个输出 + 7 个追问 + 1 道加分题**，
+分七段覆盖：
+① 控制流（`finally: return` 吞异常 / try 保护范围过大误捕同类异常 / `else` 的正解）；
+② `except X as e` 块末隐式 `del e` —— 在函数里报的是 **`UnboundLocalError`** 而非 `NameError`，
+且连 try 之前赋的同名值一起删；
+③ 异常链三件套 `__cause__` / `__context__` / `__suppress_context__` 的六种组合取值；
+④ `str(ValueError()) == ''`、`str(KeyError("k")) == "'k'"`、以及自定义异常的 pickle 契约
+（`super().__init__(拼好的字符串)` → `args` 只剩一个元素 → 重建时 `TypeError`）；
+⑤ `add_note` / `__notes__` 首次调用才创建、note 在 `format_exception_only` 里独占一行；
+⑥ `except*` 的部分接管语义（`as` 永远是组、未匹配部分重新打包外抛）；
+⑦ `except Exception` 罩不住 `BaseException` 一支，但 `finally` 对它一样生效。
+
+**本次新查证的事实**（均 CPython **3.11.9** 实测，主题页此前未记）：
+
+1. `except* ValueError` 与普通 `except` **不能写在同一个 try 上**：
+   `SyntaxError: cannot have both 'except' and 'except*' on the same 'try'`。
+2. `except*` 块里**不能有 `break` / `continue` / `return`**：
+   `SyntaxError: 'break', 'continue' and 'return' cannot appear in an except* block`
+   —— 根因是同一个 try 可能执行多个 `except*` 分支，`return` 该听谁的没有定义。
+3. `ExceptionGroup("m", [KeyboardInterrupt()])` → `TypeError: Cannot nest BaseExceptions
+   in an ExceptionGroup`；而 `BaseExceptionGroup("m", [ValueError()])` **自动降级**返回
+   `ExceptionGroup`。设计目的是保证装着 `KeyboardInterrupt` 的组不会被 `except* Exception` 接住。
+4. `eg.split(T)` / `eg.subgroup(T)` 在**无匹配时返回 `None`**，不是空组
+   （`split` → `(None, 原组)`）。
+5. 函数内 `except ... as e` 之后访问 `e` 是 **`UnboundLocalError`**（主题页 §7.6 只写了模块级的
+   `NameError`）；且 try **之前**赋给同名变量的值也会被那次隐式 `del` 一并清掉。
+
+**勘误**（[[language/exceptions]] §7.4）：原写「`assert (cond, "msg")` … 3.12 起会给
+`SyntaxWarning`」——实测 **3.11.9 已有**该警告（原文
+`assertion is always true, perhaps remove parentheses?`），该警告自 3.7 起就存在。已改。
+
+**同步更新**：`wiki/index.md` 加 review-set-04 行；`wiki/interview/roadmap.md` 的 Day 6
+自测段补上异常体系那一半的入口；`wiki/language/exceptions.md` 相关链接回链本组题。
+
+**待补**：本组题**尚无批改记录**，等作答后按 review-set-02/03 的体例补 `## 批改记录`。
+
+**内容页总数 62 → 63**。
+
+## [2026-08-25] lint | review-set-04 批改（12/17）+ exceptions 异常链与 as 变量补全
+
+**批改结果**：[[review/review-set-04]] 实际作答 **12 / 17**（全对 10、半对 4、全错 3），
+已补 `## 批改记录` 段。
+
+**两块知识性缺口**（已回补进 [[language/exceptions]]）：
+
+1. **异常链三件套整体反转**（(5)(6) 两问全错）——作答认为「不写 `from` → `__cause__` 有值、
+   `__context__` 为 None」，实际正好相反，且 `__suppress_context__` 在两问里都答反。
+   §4 新增**三种写法 × 三个字段的完整取值表**（3.11.9 实测）+ 三条结论：
+   ① `__context__` 解释器自动记录，三种写法下**都有**；
+   ② **`from None` 不擦除 `__context__`**，只置 `__suppress_context__=True` 让 traceback 不打印，
+   仍可手动取回；③ `__suppress_context__` 回答的是「写没写过 `from`」，所以 `from None` 也是 `True`。
+   配一条面试落点：「context 自动、总在；cause 手动、要写 from；suppress 只标记写过 from 没有」。
+2. **`except ... as e` 的隐式 `del` 是盲区**（(4) 全错）——§7.6 原文只给了模块级的
+   `NameError`。新增编译器插入的等价代码（`finally: e = None; del e`），并实测补充：
+   **函数内报 `UnboundLocalError`、模块级才报 `NameError`**；且**连 try 之前赋给同名变量的值
+   也会被一并删掉**——由此得出「别拿外层已有的变量名做 `as` 目标」这条实操规则。
+
+**答题习惯问题（非知识缺口）**：(1)(7)(8)(11) 四条半对同属「答语义、不答字面输出」——
+机制都对，丢分在没把 stdout 逐字符写出来（(1) 只说「没有抛出」不写 `1`；(7) 漏 `KeyError`
+的内层引号；(11) 只写两条消息大意，漏 list[str] 与 `
+`）。这与 [[review/review-set-03]]
+批改记录里记下的是**同一个习惯的复发**，已在本次批改中显式点出并交叉引用。
+另记：`e.args` 与 `eg.exceptions` **都是 tuple**（作答四处写成 list，本次未扣分）。
+
+**掌握扎实**：(9) 跨进程 pickle 契约、(14) `except*` 的部分接管、(15)(16)(17) `BaseException`
+一支的边界——本题最难的三问全对。
+
+**内容页总数不变（63）**。
+
+## [2026-08-25] refactor | review 题组的题型限定：只出可机械判分的题
+
+**决定**：从今天起，`wiki/review/` 的「题目」段只出三类题——**写输出 / 判断题 / 选择题**，
+不再出开放式简答与追问题（「为什么这么设计」「说说三者关系」「给出两种修法」这类）。
+理由：作答耗时太长，同样时间多做几道输出题收益更高。
+
+**关键约束：只限制题型，不削减内容。** 原本放在「追问」里的机制解释、设计动机、修法、
+事故案例，一律移进「解析」段由我直接写清楚，读者读而不答；确实需要考查机制理解时，
+把它**改写成输出题或判断题**（例：不问「`from None` 时三个字段各是什么」，
+改为给一段打印 `__cause__` / `__context__` / `__suppress_context__` 的代码让人写输出）。
+
+**落点**：已写进 `python/CLAUDE.md` 的 review 分类规范。
+[[review/review-set-04]] 及更早的题组保留原有的「追问」段，不回改。
+
+**内容页总数不变（63）**。

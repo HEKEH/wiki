@@ -49,6 +49,9 @@ MRO 与 C3 推演/协作式 `**kwargs`/ABC vs Protocol，附批改记录（全�
 **Day 6 的自测**：[[review/review-set-03]] —— 一道题 11 个输出，串起 str/repr 分工、
 `__eq__`/`__hash__` 成对、`NotImplemented` 语义、容器协议回退边界、`__iadd__` 的 `return self`、
 dunder 的槽位查找与 `__getattr__` 兜底事故（全部 3.11.9 实测）。
+异常体系那一半见 [[review/review-set-04]] —— 一道题 17 个输出，串起 `finally` 吞异常、
+`else` 的保护范围、`as` 变量自动 `del`、异常链三件套、异常的 pickle 契约、`add_note`、
+`except*` 的部分接管、以及 `except Exception` 罩不住的 `BaseException` 一支（全部 3.11.9 实测）。
 
 **验收标准**：能不看资料手写一个带参数的重试装饰器、一个上下文管理器、
 一个生成器管道，并画出菱形继承的 MRO。

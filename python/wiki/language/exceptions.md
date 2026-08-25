@@ -136,8 +136,29 @@ except json.JSONDecodeError as e:
 e.__cause__       # from 指定的
 e.__context__     # 自动记录的"处理时正在处理的异常"
 e.__traceback__   # traceback 对象
-e.__suppress_context__   # from None 时为 True
+e.__suppress_context__   # 写过 from（含 from None）就为 True
 ```
+
+三个字段的**完整取值**（3.11.9 实测，`try: int("x") / except ValueError: raise KeyError(...)`）：
+
+| 写法 | `__cause__` | `__context__` | `__suppress_context__` |
+|---|---|---|---|
+| `raise K() from e` | `ValueError` | `ValueError` | `True` |
+| `raise K()` | `None` | `ValueError` | `False` |
+| `raise K() from None` | `None` | `ValueError` ← **仍在** | `True` |
+
+三条容易记反的结论：
+
+1. **`__context__` 是解释器自动记的，三种写法下都有**——只要你在 `except` 块内抛新异常，
+   它就被填上。`__cause__` 才是「要你手动写 `from` 才有」的那个。
+2. **`from None` 不擦除 `__context__`**，只是把 `__suppress_context__` 置 `True`
+   让 traceback 不打印那一段。调试时仍可 `e.__context__` 手动取回上游异常。
+3. `__suppress_context__` 回答的是「**写没写过 `from`**」，不是「有没有 cause」——
+   所以 `from None` 也是 `True`。
+
+> **面试落点**：一句话区分——**`context` 自动、总在；`cause` 手动、要写 `from`；
+> `suppress` 只标记「写过 from 没有」**。能补一句「`from None` 只是不打印，
+> `__context__` 还在」就说明是查过而不是背的。
 
 ## 5. 自定义异常
 
@@ -342,7 +363,8 @@ assert self._lock.locked()            # ✅ 断言只用于「代码有 bug 才�
 ```
 
 顺带一个坑：`assert (cond, "msg")` 写成元组则**恒为真**（非空元组真值为 True），
-3.12 起会给 `SyntaxWarning`。
+CPython 会给 `SyntaxWarning: assertion is always true, perhaps remove parentheses?`
+（3.11.9 实测已有；该警告自 3.7 起就存在，不是 3.12 才加的）。
 
 ### 7.5 表达「故意忽略」
 
@@ -405,6 +427,35 @@ except ValueError as e:
     pass
 e        #=> NameError: name 'e' is not defined     ← 不是作用域问题，是显式删除
 ```
+
+编译器插入的等价代码是：
+
+```python
+except ValueError as e:
+    try:
+        <块体>
+    finally:
+        e = None
+        del e            # ← 语言隐式生成
+```
+
+因此**报什么错取决于 `e` 所在的作用域**，而且**连 try 之前赋给同名变量的值也会被一并删掉**：
+
+```python
+def f():
+    e = "上一轮的错误"
+    try:
+        raise ValueError("boom")
+    except ValueError as e:
+        pass
+    return e
+f()      #=> UnboundLocalError: cannot access local variable 'e'
+         #   where it is not associated with a value      ← 函数内：局部槽位被清空
+
+# 模块级同样的代码 → NameError: name 'e' is not defined   ← 名字从 globals 里删掉
+```
+
+所以在 `except` 块里**别用外层已有的变量名做 `as` 目标**，否则会静默毁掉那个变量。
 
 所以要在块外用异常对象，必须先拷到别的名字（`err = e`）。这也是 `log.exception()` 比
 手工传 `e` 更省心的原因之一。
@@ -539,3 +590,4 @@ except* ValueError as g:
 - [[concurrency/asyncio-patterns]] —— TaskGroup / CancelledError / ExceptionGroup
 - [[web/fastapi-architecture]] —— 异常到 HTTP 响应的映射
 - [[interview/question-bank-language]] —— finally/return 等陷阱题
+- [[review/review-set-04]] —— 本页的自测卷：17 个输出 + 7 个追问，全部 3.11.9 实测
