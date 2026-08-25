@@ -542,3 +542,45 @@ cpython-object-model / traps。
 **验证**：六种作用域情形 + `copy.py` 两处探测 + metaclass 反证逐条跑过，CPython **3.11.9**。
 
 **内容页总数不变（62）**。
+
+## [2026-08-23] ingest | exceptions §7「实战要点」从注释清单扩成分层实战篇
+
+**动机**：原 §7 只有一段 7 条注释的代码块（约 35 行），信息密度低、无法回答
+「你们线上怎么做错误处理」这类分层追问。改成 7.1–7.10 十个小节（约 330 行）。
+
+**新增内容**：
+
+1. **7.1 日志**：`log.exception` 只能在 except 块内调用（否则记 `NoneType: None`）；
+   `str(e)` 常为空（`str(ValueError()) == ''`）、`str(KeyError("k")) == "'k'"` 是 repr；
+   `OSError.errno/strerror/filename` 结构化字段；`traceback.format_exc/format_exception(_only)`。
+2. **7.2 兜底屏障**：入口兜底 + `sys.excepthook` + `threading.excepthook`(3.8+) +
+   `loop.set_exception_handler` 三层；重点写「Task exception was never retrieved」——
+   实测异常直到 Task 被 GC 才打印，时间点错位且进程不失败；给出 TaskGroup 与
+   「保引用 + done callback」两种正解；`__del__` 里的异常只打 `Exception ignored in:` 后丢弃。
+3. **7.3 重试**：RETRYABLE/FATAL 分类、指数退避 + full jitter（惊群）、
+   `CancelledError` 不可重试、`raise ... from e` 保 `__cause__`、tenacity。
+4. **7.4 assert**：`-O` 移除整句；补 `assert (cond, "msg")` 元组恒真（3.12 SyntaxWarning）。
+5. **7.5 suppress**：语义价值而非性能；裸 `except: pass` 的危害。
+6. **7.6 性能与内存**（本次最有价值的新料，均为实测）：
+   - 基准表（3.11.9，ns/次）：EAFP 命中 **17** < LBYL 命中 24 ≈ `dict.get` 16；
+     EAFP 未命中 76 vs LBYL 未命中 **14**。→ 快乐路径 EAFP 确实更快，异常路径约贵 4~5 倍。
+   - `e.__traceback__` → frame → 局部变量的强引用：存异常对象会钉住整个调用栈
+     （实测 `saved = None` 后被引用的大对象才析构）。
+   - 由此解释 `except X as e:` 块结束时**语言显式 `del e`**，块外访问 `NameError`。
+7. **7.7 pickle**：`super().__init__(f"{a}/{b}")` 使 `args` 只有一个元素，
+   实测 unpickle 抛 `TypeError: Bad.__init__() missing 1 required positional argument`；
+   给出 `__reduce__` 写法；traceback 不可 pickle。
+8. **7.8 add_note**：`__notes__` 首次调用才创建（用 `getattr(e, "__notes__", [])`）；
+   实测 traceback 里逐行紧跟异常行打印；不改变异常契约，优于包一层 Wrapper。
+9. **7.9 异常组拆分**：`eg.split(T)` → (match, rest)、`eg.subgroup(T)`；
+   实测 `except* ValueError` 捕获裸 `ValueError("solo")` 时 `as` 变量仍是 `ExceptionGroup`；
+   未匹配部分重新打包外抛。
+10. **7.10 反模式清单**：10 行表格（反模式 / 后果 / 正确写法）+ 分层回答的面试落点。
+
+**勘误**：§3 原写「异常路径比 if 慢一个数量级」，实测为 76ns vs 14ns 约 4~5 倍，
+已改为「约 4~5 倍（见 §7.6）」并回链基准表。
+
+**验证**：所有 `#=>` 输出均在 CPython **3.11.9** 实测（含 pickle 往返、add_note traceback、
+split/subgroup、`except*` 包组、`__del__` 吞异常、Task 异常延迟打印、timeit 基准）。
+
+**内容页总数不变（62）**。

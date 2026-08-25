@@ -38,7 +38,7 @@ Python 知识库内容目录。共 **62 个内容页**（另有 home/index/log �
 | ★ [[language/descriptors-properties]] | 描述符协议（含最小可运行例）、属性查找顺序、property、`__slots__` |
 | [[language/metaclasses]] | 类的创建流程、`__new__`、以及为什么不该用元类 |
 | [[language/typing]] | 类型注解、泛型、Protocol、mypy（与 TS 对照） |
-| [[language/exceptions]] | 异常层级、EAFP、异常链、ExceptionGroup |
+| [[language/exceptions]] | 异常层级、EAFP、异常链、ExceptionGroup、日志/兜底/重试等实战要点 |
 | [[language/dataclasses-models]] | dict/TypedDict/NamedTuple/dataclass/Pydantic 选型 |
 | [[language/comprehensions-functional]] | 推导式、walrus、排序、`match`、JS 数组方法对照 |
 | [[language/strings-encoding]] | str vs bytes、编码、f-string、切片、正则 |
