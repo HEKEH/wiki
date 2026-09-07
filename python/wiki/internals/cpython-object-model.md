@@ -1,7 +1,7 @@
 ---
 title: "CPython 对象模型与引用计数"
 date: 2026-08-07
-tags: [CPython, PyObject, 引用计数, 类型对象, 缓存, 内部实现]
+tags: [CPython, PyObject, 引用计数, 类型对象, 缓存, 不朽对象, 内部实现]
 sources: ["cpython-doc/datamodel.rst", "interview-python-cn.md"]
 ---
 
@@ -44,7 +44,68 @@ sys.getsizeof("中")          #=> 60      非 ASCII → 切换到更宽的表示
 
 `sys.getsizeof` **只算对象本体，不递归**——`[big_obj]` 的大小仍是 64 左右。
 
-## 2. 类型对象与 slot
+## 2. PyObject / PyVarObject / PyTypeObject 三者的关系
+
+三者不在同一个维度上，它们之间有**两条不同的关系**。
+
+**关系一：内存布局的嵌套**（C 里模拟单继承）。每一层把上一层原封不动放在自己内存的最开头，
+所以地址可以逐级向上强转：
+
+```
+PyLongObject  ┌──────────┬──────────┬──────────┬────────────┐
+（一个 int）    │ ob_refcnt│ ob_type  │ ob_size  │ digits[]   │
+              └──────────┴──────────┴──────────┴────────────┘
+              └── 当作 PyObject* ───┘
+              └───────  当作 PyVarObject*  ───────┘
+```
+
+由此推出一条关键结论：**`PyTypeObject` 自己也以 `PyObject_VAR_HEAD` 开头**，因而它本身就是一个
+`PyVarObject`/`PyObject` —— 这就是「类也是对象」在 C 层的落地：`int` 这个类自己有引用计数、
+自己有 `ob_type`，可以放进 list、当 dict 的 key。
+
+`PyVarObject` 不是必经之路，它只是给**变长**对象用的分支：
+
+| 类型 | 头 | 长度存哪 |
+|---|---|---|
+| `int` / `list` / `tuple` / `bytes` | `PyVarObject` | `ob_size` |
+| `float` / `dict` / `set` / 普通实例 | `PyObject` | 自己的字段里，或压根没有 |
+
+`ob_size` 的语义随类型而变：`list`/`tuple` 是元素个数，`bytes` 是字节数，`int` 是 30-bit 数字位的
+个数（用负号表示负数）。`PyTypeObject` 虽然带了 `ob_size`，静态类型里恒为 0，堆类型（`type()`
+动态造的类）里是内部用途——别去读它。
+
+**关系二：实例 → 类型的指向**。`ob_type` 一定指向某个 `PyTypeObject`，即 `type(x)` 的结果；
+链条终点 `PyType_Type`（也就是 `type`）的 `ob_type` 指向自己：
+
+```
+  x = [1, 2]
+
+  PyListObject (x)          PyTypeObject (list)       PyTypeObject (type)
+  ┌──────────┐              ┌──────────┐              ┌──────────┐
+  │ ob_refcnt│              │ ob_refcnt│              │ ob_refcnt│
+  │ ob_type ─┼─────────────>│ ob_type ─┼─────────────>│ ob_type ─┼──┐
+  │ ob_size=2│              │ ob_size  │              │ ob_size  │  │
+  │ ob_item ─┼─> [ptr, ptr] │ "list"   │              │ "type"   │<─┘
+  └──────────┘              │ tp_dealloc│             └──────────┘
+                            └──────────┘              PyType_Type 自指
+```
+
+```python
+type([1, 2])            #=> <class 'list'>    读 PyListObject.ob_type
+type(list)              #=> <class 'type'>    读 PyTypeObject(list).ob_type
+type(type) is type      #=> True              自指，递归终止
+len([1, 2])             #=> 2                 多数情况下就是直接读 ob_size
+```
+
+配套宏也体现这个分层：`Py_REFCNT(op)`、`Py_TYPE(op)` 对任何对象都能用（走 `PyObject` 层），
+`Py_SIZE(op)` 只对变长对象有意义（走 `PyVarObject` 层）。
+
+> **面试落点**：`PyObject` 是所有对象的公共头（refcnt + type）；`PyVarObject` 是它加一个
+> `ob_size`，供变长对象用，是可选的中间层；`PyTypeObject` 是类型对象的完整布局。关键是
+> `PyTypeObject` 同时站在两条关系上——它既是 `ob_type` 指向的目标（决定别人的行为），
+> 又本身是个 `PyObject`（所以类自己也是对象，`type(type) is type`）。
+
+## 3. 类型对象与 slot
 
 `ob_type` 指向 `PyTypeObject`，里面是一大堆**函数指针槽位（slot）**：
 
@@ -71,7 +132,7 @@ struct _typeobject {
 2. dunder 调用比等价的普通方法调用快。
 3. 定义类时，CPython 会扫描类命名空间，把 `__len__` 之类**填进对应 slot**（slot wrapper 机制）。
 
-## 3. 引用计数
+## 4. 引用计数
 
 CPython 的主内存管理机制是**引用计数（reference counting）**：每个对象记录有多少个引用指向它，
 **归零立刻释放**。
@@ -120,7 +181,7 @@ data = open("f.txt").read()     # 文件对象 refcnt 归零 → 立即关闭
 # 但在 PyPy 上文件会延迟关闭 → fd 耗尽。所以必须用 with。
 ```
 
-## 4. 对象缓存与驻留
+## 5. 对象缓存与驻留
 
 CPython 用一批缓存避免重复创建常见小对象：
 
@@ -146,7 +207,48 @@ sys.intern("hello world")      # 手动驻留（大量重复字符串做 dict ke
 
 > 这些**全是 CPython 实现细节**，写代码绝不能依赖。面试里主动指出这一点是加分项。
 
-## 5. 变量、名字与 `__dict__`
+### 不朽对象（immortal objects）—— 它们的引用计数根本不动
+
+这些缓存/驻留对象里有一批是**静态分配**的，出生时引用计数就被设成天文数字，**永不归零**：
+
+```python
+# 3.11.9 实测
+sys.getrefcount(0)      #=> 1000000067     ← 基数 999999999
+sys.getrefcount('abc')  #=> 1000000023
+sys.getrefcount(())     #=> 1000000009
+sys.getrefcount(257)    #=> 4              ← 普通对象，对比
+sys.getrefcount(None)   #=> 3885           ← 3.11 里 None 还是普通计数
+
+# 3.14.6 实测
+sys.getrefcount(None)   #=> 3221225472     = 0xC0000000
+sys.getrefcount(1)      #=> 3221225472
+sys._is_immortal(None)  #=> True           ← 3.14+ 新增的官方判定方式
+```
+
+源头在 3.11 的 `Include/internal/pycore_object.h`：
+
+```c
+#define _PyObject_IMMORTAL_INIT(type)     { .ob_refcnt = 999999999, ... }
+```
+
+演进：
+
+| 版本 | 机制 |
+|---|---|
+| 3.11 | 静态分配对象用 `_PyObject_IMMORTAL_INIT`，`ob_refcnt = 999999999`。**只覆盖小整数 / interned 字符串 / 空 tuple / 静态类型**，`None`/`True`/`False` 仍是普通计数 |
+| 3.12 | **PEP 683 正式化**，`None`/`True`/`False` 也变成不朽，inc/dec 直接短路 |
+| 3.14 | 魔数变成 `0xC0000000`，新增 `sys._is_immortal()` |
+
+> ⚠️ **别背魔数**——每个版本都在变。要判断就用 `sys._is_immortal(obj)`（3.14+）。
+
+两个下游影响：
+
+- **GC 视角**：不朽对象的 `gc_refs` 减完仍是天文数字，**永远是"存活根"**，
+  从它可达的一切都被标活。见 [[internals/garbage-collection]] §4.2。
+- **free-threading 视角**：PEP 683 是 PEP 703 的前置条件——最热的共享对象不再改计数，
+  消除了多线程下的引用计数争用。见 [[internals/gil]]。
+
+## 6. 变量、名字与 `__dict__`
 
 ```python
 # 模块/类/实例的属性都存在 dict 里（除非用 __slots__）
@@ -159,11 +261,40 @@ C.__dict__          #=> mappingproxy({...})  只读视图
 globals()           #=> 模块的命名空间（真 dict，可写）
 ```
 
-CPython 3.11+ 引入了**共享键字典（key-sharing dict，PEP 412）**：
-同一个类的所有实例共享一份"键表"，只各存值数组，大幅降低实例内存。
-这削弱了 `__slots__` 的相对优势，但 `__slots__` 依然更省更快。
+实例字典经历过两代优化，**版本别记混**：
 
-## 6. 局部变量不走字典
+- **3.3**：共享键字典（key-sharing / split table，**PEP 412**）。键表挂在类型对象上
+  （heap type 的 `ht_cached_keys`），同一个类的所有实例共享一份，每个实例只留一个值数组。
+- **3.11**：**内联值数组 + `__dict__` 惰性创建**（faster-cpython 项目，非 PEP 412）。
+  值数组与对象本体紧邻存放（3.12 起真正内联进对象的那块分配），且只要你从不访问
+  `o.__dict__`，那个 dict 对象**根本不会被创建**。
+
+```python
+c1, c2 = C(), C()
+c1.__dict__.keys() == c2.__dict__.keys()    #=> True   键的身份与插入顺序都一致
+```
+
+这确实削弱了 `__slots__` 的优势——实测每实例 **104 字节 vs `__slots__` 的 64 字节**
+（3 个属性，3.11.9 / 64 位，`tracemalloc` 量 20 万实例的人均值），从早年的好几倍缩到 1.6 倍。
+**速度优势也一并缩水**：3.11 的 specializing 解释器有 `LOAD_ATTR_INSTANCE_VALUE`，
+普通实例读属性在校验键表版本后也是「按固定下标读值数组」，与 `LOAD_ATTR_SLOT` 已很接近。
+
+⚠️ 但这是**机会性优化**，两个脆弱点决定了它在真实代码里经常拿不到：
+
+| 失效场景 | 实测代价 |
+|---|---|
+| 访问过一次 `o.__dict__`（强制物化成真 dict） | 104 → **168** 字节/实例 |
+| 实例间属性名/插入顺序分歧（共享解除，退化成独立 dict） | 88 → **342** 字节/实例 |
+
+触发物化的操作比想象中多：`vars(o)`、默认的 `pickle`/`copy`、不少 ORM 与序列化库、调试器。
+导致键序分歧的写法：`__init__` 里条件赋值、事后 `o.extra = 1`、`del o.attr`、
+拿外部数据当属性名 `setattr(o, k, v)`。
+
+> **面试落点**：想省实例内存，`__slots__` 仍是唯一**可靠**手段——收益不依赖「有没有碰
+> `__dict__`」「键序有没有分歧」这些前提；拿不到优化不会报错，你只会看到内存莫名多 60%。
+> 加分补充：PEP 412 是 **3.3** 就有的，3.11 的新东西是内联值 + `__dict__` 惰性创建，别混。
+
+## 7. 局部变量不走字典
 
 函数的局部变量**不存在 dict 里**，而是编译期分配的**数组槽位**：
 
@@ -192,7 +323,7 @@ def f(items):
 > **面试落点**：「为什么局部变量访问比全局快？」——`LOAD_FAST` 走数组索引，
 > `LOAD_GLOBAL` 要查模块 dict 再查 builtins dict。3.11 起 `LOAD_GLOBAL` 加了内联缓存，差距缩小但仍在。
 
-## 7. CPython 之外
+## 8. CPython 之外
 
 | 实现 | 特点 |
 |---|---|

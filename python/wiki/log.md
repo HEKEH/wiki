@@ -674,3 +674,237 @@ review-set-03 只覆盖了数据模型。本次按同一体例产出 [[review/re
 [[review/review-set-04]] 及更早的题组保留原有的「追问」段，不回改。
 
 **内容页总数不变（63）**。
+
+## [2026-08-26] ingest | PyObject / PyVarObject / PyTypeObject 三者关系
+
+[[internals/cpython-object-model]] 原先只贴了 `PyObject`、`PyVarObject` 的 C 结构体定义，
+没讲清三者关系，读者容易误以为它们是同一维度上的三层继承。新增第 2 节讲**两条正交的关系**：
+
+1. **内存布局的嵌套**（C 模拟单继承）：每层把上一层原封不动放在内存最开头，故可逐级向上强转。
+   `PyVarObject` 只是**变长对象的可选分支**，不是必经之路（`float`/`dict`/`set` 直接用 `PyObject`）。
+   关键结论：`PyTypeObject` 自己也以 `PyObject_VAR_HEAD` 开头，因而它本身就是 `PyObject`——
+   这是「类也是对象」在 C 层的落地。
+2. **实例 → 类型的指向**：`ob_type` 指向 `PyTypeObject`，链条终点 `PyType_Type` 自指，
+   对应 `type(type) is type`。
+
+另记两个易错点：`ob_size` 语义随类型而变（`int` 是 30-bit 数字位个数、用负号表示负数）；
+`PyTypeObject` 的 `ob_size` 静态类型恒为 0、堆类型是内部用途，不要读。
+原第 2~7 节顺延为第 3~8 节。
+
+**内容页总数不变（63）**。
+
+## [2026-08-26] lint | 修正「共享键字典 = 3.11 / PEP 412」的版本错误
+
+[[internals/cpython-object-model]] 第 6 节原文把**两代不同的优化压成了一句**，并给 3.3 的 PEP 号
+配了 3.11 的版本号。已拆开改正：
+
+- **3.3**：共享键字典（split table，**PEP 412**），键表挂在 heap type 的 `ht_cached_keys` 上。
+- **3.11**：**内联值数组 + `__dict__` 惰性创建**（faster-cpython，不是 PEP 412）；
+  3.12 起值数组真正内联进对象分配。
+
+同时补上原文缺的三件事：
+1. **量化「优势被削弱」**：104 字节 vs `__slots__` 64 字节（3 属性，3.11.9/64 位，
+   `tracemalloc` 20 万实例人均），从早年好几倍缩到 1.6 倍。
+2. **「更快」要加限定**：3.11 的 `LOAD_ATTR_INSTANCE_VALUE` 让普通实例读属性也接近固定偏移，
+   `__slots__` 的速度优势同样缩水——原文只说「依然更省更快」，会给人错误的量级印象。
+3. **这是机会性优化，两个失效场景**（真实代码里经常拿不到）：碰一次 `o.__dict__` 触发物化
+   104→168 字节；实例键序分歧导致共享解除 88→342 字节。触发物化的常见操作：`vars()`、
+   默认 `pickle`/`copy`、ORM 与序列化库、调试器。
+
+[[internals/memory-model]] 实测表下的同一处版本错误（「3.11+ 共享键字典」）一并改为
+「共享键字典 3.3 + 内联值 3.11 两轮优化」。
+
+**内容页总数不变（63）**。
+
+
+## [2026-08-27] lint | 修正「3.14 = 增量式 GC」——3.14.5 已回滚
+
+[[internals/garbage-collection]] 原先在阈值表和答题模板里写「**3.14 换成增量式 GC**，
+阈值 `(2000, 10, 0)`，第三个阈值不再使用」。**这条已经过期。**
+
+为核实，从 GitHub 补抓三份一手材料进 `raw/cpython-doc/`（见 [[sources/cpython-docs]]）：
+`InternalDocs/garbage_collector.md` 的 3.14 分支版与 `v3.14.0` tag 版、以及 `Doc/whatsnew/3.14.rst`。
+官方原话：
+
+> **From Python 3.14.5 onwards:** Python 3.14.0-3.14.4 shipped with a new incremental GC.
+> However, due to a number of reports of **significant memory pressure in production
+> environments**, it has been **reverted back to the generational GC from 3.13**.
+
+（回归 issue [gh-142516](https://github.com/python/cpython/issues/142516)）
+
+**用 uv 装 3.14.6 实测确认**：`get_threshold()` → `(2000, 10, 10)`、`get_stats()` 三代。
+和 3.13 完全一致，增量式的痕迹已经没有了。
+
+已改成完整的版本演进表（≤3.12 / 3.13 / **3.14.0–3.14.4** / **3.14.5+** 四行），
+并把增量式的设计单独留档在新的 §3.1（两代 + `pending`/`visited` 双链表 + increment 的传递闭包 +
+`threshold1` 语义反转 + `gc.collect(1)` 变成"做一个 increment"），标注**已回滚**。
+答题模板同步改成「3.14 试过增量式，因生产环境内存压力在 3.14.5 回滚了」。
+
+> **教训**：涉及 patch 版本的行为变更，只记 minor 版本号是不够的。本库以后写
+> 「3.x 起改为 Y」时，如果该变更在 patch 版本里被动过，必须写到 patch 级。
+
+## [2026-08-27] ingest | GC 深挖：减法算法、浮动垃圾、全局环 + 新页 internals/weakref
+
+起因是三轮追问，每一问都暴露出原页面把结论压得太狠、缺推导和反例。全部结论在
+**3.11.9 + 3.14.6 实测**，机制描述以补抓的 `InternalDocs/garbage_collector.md` 为准。
+
+**[[internals/garbage-collection]] 的六处补全**：
+
+1. **§2.1 / §2.2 减法到底在算什么**（原先只有 4 行伪代码）。补恒等式
+   `ob_refcnt = 集合内引用 + 集合外引用`，第 2 步是把第一项精确减掉，所以剩下的 `gc_refs`
+   **恰好等于外部引用数**。再用两个例子说明**为什么必须有第 3 步**：纯垃圾环减法就够了；
+   但 `keep → x ⇄ y` 里 x/y 的 `gc_refs` 会被误减到 0，只能靠从存活根做可达性传播来赦免。
+   一句话：**减法只能证明"被外面直接引用"，间接引用要靠第 3 步**。
+2. **§3.1 版本演进表 + 增量式设计留档**（见上一条 lint）。
+3. **§3.2 什么对象在哪一代**：原子对象与不朽对象**不在任何代**；长寿容器赖在 gen2 被反复空扫；
+   `gc.freeze()` 后进**永久代**（第 4 个链表）。
+4. **§3.3 跨代环**：老对象引用新对象时，收年轻代把老代引用算作外部引用 → 年轻成员被误判存活
+   **并被晋升**，只能等扫到最老那代。方向容易搞反——**没有降级，是年轻的那个被晋升上去等**。
+   实测 `collect(0)/(1)` 各 0 个、`collect(2)` 才回收。这是 tracing GC 的 old→young 指针问题，
+   别的语言用 write barrier + remembered set，CPython 没有。
+5. **§3.4 25% 硬门槛**（原页面完全没提）：`long_lived_pending / long_lived_total > 25%` 才做全量回收。
+   结论是**老对象越多，全量回收越贵，所以做得越少** → §3.3 的等待时间**没有上界**。
+6. **§3.5 `gc.freeze()` 与永久代**：实测 freeze 把三代搬空（`[182,4821,0]` → `[2,0,0]`，
+   `freeze_count=5001`），**unfreeze 是落回 gen2 而不是 gen0**。用途是 fork 前调用保住 CoW。
+
+**新增 §4「环一定能被回收吗？三个条件」** —— 这是本轮最重要的产出。
+原页面暗示"环在被扫的那一代内就能收"，**这是错的**。三个条件缺一不可，配三个反例：
+
+- **§4.1 浮动垃圾**：环**整体在 gen0**，但被一个**自己也是垃圾**的 gen2 对象引用 →
+  `collect(0)`/`collect(1)` 都是 0，只有 `collect(2)` 回收 3 个。
+  根因：**减法只区分"集合内/外"，完全不区分"活/死"**。
+- **§4.2 C 扩展 GC 协议不完整**：缺 `Py_TPFLAGS_HAVE_GC` → 环对 GC 不可见（永久泄漏）；
+  `tp_traverse` 漏字段 → 误判存活根；报告多余引用 → **过度减计数 → 段错误**。
+- **§4.3 全局对象之间的环**：运行期**永远收不掉**（`gc.collect()` → 0），因为
+  `module.__dict__` ← module ← `sys.modules` 是集合外部引用。但关键认知是
+  **GC 眼里没有"全局对象"这个类别**，只有"被 `module.__dict__` 引用"——`del` 一执行立刻可收。
+
+**§5 `__del__` 补两层语义**：
+
+- **销毁不可达对象的五步**（`InternalDocs` 原文）：清弱引用 → legacy finalizer 进 `gc.garbage` →
+  调 `tp_finalize` 并**打上 finalized 标记** → 重跑环检测处理复活对象 → `tp_clear`。
+- **复活只生效一轮**：实测 `__del__` 里 `saved.append(self)` 让 `collect()` 返回 0，
+  清空 `saved` 后再 `collect()` 回收 2 个、**`__del__` 不再被调用**（对应 finalized 标记）。
+- **退出时**：实测全局环会被收，且 `__del__` 里模块全局**仍然可访问**（3.4 起不再置 `None`，
+  老 Python 那个"看到一堆 None"的坑已作废）；但文档明确不保证，daemon 线程被强杀、
+  `os._exit()`、C 静态持有仍会失效。
+
+**新页 [[internals/weakref]]**（原 GC 页只有半节用法，展开成独立页）：
+
+- **`tp_weaklistoffset`**：类型必须预留槽位，`C.__weakrefoffset__` 可见（普通类 16，`list` 是 0）。
+  实测**`list`/`dict`/`tuple`/`int`/`str`/`object` 都不能被弱引用，`set` 可以** —— 这条最常记错。
+  `__slots__` 要显式加 `'__weakref__'`。
+- **生命周期四步**：存裸指针不 `INCREF`（实测 refcnt 前后都是 2）→ refcnt 归零 → `tp_dealloc`
+  首先调 `PyObject_ClearWeakRefs` 把 `wr_object` 改写成 `Py_None` → 调 callback，
+  **参数是弱引用自己，原对象已经是 `None`**。
+- **三个坑**：无 callback 的弱引用**被缓存复用**（`weakref.ref(c) is weakref.ref(c)` → True）；
+  不保存返回值 → 弱引用自己先死 → **callback 永不触发**（正解 `weakref.finalize`）；
+  **循环 GC 里 callback 只在"弱引用自身可达"时才调用**（`InternalDocs` 原文），
+  弱引用和对象一起进垃圾环则直接丢弃。
+- 定位：弱引用不是"让 GC 更快"，而是**让对象根本不进 GC**。
+
+**顺带补的三处**：
+
+- [[internals/cpython-object-model]] §5 新增「**不朽对象**」小节。实测 3.11.9 的
+  `getrefcount(0)=1000000067`（基数 `999999999`，源头 `pycore_object.h` 的
+  `_PyObject_IMMORTAL_INIT`），**3.11 里 `None` 还是普通计数**；3.12 PEP 683 才把
+  `None`/`True`/`False` 也变不朽；3.14.6 魔数是 `0xC0000000`，新增 `sys._is_immortal()`。
+  **结论：别背魔数，用 `sys._is_immortal()`。**
+- [[internals/memory-model]] 新增 §8「**fork 与 copy-on-write**」（原先完全没有，
+  而 GC 页要引用它）。两个把 CoW 页写脏的元凶：引用计数改对象头、**循环 GC 就地修改 `gc_refs`**。
+  后者可用 fork 前 `gc.freeze()` 彻底消掉（Instagram 那套）；前者由 3.12+ 不朽对象部分缓解。
+  加了「只对 `fork` 有效，Windows / `spawn` 不适用」的限定。
+- [[interview/question-bank-internals-concurrency]] Q6 的版本注意同步改正（原文也写着「3.14 换成增量式」）；
+  **Q7「循环引用一定会泄漏吗」整段重写**——原答案「循环引用会被循环 GC 回收，不会永久泄漏」
+  太强，改成三个条件 + 浮动垃圾/全局环/C 扩展三个反例，并补上「`__del__` 一辈子只调一次、
+  复活只能推迟一轮」。
+
+**内容页 63 → 64**（新增 [[internals/weakref]]）。`raw/` 新增 3 个文件。
+
+## [2026-08-30] lint | 重写 memory-model §1「三层分配器」
+
+**问题**：原 §1 的 ASCII 图把 Layer 0–3 画成四行却标题叫「三层」，
+又把 `arena → pool → block` 塞进 Layer 2 那一行，导致**两个互相垂直的「三」被混成一个**，
+读者分不清哪个是调用链、哪个是 pymalloc 的内部结构。
+
+**改动**：
+
+- §1 拆成 **1.1 纵向：一次分配的调用链**（新流程图 + 层次表 + `x = 3.5` 的四步走位，
+  并点明 > 512 字节直接跳过 pymalloc 走 `malloc`——大小对象两条路）
+  与 **1.2 横向：pymalloc 内部 arena → pool → block**（公寓楼类比，
+  「一个 pool 只服务一种大小类」这条规矩同时解释了 O(1) 的快和内部碎片的代价）。
+  开头先明确声明两个「三」的区别，并注明源码出处 `Objects/obmalloc.c`。
+- §2 补上**对称的反向释放路径**（freelist → pool → arena → `munmap`），
+  「三个原因」改写成「三个截留点，对应上面三层」，与 §1 的分层一一对齐；
+  补充「绕过 pymalloc（`PYTHONMALLOC=malloc`）也一样不降」。
+- §2 工程对策加了一句定性：没有一条是「手动释放」，只有「换进程」或「不制造峰值」两条路。
+
+**未改**：§3 及之后的编号全部保持不变（`garbage-collection.md:612` 引用了本页 §8）。
+
+## [2026-09-06] query | 出题：collections/itertools/functools/heapq/bisect 自测卷
+
+用户读完 [[stdlib/collections-itertools]] 后要求「基本覆盖文档内容」的题目，并要能自己填写、由 LLM 批改。
+
+**产出**：[[review/review-set-05]] —— 50 题（选择 20 / 判断 15 / 填空 15），每题下留 `**答：**` 空位，
+答案与解析暂不写入，等作答后追加到页末的「参考答案与批改」一节。
+
+**命题覆盖**（对照主题页六节）：
+
+- **collections**：`__missing__` 的写入副作用、`Counter` 减法丢负数 vs `subtract` 保留负数、
+  `most_common(n)` 走 `nlargest`、`maxlen` 挤出方向、`extendleft` 逆序、`rotate` 方向、
+  deque 与 list 的复杂度镜像、namedtuple 的 tuple 相等语义、ChainMap 写入只落第一层且不拷贝、
+  OrderedDict 三处独有能力。
+- **itertools**：`islice` 三参切片与不支持负索引、`chain.from_iterable` 只展平一层、
+  `tee` 之后不能再动源迭代器、`dropwhile` 与 `filter` 的区别、`accumulate(max)`、
+  `pairwise`(3.10+) / `batched`(3.12+)、`groupby` 不排序 + group 惰性失效、`product` 规模 n^r。
+- **functools**：`@cache` = `lru_cache(maxsize=None)`、装饰实例方法的内存泄漏、
+  底层 dict + 双向循环链表、`cached_property` 与 `__slots__` 不兼容、`partial` 可 pickle、
+  `wraps` / `__wrapped__`、`singledispatchmethod` 按第二个参数分派。
+- **heapq / bisect**：堆序 ≠ 有序、`heapreplace` vs `heappushpop` 的空堆行为、
+  取负实现最大堆、`itertools.count` 打破平局、`bisect_right`、出现次数 = right − left、
+  `insort` 整体 O(n)。
+
+**未覆盖**（刻意留白，属于「读一遍知道就行」的条目）：`total_ordering` 的性能代价、
+`cmp_to_key` 的适用边界、`heapq.merge` 的外部排序场景、`bisect` 的 3.10+ `key` 参数。
+批改时若前 50 题正确率高，再补一组追问。
+
+## [2026-09-07] query | 批改：复习题组 05 填空题
+
+**成绩**：选择 17/20 · 判断 15/15 · 填空 8.25/15（合计 40.25/50）。批改记录已追加到
+[[review/review-set-05]] 的「参考答案与批改」一节。
+
+**失分画像**：判断题满分、选择题里 deque/groupby/tee/islice/partial/singledispatchmethod/
+heapreplace 全对 —— **机制性理解扎实**；失分集中在「具体名字、版本号、复杂度」这类纯记忆点，
+填空题有 4 道直接空着（第 1、9、12、14）。
+
+**回炉五处**（已写进批改页）：
+
+1. `__missing__` —— defaultdict 的唯一机制，也是「读一下就插入」副作用的原因；它是 dict 的钩子而非 defaultdict 私有。
+2. `chain.from_iterable` —— 只写 `from_iterable` 不成立，它是挂在 `chain` 上的类方法。
+3. **版本号表**（新增到批改页）：`accumulate(initial=)` 3.8+、`cache` 3.9+、`Counter.total()` / `pairwise` / `bisect(key=)` 3.10+、`batched` 3.12+。
+4. `lru_cache` = dict + 双向循环链表（**不是 OrderedDict**）—— 用户答 OrderedDict，错得有价值：
+   OrderedDict 本身就是 dict+双向链表，但 `lru_cache` 是 C 实现自维护链表。与「手写 LRU 用 OrderedDict」
+   和「装饰实例方法泄漏」串成一条链。
+5. heapq 的**两个不同问题**被混为一谈：取负实现最大堆 `(-priority, item)` vs `itertools.count()`
+   序号打破平局（顺带 FIFO）；完整写法 `(-priority, next(counter), task)`。
+
+**选择题 3 错**：#2（Counter 减法丢弃 ≤0，判断题第 3 题已判对却没迁移到输出题）、
+#15（`cache` = `maxsize=None` 而非 128）、#20（`bisect_right` 返回 4，答成了列表长度 5）。
+
+**下一步**：主题页 [[stdlib/collections-itertools]] 本身无需修改（题目全部有出处）。
+若要再练，可就 log 上一条留白的四个条目（`total_ordering` 性能代价、`cmp_to_key` 适用边界、
+`heapq.merge` 外部排序、`bisect` 的 3.10+ `key`）出一组追问。
+
+## [2026-09-07] lint | 补齐复习题组 05 第 9 题的详细解答
+
+**问题**：批改页的「需要重点回炉」只展开了 5 处，第 9 题（`defaultdict(list)` vs `groupby`）
+虽在逐题表里判了 ❌，却没有解析——而它恰恰是四道空题里**唯一考选型判断而非记忆**的一题。
+
+**改动**：新增 ④「第 9 题 · `defaultdict(list)` vs `groupby`」（原 ④⑤ 顺延为 ⑤⑥，
+标题改为「六处」），内容为：不排序时 groupby 把两个 `eng` 拆成两组的反例、
+必须先 `sorted` 的 O(n log n) 代价、`defaultdict(list)` 的 O(n) 线性写法、
+四行选型表（不关心顺序 / 数据天然有序 / 游程编码 / 需要分组有序）、以及 RLE 这个
+groupby 的主场例子。全部输出在 CPython 3.11.9 实测。
+
+**顺带**：「回主题页重读」第 5 条从「§6 速查表第二行」改指 **§2 的 groupby 一节**
+（那里才有「什么时候 groupby 才是对的选择」的完整论述），速查表降为一句话版。

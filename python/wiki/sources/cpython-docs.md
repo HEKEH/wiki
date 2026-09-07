@@ -2,13 +2,13 @@
 title: "源：CPython 官方文档与 PEP"
 date: 2026-08-07
 tags: [源导读, 官方文档, PEP, 权威]
-sources: ["cpython-doc/datamodel.rst", "cpython-doc/descriptor-howto.rst", "cpython-doc/functional-howto.rst", "cpython-doc/faq-programming.rst", "pep-0008-style-guide.rst", "pep-0492-async-await.rst", "pep-0703-free-threading.rst"]
+sources: ["cpython-doc/datamodel.rst", "cpython-doc/descriptor-howto.rst", "cpython-doc/functional-howto.rst", "cpython-doc/faq-programming.rst", "cpython-doc/internaldocs-gc-3.14.6.md", "cpython-doc/internaldocs-gc-3.14.0-incremental.md", "cpython-doc/whatsnew-3.14.rst", "pep-0008-style-guide.rst", "pep-0492-async-await.rst", "pep-0703-free-threading.rst"]
 ---
 
 # 源：CPython 官方文档与 PEP
 
 从 `python/cpython` 与 `python/peps` 仓库直接抓取的**一手权威材料**。
-**抓取日期**：2026-08-07。
+**抓取日期**：2026-08-07（GC 三份为 **2026-08-27** 补抓）。
 
 ## 抓取清单
 
@@ -18,6 +18,9 @@ sources: ["cpython-doc/datamodel.rst", "cpython-doc/descriptor-howto.rst", "cpyt
 | `raw/cpython-doc/descriptor-howto.rst` | `Doc/howto/descriptor.rst` | 55 KB | **描述符 HOWTO**：从零推导 property/classmethod/slots 的实现 |
 | `raw/cpython-doc/functional-howto.rst` | `Doc/howto/functional.rst` | 50 KB | **函数式编程 HOWTO**：迭代器、生成器、itertools、functools |
 | `raw/cpython-doc/faq-programming.rst` | `Doc/faq/programming.rst` | 79 KB | **编程 FAQ**：大量"为什么 Python 这样设计"的官方回答 |
+| `raw/cpython-doc/internaldocs-gc-3.14.6.md` | `InternalDocs/garbage_collector.md` @ 3.14 分支 | 38 KB | ★ **循环 GC 的实现文档**：引用计数差值法、销毁不可达对象的五步、三代分代、25% 全量回收门槛 |
+| `raw/cpython-doc/internaldocs-gc-3.14.0-incremental.md` | 同上 @ tag `v3.14.0` | 41 KB | **增量式 GC 的设计**（young/old 两代、pending/visited 双链表、increment 的传递闭包）——已于 3.14.5 回滚，留档对照 |
+| `raw/cpython-doc/whatsnew-3.14.rst` | `Doc/whatsnew/3.14.rst` | 133 KB | 3.14 变更全集；**含增量式 GC 上线与 3.14.5 回滚的官方说明** |
 | `raw/pep-0008-style-guide.rst` | PEP 8 | 51 KB | 代码风格指南 |
 | `raw/pep-0492-async-await.rst` | PEP 492 | 49 KB | **async/await 语法的设计文档** |
 | `raw/pep-0703-free-threading.rst` | PEP 703 | 86 KB | **移除 GIL 的完整方案** |
@@ -69,6 +72,20 @@ Raymond Hettinger 写的，**用纯 Python 重新实现 `property`/`classmethod`
 
 消化进：[[language/objects-mutability]]、[[language/scope-closure]]、
 [[language/functions-arguments]]。
+
+### GC 三份 —— 唯一能校正"背来的 GC 知识"的一手材料 ★
+
+抓这三份的直接动因是发现本库写错了 3.14 的 GC 状态。它们解决了三类二手材料几乎必错的问题：
+
+1. **版本状态**：增量式 GC 在 3.14.0 上线、**3.14.5 因生产环境内存压力回滚**
+   （[gh-142516](https://github.com/python/cpython/issues/142516)）。
+   网上的文章基本都停在"3.14 是增量式"。
+2. **算法细节**：`InternalDocs` 的「Destroying unreachable objects」五步，是
+   "循环里的弱引用 callback 为什么不执行"、"`__del__` 复活为什么只生效一轮"的唯一权威出处。
+3. **隐藏门槛**：`long_lived_pending / long_lived_total > 25%` 这道全量回收门槛，
+   中文材料里几乎没人提，但它决定了跨代环的等待时间**没有上界**。
+
+消化进：[[internals/garbage-collection]]、[[internals/weakref]]。
 
 ### PEP 492（async/await）
 
@@ -128,6 +145,7 @@ devguide.python.org            CPython 开发者指南（想读源码从这里�
 ## 相关
 
 - [[language/data-model]] / [[language/descriptors-properties]] —— 主要消化页
+- ★ [[internals/garbage-collection]] / [[internals/weakref]] —— GC 三份的消化
 - [[internals/gil]] —— PEP 703 的消化
 - [[concurrency/asyncio-fundamentals]] —— PEP 492 的消化
 - [[engineering/tooling-quality]] —— PEP 8 的工程化落地

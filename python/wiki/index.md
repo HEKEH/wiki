@@ -1,6 +1,6 @@
 # Index
 
-Python 知识库内容目录。共 **62 个内容页**（另有 home/index/log 三个导航页），按分类组织。★ 标记的是面试高频/必读页。
+Python 知识库内容目录。共 **64 个内容页**（另有 home/index/log 三个导航页），按分类组织。★ 标记的是面试高频/必读页。
 
 ## interview —— 面试题库与路线图
 
@@ -23,6 +23,7 @@ Python 知识库内容目录。共 **62 个内容页**（另有 home/index/log �
 | ★ [[review/review-set-02]] | Day 5 · 类与 MRO | 类变量/name mangling/C3/协作式 super/ABC vs Protocol 两题，含批改记录 |
 | ★ [[review/review-set-03]] | Day 6 · 数据模型 | 一个类考 11 个输出：str/repr、eq/hash、协议回退、`__iadd__`、槽位查找、`__getattr__` 兜底，3.11.9 实测，含批改记录 |
 | ★ [[review/review-set-04]] | Day 6 · 异常体系 | 17 个输出：finally 吞异常、try/else、`as` 变量自动 del、异常链三件套、异常 pickle、add_note、`except*`、BaseException 边界，3.11.9 实测 |
+| ★ [[review/review-set-05]] | 标准库工具箱 | collections/itertools/functools/heapq/bisect 50 题自测卷，含批改记录（40.25/50）与「回炉五处」：`__missing__`、版本号、`lru_cache` 底层、最大堆 vs 平局序号 |
 
 ## language —— 语言核心机制
 
@@ -49,10 +50,11 @@ Python 知识库内容目录。共 **62 个内容页**（另有 home/index/log �
 
 | 页面 | 一句话 |
 |---|---|
-| [[internals/cpython-object-model]] | PyObject、类型 slot、引用计数、对象缓存 |
-| ★ [[internals/garbage-collection]] | 引用计数 + 标记清除 + 分代阈值（含 3.13/3.14 变化）、泄漏排查 |
+| [[internals/cpython-object-model]] | PyObject/PyVarObject/PyTypeObject 三者关系、类型 slot、引用计数、对象缓存与不朽对象 |
+| ★ [[internals/garbage-collection]] | 引用计数 + 标记清除（含减法算法两个例子）+ 分代阈值（3.13/3.14 及增量式回滚）、跨代环与浮动垃圾、`gc.freeze()`、泄漏排查 |
+| ★ [[internals/weakref]] | `tp_weaklistoffset`、哪些类型不能弱引用、callback 三坑、GC 里 callback 不保证执行、派生容器选型 |
 | ★ [[internals/gil]] | GIL 为什么存在、何时释放、PEP 703 free-threading |
-| [[internals/memory-model]] | pymalloc/arena/pool、为什么 RSS 不降、省内存手段 |
+| [[internals/memory-model]] | pymalloc/arena/pool、为什么 RSS 不降、省内存手段、fork 与 copy-on-write |
 | [[internals/bytecode-execution]] | 编译流水线、`dis`、帧、`.pyc`、3.11+ 特化解释器 |
 
 ## concurrency —— 并发与异步
