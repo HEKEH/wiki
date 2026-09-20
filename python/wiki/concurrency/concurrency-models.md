@@ -189,5 +189,6 @@ async def handler():
 - [[concurrency/multiprocessing]] —— 进程与 IPC
 - [[concurrency/asyncio-fundamentals]] —— 事件循环原理
 - [[concurrency/asyncio-patterns]] —— asyncio 实战模式
+- [[web/fastapi-cpu-bound]] —— FastAPI 里 CPU 密集任务的完整解法（实测数据）
 - [[web/fastapi-production]] —— worker 与并发模型的生产配置
 - [[bridge/async-js-vs-python]] —— 与 Node 单线程模型的对照

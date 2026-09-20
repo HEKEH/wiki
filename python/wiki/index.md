@@ -24,6 +24,7 @@ Python 知识库内容目录。共 **64 个内容页**（另有 home/index/log �
 | ★ [[review/review-set-03]] | Day 6 · 数据模型 | 一个类考 11 个输出：str/repr、eq/hash、协议回退、`__iadd__`、槽位查找、`__getattr__` 兜底，3.11.9 实测，含批改记录 |
 | ★ [[review/review-set-04]] | Day 6 · 异常体系 | 17 个输出：finally 吞异常、try/else、`as` 变量自动 del、异常链三件套、异常 pickle、add_note、`except*`、BaseException 边界，3.11.9 实测 |
 | ★ [[review/review-set-05]] | 标准库工具箱 | collections/itertools/functools/heapq/bisect 50 题自测卷，含批改记录（40.25/50）与「回炉五处」：`__missing__`、版本号、`lru_cache` 底层、最大堆 vs 平局序号 |
+| ★ [[review/review-set-06]] | 第 3 周 Day 1 · 并发模型选型 | 三模型对比与决策树 45 题自测卷，**全卷已批改 38/45**；解析含两个 Executor 默认值的理由、`map` 惰性抛异常、`asyncio.Lock` 跨 await 的竞态边界、`Future` 五方法（`exception()` 也阻塞） |
 
 ## language —— 语言核心机制
 
@@ -81,6 +82,7 @@ Python 知识库内容目录。共 **64 个内容页**（另有 home/index/log �
 | ★ [[web/fastapi-architecture]] | 分层与目录结构、lifespan、中间件、异常映射、后台任务 |
 | [[web/fastapi-testing]] | TestClient、依赖覆盖、DB 测试策略、conftest 全景 |
 | ★ [[web/fastapi-production]] | worker 模型、Docker、优雅关闭、可观测性、调优、上线清单 |
+| ★ [[web/fastapi-cpu-bound]] | CPU 密集任务不阻塞事件循环：三方案实测、进程池+背压+超时的生产形态、超时杀不掉子进程 |
 
 ## stdlib —— 数据结构与标准库
 
@@ -129,4 +131,5 @@ Python 知识库内容目录。共 **64 个内容页**（另有 home/index/log �
 - **今天就要面试** → [[interview/roadmap]] 的"12 道必背题" + [[interview/traps]]
 - **不知道从哪开始** → [[analysis/frontend-to-python-gap]] → [[bridge/js-to-python]]
 - **要写 FastAPI 项目** → [[web/fastapi-architecture]] → [[web/fastapi-core]] → [[web/fastapi-async-db]]
+- **接口里有重 CPU 计算** → [[web/fastapi-cpu-bound]] → [[concurrency/multiprocessing]]
 - **被 asyncio 卡住** → [[bridge/async-js-vs-python]] → [[concurrency/asyncio-fundamentals]]
